@@ -142,15 +142,11 @@ class Tranformer(nn.Module):
             x = block(x)
         x = self.layerNorm(x)
         # x = self.lm_head(x)
-        # x = self.lm_head(x[:, [-1], :])
-        x = self.lm_head(x)
+        x = self.lm_head(x[:, [-1], :])
+        # x = self.lm_head(x)
         return x
 
-def makeTargets(x):
-    ind = random.randint(1, len(x)-1)
-    data = x[:ind]
-    target = x[ind]
-    return data, target
+
 
 
 class ChessGPT(nn.Module):
