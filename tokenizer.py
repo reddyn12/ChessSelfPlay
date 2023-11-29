@@ -179,9 +179,15 @@ def fillPad(arr, vocab, length=(MAX_MOVES*3)+1):
     return arr
 def pad_sequences(sequences, padding_value=0):
     max_length = max(len(seq) for seq in sequences)
-    return [jnp.pad(seq, (0, max_length - len(seq)), constant_values=padding_value) for seq in sequences]
+    ans = jnp.array([], dtype=jnp.int32)
+    # for seq in sequences:
 
-def decodeArrat(arr, vocabDecode):
+    #     ans = jnp.vstack((ans,jnp.pad(seq, (0, max_length - len(seq)), constant_values=padding_value)))
+    # return ans
+    temp = [jnp.pad(seq, (0, max_length - len(seq)), constant_values=padding_value) for seq in sequences]
+    return jnp.vstack(temp)
+
+def decodeArray(arr, vocabDecode):
     return [vocabDecode[e] for e in arr]
 def loadVocab():
     # write jax code to load dict

@@ -142,6 +142,9 @@ class Tranformer(nn.Module):
             x = block(x)
         x = self.layerNorm(x)
         # x = self.lm_head(x)
+
+        x = self.lm_head(x)
+        return x
         if targets is not None:
             x = self.lm_head(x)
             # nn.los

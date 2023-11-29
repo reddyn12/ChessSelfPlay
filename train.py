@@ -1,16 +1,19 @@
 
 
 # %%
-from model import Tranformer, GPTConfig, ChessGPT
+from turtle import up
+from model import Tranformer, GPTConfig, ChessGPT, cross_entropy_loss
 import os
-import sys
-import token
 import jax
 import optax
 import jax.numpy as jnp
-import tinygrad
 import tokenizer
-import random
+import sys
+import jax
+import optax
+from tqdm import tqdm
+
+# %%
 randKEY = jax.random.PRNGKey(seed=123)
 # jax.random.
 # print("rand key", randKEY)
@@ -20,14 +23,15 @@ def makeTargets(x):
     data = x[:, :-1]
     target = x[:, -1:]
     return data, target
-def getBatch(games, size = 10):
+def getBatch(games, size = 10, clip = None):
     # k = jax.random.PRNGKey(0)
     global randKEY
+
     randKEY, k = jax.random.split(randKEY)
     idx = jax.random.randint(k, (size,), 0, len(games))
     batch = jnp.take(games, idx, axis=0)
     min_length = jnp.min(jnp.sum(batch != 0, axis = 1))
-    print("Min Length", min_length)
+    print("Min Length", min_length, games.shape, batch.shape)
     randKEY, k = jax.random.split(randKEY)
     randInd = jax.random.randint(k, (1,), 2, min_length)
     print("Get Batch RAndom",randInd)
@@ -42,7 +46,7 @@ games = open('data/ELO_2000_UCI.txt', 'r').read()
 games = games.splitlines()
 
  
-games = games[:30]
+# games = games[:30]
 
 
 tokenizedGames = []
@@ -54,12 +58,11 @@ for g in games:
 
     # arr = arr[:random.randint(1, len(arr)-1)]
     tokenizedGames.append(arr)
-
-paddedGames = tokenizer.pad_sequences(tokenizedGames, vocab['<PAD>'])
-
-
+    # tokenizedGames = jnp.vstack((tokenizedGames, arr))
+    
 print("Converting to jnp array")
-JtokenizedGames = jnp.array(paddedGames, dtype=jnp.int32)
+JtokenizedGames = tokenizer.pad_sequences(tokenizedGames, vocab['<PAD>'])
+
 print("FINISHED converting to jnp array")
 
 
@@ -86,24 +89,72 @@ params = chessModel.init(k, JtokenizedGames[:2])
 # print("Params", p1['params']['wte'])
 
 
-# %%
-# testJTokenArr = jnp.array(tokenizedGames, dtype=jnp.int32)
-b = getBatch(JtokenizedGames, 10)
-# b = getBatch(tokenizedGames, 10)
-d,t = makeTargets(b)
-# %%
-d.shape
-# %%
-ans, loss = chessModel.apply(params, d, t)
-ansTokens = jnp.argmax(ans, axis=-1)
-ans.shape
-# %%
-ansTokens.shape
-# %%
-ans
-# %%
-d
-# %%
-vocabDecode[2423]
 
+# %%
+# jnp.save('ELO_2000_UCI_Token.npy', JtokenizedGames)
+def getLossEstimate(size=100):
+    b = getBatch(JtokenizedGames, size)
+    d,t = makeTargets(b)
+    logits= chessModel.apply(params, d)
+
+    loss = cross_entropy_loss(logits, t) 
+    return loss
+
+# %%
+nBatches = 1000
+losses = []
+# for i in range(nBatches):
+#     b = getBatch(JtokenizedGames, 10)
+#     d,t = makeTargets(b)
+#     logits, loss = chessModel.apply(params, d, t)
+#     ans = logits[:, -1]
+#     ansTokens = jnp.argmax(ans, axis=-1)
+#     print(i, " | Loss", loss)
+# import jax.numpy as jnp
+
+# # ...
+
+# Create the Adam optimizer
+optimizer = optax.adam(learning_rate=1e-3)
+
+# Define the update function\
+def buildUpdateJit(optimizer):
+    
+    @jax.jit
+    def update(params, opt_state, batch):
+        d,t = makeTargets(batch)
+        logits = chessModel.apply(params, d)
+    
+        loss, grads = jax.value_and_grad(cross_entropy_loss)(logits, t)
+        updates, new_opt_state = optimizer.update(grads, opt_state)
+        
+        new_params = optax.apply_updates(params, updates)
+        return new_params, new_opt_state, loss
+    return update
+# ...
+update = buildUpdateJit(optimizer)
+# Initialize the optimizer state
+opt_state = optimizer.init(params)
+
+
+# ...
+
+# Training loop
+nBatches = 1000
+losses = []
+for i in tqdm(range(nBatches)):
+    b = getBatch(JtokenizedGames, 100)
+    # d, t = makeTargets(b)
+    # logits= chessModel.apply(params, d)
+    # loss, grads = jax.value_and_grad(cross_entropy_loss)(logits, t)
+    print(opt_state)
+    params, opt_state, loss = update(params, opt_state, b)
+    # ans = logits[:, -1]
+    # ansTokens = jnp.argmax(ans, axis=-1)
+    print(i, " | Loss", loss)
+    # print('ans', ans.shape, ansTokens.shape)
+    # print(tokenizer.decodeArray(ansTokens, vocabDecode))
+# %%
+# d
+# jnp.equal()
 # %%
