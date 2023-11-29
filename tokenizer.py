@@ -1,48 +1,49 @@
 import os
 import sys
 import jax
+import jax.numpy as jnp
 
 MAX_MOVES = 300
 
-def makeVocabUCI():
-    vocab = {}
-    v = ['<PAD>', '', '0-1', '1-0', '1/2-1/2', '*', 'O-O']     #'k', 'q', 'n', 'b', 'r'
-    c = []
-    for i in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']:
-        for j in ['1', '2', '3', '4', '5', '6', '7', '8']:
-            c.append(i+j)
-            # if j=='8' or j=='1':
-            #     v.append(i+j+'q')
-            #     v.append(i+j+'n')
-            #     v.append(i+j+'b')
-            #     v.append(i+j+'r')
-    for i in c:
-        for j in c:
-            if i!=j:
-                v.append(i+j)
-                if j[-1]=='8' or j[-1]=='1':
-                    # print(i+j)
-                    v.append(i+j+'q')
-                    v.append(i+j+'n')
-                    v.append(i+j+'b')
-                    v.append(i+j+'r')
+# def makeVocabUCI():
+#     vocab = {}
+#     v = ['<PAD>', '', '0-1', '1-0', '1/2-1/2', '*', 'O-O']     #'k', 'q', 'n', 'b', 'r'
+#     c = []
+#     for i in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']:
+#         for j in ['1', '2', '3', '4', '5', '6', '7', '8']:
+#             c.append(i+j)
+#             # if j=='8' or j=='1':
+#             #     v.append(i+j+'q')
+#             #     v.append(i+j+'n')
+#             #     v.append(i+j+'b')
+#             #     v.append(i+j+'r')
+#     for i in c:
+#         for j in c:
+#             if i!=j:
+#                 v.append(i+j)
+#                 if j[-1]=='8' or j[-1]=='1':
+#                     # print(i+j)
+#                     v.append(i+j+'q')
+#                     v.append(i+j+'n')
+#                     v.append(i+j+'b')
+#                     v.append(i+j+'r')
     
-    # for i in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']:
-    #     for j in ['1', '2', '3', '4', '5', '6', '7', '8']:
-    #         v.append(i+j)
-    #         v.append(i+j+'+')
-    #         v.append(i+j+'#')
-    #         v.append('x'+i+j)
-    #         if j=='8' or j=='1':
-    #             v.append(i+j+'=')
+#     # for i in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']:
+#     #     for j in ['1', '2', '3', '4', '5', '6', '7', '8']:
+#     #         v.append(i+j)
+#     #         v.append(i+j+'+')
+#     #         v.append(i+j+'#')
+#     #         v.append('x'+i+j)
+#     #         if j=='8' or j=='1':
+#     #             v.append(i+j+'=')
 
-    for i in range(0, MAX_MOVES):
-        v.append(str(i+1)+'.')
-    # print(v)
-    # print(len(v))
-    for i, j in enumerate(v):
-        vocab[j] = i
-    return vocab
+#     for i in range(0, MAX_MOVES):
+#         v.append(str(i+1)+'.')
+#     # print(v)
+#     # print(len(v))
+#     for i, j in enumerate(v):
+#         vocab[j] = i
+#     return vocab
 def makeVocabUCI_SMALL():
     vocab = {}
     v = ['<PAD>', '', '0-1', '1-0', '1/2-1/2', '*', 'O-O']     #'k', 'q', 'n', 'b', 'r'
@@ -153,27 +154,35 @@ def makeVocabUCI_SMALL():
     # print(len(v))
     for i, j in enumerate(v):
         vocab[j] = i
-    return vocab, len(v)
+    return vocab, v
 
 
 # def tokenize(text: str):
 #     elements = text.split(' ')
 #     return [vocab[element] for element in elements]
-def tokenizeLine(text, vocab, length=(MAX_MOVES*3)+1):
+def tokenizeLine(text, vocab, length=(MAX_MOVES*3)+1, truncate = True, pad = False):
     arr = []
     cnt = 0
     # elements = text.split(' ')
     # return [vocab[element] for element in elements]
     for e in text.split(' '):
-            if cnt>length:
+            if cnt>length and truncate:
                 return arr
             arr.append(vocab[e])
             cnt+=1
-    while cnt<length:
-        arr.append(vocab['<PAD>'])
-        cnt+=1
+    if pad:
+        arr = fillPad(arr, vocab, length)
     return arr
+def fillPad(arr, vocab, length=(MAX_MOVES*3)+1):
+    while len(arr)<length:
+        arr.append(vocab['<PAD>'])
+    return arr
+def pad_sequences(sequences, padding_value=0):
+    max_length = max(len(seq) for seq in sequences)
+    return [jnp.pad(seq, (0, max_length - len(seq)), constant_values=padding_value) for seq in sequences]
 
+def decodeArrat(arr, vocabDecode):
+    return [vocabDecode[e] for e in arr]
 def loadVocab():
     # write jax code to load dict
     pass

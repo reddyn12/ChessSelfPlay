@@ -3,8 +3,7 @@ import jax.numpy as jnp
 import flax
 import flax.linen as nn
 from dataclasses import dataclass
-import torch
-
+import random
 DETERMINISTIC = False
 @dataclass
 class GPTConfig:
@@ -131,8 +130,8 @@ class Tranformer(nn.Module):
     @nn.compact
     def __call__(self, x):
         # print(x.shape)
-        # B, T = x.shape
-        T = len(x)
+        B, T = x.shape
+        # T = len(x)
         pos = jnp.arange(0, T)
         # torch.aran
         tokEmbed = self.wte(x)
@@ -146,6 +145,13 @@ class Tranformer(nn.Module):
         # x = self.lm_head(x[:, [-1], :])
         x = self.lm_head(x)
         return x
+
+def makeTargets(x):
+    ind = random.randint(1, len(x)-1)
+    data = x[:ind]
+    target = x[ind]
+    return data, target
+
 
 class ChessGPT(nn.Module):
     def __init__(self, config: GPTConfig):

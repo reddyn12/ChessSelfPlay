@@ -4,14 +4,16 @@
 
 import os
 import sys
+import token
 import jax
 import jax.numpy as jnp
 import tinygrad
 import tokenizer
-
+import random
 CONTEXT_LENGTH = tokenizer.MAX_MOVES*3+1
 
-vocab, vocabSize = tokenizer.makeVocabUCI_SMALL()
+vocab, vocabDecode = tokenizer.makeVocabUCI_SMALL()
+vocabSize = len(vocabDecode)
 games = open('data/ELO_2000_UCI.txt', 'r').read()
 games = games.splitlines()
 
@@ -23,25 +25,23 @@ tokenizedGames = []
 
 for g in games:
     arr = jnp.array(tokenizer.tokenizeLine(g, vocab), dtype=jnp.int32)
-    # print(len(arr))
-    
+    # arr = tokenizer.tokenizeLine(g, vocab)
+
+
+    # arr = arr[:random.randint(1, len(arr)-1)]
     tokenizedGames.append(arr)
 
+paddedGames = tokenizer.pad_sequences(tokenizedGames, vocab['<PAD>'])
 
-
+# %%
 print("Converting to jnp array")
-tokenizedGames = jnp.array(tokenizedGames, dtype=jnp.int32)
+JtokenizedGames = jnp.array(paddedGames, dtype=jnp.int32)
 print("FINISHED converting to jnp array")
-# jnp.as
 
 
-# ans = jnp.array(tokenizedGames)
-# print(ans.shape)
-# print(len(tokenizedGames))
-# mean_length = jnp.mean(jnp.array([len(arr) for arr in tokenizedGames]))
-# print(mean_length)
-
-
+# %%
+# FASTEST JAX APPEND
+JtokenizedGames = jnp.vstack(paddedGames, dtype=jnp.int32)
 
 # %%
 from model import Tranformer, GPTConfig, ChessGPT
@@ -56,12 +56,26 @@ config.block_size = CONTEXT_LENGTH
 config.bias = True
 
 chessModel = Tranformer(config)
-params = chessModel.init(jax.random.PRNGKey(0), tokenizedGames[-1])
-outputTest = chessModel.apply(params, tokenizedGames[0])
+params = chessModel.init(jax.random.PRNGKey(0), JtokenizedGames[:2])
+
+outputTest1 = chessModel.apply(params, JtokenizedGames[0:1])
+outputTest2 = chessModel.apply(params, JtokenizedGames[1:2])
 # vars = chessModel.init(jax.random.PRNGKey(0), tokenizedGames[-1])
 # %%
-outputTest.shape
+outputTest1
 # %%
-tokenizedGames[0].dtype
-# type(tokenizedGames)
+outputTest2
+# %%
+outputTest3 = chessModel.apply(params, JtokenizedGames[0:1])
+outputTest3
+# %%
+print(JtokenizedGames.shape)
+tot = chessModel.apply(params, JtokenizedGames)
+print(tot.shape)
+print(outputTest1.shape)
+# %%
+for k in params.keys():
+    print(k)
+params['params']['blocks_1'].keys()
+
 # %%
