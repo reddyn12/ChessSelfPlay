@@ -128,7 +128,7 @@ class Tranformer(nn.Module):
         self.dropout = nn.Dropout(rate=self.config.dropout, deterministic=DETERMINISTIC)
         
     @nn.compact
-    def __call__(self, x):
+    def __call__(self, x, targets=None):
         # print(x.shape)
         B, T = x.shape
         # T = len(x)
@@ -142,9 +142,19 @@ class Tranformer(nn.Module):
             x = block(x)
         x = self.layerNorm(x)
         # x = self.lm_head(x)
-        x = self.lm_head(x[:, [-1], :])
+        if targets is not None:
+            x = self.lm_head(x)
+            # nn.los
+            loss = cross_entropy_loss(x, targets)
+            # return jnp.mean(loss)
+        else:
+            x = self.lm_head(x[:, [-1], :])
+            loss = None
         # x = self.lm_head(x)
-        return x
+        return x, loss
+def cross_entropy_loss(logits, labels):
+    log_probs = jax.nn.log_softmax(logits)
+    return -jnp.mean(jnp.take_along_axis(log_probs, labels[:, None], axis=-1))
 
 
 

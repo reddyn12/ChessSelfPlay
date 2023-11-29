@@ -6,24 +6,34 @@ import os
 import sys
 import token
 import jax
+import optax
 import jax.numpy as jnp
 import tinygrad
 import tokenizer
 import random
-randKEY = jax.random.PRNGKey(0)
+randKEY = jax.random.PRNGKey(seed=123)
+# jax.random.
+# print("rand key", randKEY)
+# sys.exit()
 CONTEXT_LENGTH = tokenizer.MAX_MOVES*3+1
 def makeTargets(x):
-    ind = random.randint(1, len(x)-1)
-    data = x[:ind]
-    target = x[ind]
+    data = x[:, :-1]
+    target = x[:, -1:]
     return data, target
+def getBatch(games, size = 10):
+    # k = jax.random.PRNGKey(0)
+    global randKEY
+    randKEY, k = jax.random.split(randKEY)
+    idx = jax.random.randint(k, (size,), 0, len(games))
+    batch = jnp.take(games, idx, axis=0)
+    min_length = jnp.min(jnp.sum(batch != 0, axis = 1))
+    print("Min Length", min_length)
+    randKEY, k = jax.random.split(randKEY)
+    randInd = jax.random.randint(k, (1,), 2, min_length)
+    print("Get Batch RAndom",randInd)
+    batch = batch[:, :randInd[0]]
+    return batch
 
-def buildModelInput(games):
-    ans = []
-    for g in games:
-        d,t = makeTargets(g)
-        ans.append((d,t))
-    return ans
 
 
 vocab, vocabDecode = tokenizer.makeVocabUCI_SMALL()
@@ -47,7 +57,7 @@ for g in games:
 
 paddedGames = tokenizer.pad_sequences(tokenizedGames, vocab['<PAD>'])
 
-# %%
+
 print("Converting to jnp array")
 JtokenizedGames = jnp.array(paddedGames, dtype=jnp.int32)
 print("FINISHED converting to jnp array")
@@ -57,21 +67,10 @@ print("FINISHED converting to jnp array")
 # # FASTEST JAX APPEND
 # JtokenizedGames = jnp.vstack(paddedGames, dtype=jnp.int32)
 
-# # %%
-def getBatch(games, size = 10):
-    # k = jax.random.PRNGKey(0)
-    idx = jax.random.randint(randKEY, (size,), 0, len(games))
-    batch = jnp.take(games, idx, axis=0)
-    min_length = jnp.min(jnp.sum(batch != 0, axis = 1))
-    print("Min Length", min_length)
-    randInd = jax.random.randint(randKEY, (1,), 2, min_length)
-    print("Get Batch RAndom",randInd)
-    batch = batch[:, :randInd[0]]
-    return batch
 
 
 config = GPTConfig()
-config.n_vocab = vocabSize
+config.vocab_size = vocabSize
 config.n_layer = 12
 config.n_head = 12
 config.n_embd = 768
@@ -80,37 +79,30 @@ config.block_size = CONTEXT_LENGTH
 config.bias = True
 
 chessModel = Tranformer(config)
+randKEY, k = jax.random.split(randKEY)
+params = chessModel.init(k, JtokenizedGames[:2])
+# p1 = chessModel.init(k, JtokenizedGames[5:7])
+# print("Params", params['params']['wte'])
+# print("Params", p1['params']['wte'])
 
-params = chessModel.init(randKEY, JtokenizedGames[:2])
-
-# outputTest1 = chessModel.apply(params, JtokenizedGames[0:1])
-# outputTest2 = chessModel.apply(params, JtokenizedGames[1:2])
-# # vars = chessModel.init(jax.random.PRNGKey(0), tokenizedGames[-1])
-# # %%
-# outputTest1
-# # %%
-# outputTest2
-# # %%
-# outputTest3 = chessModel.apply(params, JtokenizedGames[0:1])
-# outputTest3
-# # %%
-# print(JtokenizedGames.shape)
-# tot = chessModel.apply(params, JtokenizedGames)
-# print(tot.shape)
-# print(outputTest1.shape)
-# # %%
-# for k in params.keys():
-#     print(k)
-# params['params']['blocks_1'].keys()
 
 # %%
 # testJTokenArr = jnp.array(tokenizedGames, dtype=jnp.int32)
 b = getBatch(JtokenizedGames, 10)
 # b = getBatch(tokenizedGames, 10)
+d,t = makeTargets(b)
 # %%
-b.shape
+d.shape
 # %%
-b1 = getBatch(JtokenizedGames, 10)
-b1
+ans, loss = chessModel.apply(params, d, t)
+ansTokens = jnp.argmax(ans, axis=-1)
+ans.shape
 # %%
-b1.s
+ansTokens.shape
+# %%
+ans
+# %%
+d
+# %%
+vocabDecode[2423]
+# %%
