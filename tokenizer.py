@@ -46,7 +46,7 @@ MAX_MOVES = 300
 #     return vocab
 def makeVocabUCI_SMALL():
     vocab = {}
-    v = ['<PAD>', '', '0-1', '1-0', '1/2-1/2', '*', 'O-O']     #'k', 'q', 'n', 'b', 'r'
+    v = ['<PAD>', '<EOL>','', '0-1', '1-0', '1/2-1/2', '*', 'O-O']     #'k', 'q', 'n', 'b', 'r'
     c = []
     for i in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']:
         for j in ['1', '2', '3', '4', '5', '6', '7', '8']:

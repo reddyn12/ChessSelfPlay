@@ -10,7 +10,7 @@ import jax.numpy as jnp
 import tinygrad
 import tokenizer
 import random
-
+randKEY = jax.random.PRNGKey(0)
 CONTEXT_LENGTH = tokenizer.MAX_MOVES*3+1
 def makeTargets(x):
     ind = random.randint(1, len(x)-1)
@@ -32,7 +32,7 @@ games = open('data/ELO_2000_UCI.txt', 'r').read()
 games = games.splitlines()
 
  
-games = games[:10]
+games = games[:30]
 
 
 tokenizedGames = []
@@ -53,15 +53,21 @@ JtokenizedGames = jnp.array(paddedGames, dtype=jnp.int32)
 print("FINISHED converting to jnp array")
 
 
-# %%
-# FASTEST JAX APPEND
-JtokenizedGames = jnp.vstack(paddedGames, dtype=jnp.int32)
+# # %%
+# # FASTEST JAX APPEND
+# JtokenizedGames = jnp.vstack(paddedGames, dtype=jnp.int32)
 
-# %%
+# # %%
 def getBatch(games, size = 10):
-    # idx = jnp.random.randint(0, len(JtokenizedGames), size)
-    idx = jax.random.randint(jax.random.PRNGKey(0), (size,), 0, len(JtokenizedGames))
-    return jnp.take(games, idx)
+    # k = jax.random.PRNGKey(0)
+    idx = jax.random.randint(randKEY, (size,), 0, len(games))
+    batch = jnp.take(games, idx, axis=0)
+    min_length = jnp.min(jnp.sum(batch != 0, axis = 1))
+    print("Min Length", min_length)
+    randInd = jax.random.randint(randKEY, (1,), 2, min_length)
+    print("Get Batch RAndom",randInd)
+    batch = batch[:, :randInd[0]]
+    return batch
 
 
 config = GPTConfig()
@@ -74,7 +80,8 @@ config.block_size = CONTEXT_LENGTH
 config.bias = True
 
 chessModel = Tranformer(config)
-params = chessModel.init(jax.random.PRNGKey(0), JtokenizedGames[:2])
+
+params = chessModel.init(randKEY, JtokenizedGames[:2])
 
 # outputTest1 = chessModel.apply(params, JtokenizedGames[0:1])
 # outputTest2 = chessModel.apply(params, JtokenizedGames[1:2])
@@ -97,3 +104,13 @@ params = chessModel.init(jax.random.PRNGKey(0), JtokenizedGames[:2])
 # params['params']['blocks_1'].keys()
 
 # %%
+# testJTokenArr = jnp.array(tokenizedGames, dtype=jnp.int32)
+b = getBatch(JtokenizedGames, 10)
+# b = getBatch(tokenizedGames, 10)
+# %%
+b.shape
+# %%
+b1 = getBatch(JtokenizedGames, 10)
+b1
+# %%
+b1.s
