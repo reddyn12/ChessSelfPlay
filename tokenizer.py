@@ -153,7 +153,7 @@ def makeVocabUCI_SMALL():
     # print(len(v))
     for i, j in enumerate(v):
         vocab[j] = i
-    return vocab
+    return vocab, len(v)
 
 
 # def tokenize(text: str):
