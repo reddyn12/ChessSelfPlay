@@ -16,3 +16,5 @@ data/dataPre/KingBase2019-pgn/KingBase2019-D70-D99.pgn
 data/dataPre/KingBase2019-pgn/KingBase2019-E00-E19.pgn
 data/dataPre/KingBase2019-pgn/KingBase2019-E20-E59.pgn
 data/dataPre/KingBase2019-pgn/KingBase2019-E60-E99.pgn
+model1_CPU.npz
+model1_CPU.pkl

@@ -128,7 +128,7 @@ class Tranformer(nn.Module):
         self.dropout = nn.Dropout(rate=self.config.dropout, deterministic=DETERMINISTIC)
         
     @nn.compact
-    def __call__(self, x, targets=None):
+    def __call__(self, x):
         # print(x.shape)
         B, T = x.shape
         # T = len(x)

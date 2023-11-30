@@ -11,12 +11,22 @@ import sys
 import jax
 import optax
 from tqdm import tqdm
+import pickle
 
 # %%
 randKEY = jax.random.PRNGKey(seed=123)
-# jax.random.
-# print("rand key", randKEY)
-# sys.exit()
+
+
+def saveWeights(filename, params):
+    file = open(filename, "wb")
+    pickle.dump(params, file)
+    file.close()
+def loadWeights(filename):
+    file = open(filename, "rb")
+    p = pickle.load(file)
+    file.close()
+    return p
+
 CONTEXT_LENGTH = tokenizer.MAX_MOVES*3+1
 def makeTargets(x):
     data = x[:, :-1]
@@ -103,9 +113,12 @@ opt_state = optimizer.init(params)
 
 
 # Training loop
+# 96 min 1000 batches with size batch 100 -CPU
 nBatches = 1000
 losses = []
 for i in tqdm(range(nBatches)):
+    if i%100==0:
+        saveWeights('model_weights.pkl', params)
     b = getBatch(JtokenizedGames, 100)
     d,t = makeTargets(b)
     loss, grads = jax.value_and_grad(getLoss)(params, d, t)
@@ -122,6 +135,11 @@ for i in tqdm(range(nBatches)):
     # print('ans', ans.shape, ansTokens.shape)
     # print(tokenizer.decodeArray(ansTokens, vocabDecode))
 # %%
-# d
-# jnp.equal()
+b = getBatch(JtokenizedGames, 100)
+d,t = makeTargets(b)
+loss = getLoss(params, d, t)
+print(loss)
+
+
+
 # %%
