@@ -1,6 +1,6 @@
 
 
-# %%
+# # %%
 from model import Tranformer, GPTConfig, ChessGPT, cross_entropy_loss
 import os
 import jax
@@ -13,7 +13,7 @@ import optax
 from tqdm import tqdm
 import pickle
 
-# %%
+# # %%
 randKEY = jax.random.PRNGKey(seed=123)
 
 
@@ -49,7 +49,7 @@ def getBatch(games, size = 10, clip = None):
     return batch
 
 
-
+print("Loading Vocab")
 vocab, vocabDecode = tokenizer.makeVocabUCI_SMALL()
 vocabSize = len(vocabDecode)
 games = open('data/ELO_2000_UCI.txt', 'r').read()
@@ -88,7 +88,7 @@ params = chessModel.init(k, JtokenizedGames[:2])
 
 
 
-# %%
+# # %%
 # jnp.save('ELO_2000_UCI_Token.npy', JtokenizedGames)
 def getLoss(params, d, t):
     # b = getBatch(JtokenizedGames, size)
@@ -98,20 +98,20 @@ def getLoss(params, d, t):
 
     t_one_hot = jax.nn.one_hot(t, config.vocab_size)
     # logits = jnp.argmax(logits, axis=-1)
-    print("Logits", logits.shape, "Y:",t.shape)
+    # print("Logits", logits.shape, "Y:",t.shape)
 
     loss = optax.softmax_cross_entropy(logits, t_one_hot)
     loss = jnp.mean(loss)
     return loss
 
-# %%
+# # %%
 nBatches = 1000
 losses = []
 # Create the Adam optimizer
 optimizer = optax.adam(learning_rate=1e-3)
 opt_state = optimizer.init(params)
 
-
+print("Starting Training")
 # Training loop
 # 96 min 1000 batches with size batch 100 -CPU
 nBatches = 1000
