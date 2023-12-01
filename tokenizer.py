@@ -179,7 +179,7 @@ def fillPad(arr, vocab, length=(MAX_MOVES*3)+1):
     return arr
 def pad_sequences(sequences, padding_value=0):
     max_length = max(len(seq) for seq in sequences)
-    ans = jnp.array([], dtype=jnp.int32)
+    ans = jnp.array([], dtype=jnp.int16)
     # for seq in sequences:
 
     #     ans = jnp.vstack((ans,jnp.pad(seq, (0, max_length - len(seq)), constant_values=padding_value)))
