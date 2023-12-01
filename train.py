@@ -26,32 +26,32 @@ CONTEXT_LENGTH = tokenizer.MAX_MOVES*3+1
 randKEY = jax.random.PRNGKey(seed=1123)
 
 
-@jax.jit
-def getBatch(randKEY = randKEY):
-    # k = jax.random.PRNGKey(0)
-    # global randKEY
-    # global JtokenizedGames
-    randKEY, k = jax.random.split(randKEY)
-    idx = jax.random.randint(k, (BATCH_SIZE,), 0, len(JtokenizedGames))
-    batch = jnp.take(JtokenizedGames, idx, axis=0)
-    return batch
+# @jax.jit
+# def getBatch(randKEY = randKEY):
+#     # k = jax.random.PRNGKey(0)
+#     # global randKEY
+#     # global JtokenizedGames
+#     randKEY, k = jax.random.split(randKEY)
+#     idx = jax.random.randint(k, (BATCH_SIZE,), 0, len(JtokenizedGames))
+#     batch = jnp.take(JtokenizedGames, idx, axis=0)
+#     return batch
 
-@jax.jit
-def splitGame(x:jnp.array, randKEY = randKEY):
-    # global randKEY
-    ind = jnp.argmax(jnp.equal(x, PAD_TOKEN), axis=0)
-    randKEY, k = jax.random.split(randKEY)
-    idx = jax.random.randint(k, (1,), 2, ind)[0]
-    # print(ind, 'with split at', idx)
-    maskY = jnp.where(jnp.arange(x.shape[0]) <= idx, 1, 0)
-    # print(maskY)
-    maskX = jnp.where(jnp.arange(x.shape[0]) < idx, 1, 0)
-    # print(maskX)
-    return x*maskX, x*maskY
-@jax.jit
-def splitGames(batch:jnp.array):
-    d,t = jax.vmap(splitGame)(batch)
-    return d,t
+# @jax.jit
+# def splitGame(x:jnp.array, randKEY = randKEY):
+#     # global randKEY
+#     ind = jnp.argmax(jnp.equal(x, PAD_TOKEN), axis=0)
+#     randKEY, k = jax.random.split(randKEY)
+#     idx = jax.random.randint(k, (1,), 2, ind)[0]
+#     # print(ind, 'with split at', idx)
+#     maskY = jnp.where(jnp.arange(x.shape[0]) <= idx, 1, 0)
+#     # print(maskY)
+#     maskX = jnp.where(jnp.arange(x.shape[0]) < idx, 1, 0)
+#     # print(maskX)
+#     return x*maskX, x*maskY
+# @jax.jit
+# def splitGames(batch:jnp.array):
+#     d,t = jax.vmap(splitGame)(batch)
+#     return d,t
 
 
 # @jax.jit
