@@ -46,7 +46,7 @@ def getBatch():
 @jax.jit
 def splitGame(x:jnp.array):
     # global randKEY
-    ind = jnp.argmax(jnp.equal(x, PAD_TOKEN), axis=0)[0]
+    ind = jnp.argmax(jnp.equal(x, PAD_TOKEN), axis=0)
     # randKEY, k = jax.random.split(randKEY)
     # idx = jax.random.randint(jax.random.PRNGKey(RAND_SEED), (1,), 2, ind)[0]
 
