@@ -4,11 +4,9 @@
 from model import Tranformer, GPTConfig #, ChessGPT, cross_entropy_loss
 import os
 import jax
-import optax
 import jax.numpy as jnp
 import tokenizer
 import sys
-import jax
 import optax
 from tqdm import tqdm
 import pickle
