@@ -106,7 +106,7 @@ print("Loading Vocab")
 vocab, vocabDecode = tokenizer.makeVocabUCI_SMALL()
 PAD_TOKEN = vocab['<PAD>']
 vocabSize = len(vocabDecode)
-games = open('data/ELO_2000_UCI.txt', 'r').read()
+games = open('./data/ELO_2000_UCI.txt', 'r').read()
 games = games.splitlines()
 print('Length of GAMES:',len(games))
 # sys.exit()
