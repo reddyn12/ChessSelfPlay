@@ -87,6 +87,10 @@ print("Converting to jnp array")
 JtokenizedGames = jnp.vstack(tokenizedGames)
 print("FINISHED converting to jnp array")
 
+import time
+print("Sleeping for 20 seconds")
+time.sleep(20)
+
 config = GPTConfig()
 config.vocab_size = vocabSize
 config.n_layer = 12
