@@ -19,13 +19,13 @@ import numpy as np
 print(jax.devices())
 print(jax.local_devices())
 
-jax.config.update("jax_default_float_precision", "float16")
-print(jax.config.values['jax_default_float_precision'])
-# jax.random.key()
-# jax.random.PRNGKey()
-temp = jnp.ones((1,1))
-print(temp.dtype)
-sys.exit()
+# jax.config.update("jax_default_float_precision", "float16")
+# print(jax.config.values['jax_default_float_precision'])
+# # jax.random.key()
+# # jax.random.PRNGKey()
+# temp = jnp.ones((1,1))
+# print(temp.dtype)
+# sys.exit()
 nBatches = 10000
 BATCH_SIZE = 128
 BLOCK_SIZE = 400
@@ -151,6 +151,11 @@ chessModel = Tranformer(config)
 b = getBatch()
 d,t = splitGames(b)
 params = chessModel.init(jax.random.PRNGKey(RAND_SEED), d)
+
+print('Casting to float16')
+params = jax.tree_map(lambda x: x.astype(jnp.float16), params)
+print('FINISHED Casting to float16')
+
 # p1 = chessModel.init(k, JtokenizedGames[5:7])
 # print("Params", params['params']['wte'])
 # print("Params", p1['params']['wte'])
