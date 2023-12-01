@@ -73,8 +73,8 @@ print('Length of GAMES:',len(games))
 
 
 tokenizedGames = []
-
-for g in games:
+print("Tokenizing Games")
+for g in tqdm(games):
     # g = g[:min((len(g), 500))]
     arr = jnp.array(tokenizer.tokenizeLine(g, vocab, 500, pad=True), dtype=jnp.int32)
     tokenizedGames.append(arr)
