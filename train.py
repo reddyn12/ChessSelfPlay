@@ -21,7 +21,7 @@ BLOCK_SIZE = 400
 # BLOCK_SIZE = 512
 CONTEXT_LENGTH = tokenizer.MAX_MOVES*3+1
 
-# randKEY = jax.random.PRNGKey(seed=1123)
+randKEY = jax.random.PRNGKey(seed=1123)
 
 
 # @jax.jit
