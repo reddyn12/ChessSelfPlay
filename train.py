@@ -97,7 +97,10 @@ config.bias = True
 
 chessModel = Tranformer(config)
 randKEY, k = jax.random.split(randKEY)
-params = chessModel.init(k, JtokenizedGames[:2])
+
+b = getBatch()
+d,t = splitGames(b)
+params = chessModel.init(k, d)
 # p1 = chessModel.init(k, JtokenizedGames[5:7])
 # print("Params", params['params']['wte'])
 # print("Params", p1['params']['wte'])
