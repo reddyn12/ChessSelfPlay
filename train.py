@@ -71,14 +71,16 @@ print('Length of GAMES:',len(games))
 # sys.exit()
  
 # games = games[100000:130000]
-games = games[:13000]
+# games = games[:13000]
 
-tokenizedGames = []
-print("Tokenizing Games")
-for g in tqdm(games):
-    # g = g[:min((len(g), 500))]
-    arr = jnp.array(tokenizer.tokenizeLine(g, vocab, BLOCK_SIZE, pad=True), dtype=jnp.int16)
-    tokenizedGames.append(arr)
+# tokenizedGames = []
+# print("Tokenizing Games")
+# for g in tqdm(games):
+#     # g = g[:min((len(g), 500))]
+#     arr = jnp.array(tokenizer.tokenizeLine(g, vocab, BLOCK_SIZE, pad=True), dtype=jnp.int16)
+#     tokenizedGames.append(arr)
+
+
     # tokenizedGames = jnp.vstack((tokenizedGames, arr))
 # print(tokenizedGames[180:210])
 # sys.exit()   
