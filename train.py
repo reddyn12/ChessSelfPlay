@@ -30,7 +30,7 @@ randKEY = jax.random.PRNGKey(seed=1123)
 def getBatch(randKEY = randKEY):
     # k = jax.random.PRNGKey(0)
     # global randKEY
-    global JtokenizedGames
+    # global JtokenizedGames
     randKEY, k = jax.random.split(randKEY)
     idx = jax.random.randint(k, (BATCH_SIZE,), 0, len(JtokenizedGames))
     batch = jnp.take(JtokenizedGames, idx, axis=0)
