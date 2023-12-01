@@ -17,10 +17,15 @@ import numpy as np
 
 
 print(jax.devices())
+print(jax.local_devices())
 
+jax.config.update("jax_default_float_precision", "float16")
+print(jax.config.values['jax_default_float_precision'])
 # jax.random.key()
 # jax.random.PRNGKey()
-
+temp = jnp.ones((1,1))
+print(temp.dtype)
+sys.exit()
 nBatches = 10000
 BATCH_SIZE = 128
 BLOCK_SIZE = 400
@@ -61,6 +66,33 @@ def splitGame(x:jnp.array):
 def splitGames(batch:jnp.array):
     d,t = jax.vmap(splitGame)(batch)
     return d,t
+
+@jax.jit
+def getLoss(params, d, t):
+    # Calculate the mask
+    mask = jnp.equal(d, PAD_TOKEN)
+    mask = 1 - mask  # Invert the mask
+
+    # Apply the mask to logits
+    logits = chessModel.apply(params, d)
+    logits = logits * mask[:, :, None]  # None is used to match the shape of logits
+    t_one_hot = jax.nn.one_hot(t, config.vocab_size)
+    loss = optax.softmax_cross_entropy(logits, t_one_hot)
+    loss = jnp.mean(loss * mask)  # Apply the mask to the loss
+    return loss
+
+    # # Create a mask for pad tokens
+    # # SWITCHED t WITH d vvvvvv
+    # pad_mask = jnp.where(d == vocab['<PAD>'], 0, 1)
+    
+    # logits = chessModel.apply(params, d)
+    # logits = logits[:, -1, :]
+    
+    # t_one_hot = jax.nn.one_hot(t, config.vocab_size)
+    
+    # loss = optax.softmax_cross_entropy(logits, t_one_hot)
+    # loss = jnp.mean(loss * pad_mask)  # Apply the mask to the loss
+    # return loss
 
 
 # @jax.jit
@@ -123,32 +155,6 @@ params = chessModel.init(jax.random.PRNGKey(RAND_SEED), d)
 # print("Params", params['params']['wte'])
 # print("Params", p1['params']['wte'])
 
-@jax.jit
-def getLoss(params, d, t):
-    # Calculate the mask
-    mask = jnp.equal(d, PAD_TOKEN)
-    mask = 1 - mask  # Invert the mask
-
-    # Apply the mask to logits
-    logits = chessModel.apply(params, d)
-    logits = logits * mask[:, :, None]  # None is used to match the shape of logits
-    t_one_hot = jax.nn.one_hot(t, config.vocab_size)
-    loss = optax.softmax_cross_entropy(logits, t_one_hot)
-    loss = jnp.mean(loss * mask)  # Apply the mask to the loss
-    return loss
-
-    # # Create a mask for pad tokens
-    # # SWITCHED t WITH d vvvvvv
-    # pad_mask = jnp.where(d == vocab['<PAD>'], 0, 1)
-    
-    # logits = chessModel.apply(params, d)
-    # logits = logits[:, -1, :]
-    
-    # t_one_hot = jax.nn.one_hot(t, config.vocab_size)
-    
-    # loss = optax.softmax_cross_entropy(logits, t_one_hot)
-    # loss = jnp.mean(loss * pad_mask)  # Apply the mask to the loss
-    # return loss
 
 
 # b = getBatch()
