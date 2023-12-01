@@ -1,7 +1,6 @@
 
 
 # # %%
-import random
 from model import Tranformer, GPTConfig #, ChessGPT, cross_entropy_loss
 import os
 import jax
@@ -23,7 +22,7 @@ BLOCK_SIZE = 400
 CONTEXT_LENGTH = tokenizer.MAX_MOVES*3+1
 
 randKEY = jax.random.PRNGKey(123)
-test = jnp,random.randint(randKEY, (1,), 0, 100)
+test = jax.random.randint(randKEY, (10,), 0, 100)
 
 
 # @jax.jit
