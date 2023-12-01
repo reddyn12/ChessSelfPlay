@@ -18,7 +18,7 @@ from utils import saveWeights, loadWeights
 print(jax.devices())
 
 nBatches = 10000
-BATCH_SIZE = 10
+BATCH_SIZE = 128
 BLOCK_SIZE = 512
 CONTEXT_LENGTH = tokenizer.MAX_MOVES*3+1
 
@@ -53,11 +53,11 @@ def splitGames(batch:jnp.array):
     return d,t
 
 
-@jax.jit
-def makeTargets(x):
-    data = x[:, :-1]
-    target = x[:, -1]
-    return data, target
+# @jax.jit
+# def makeTargets(x):
+#     data = x[:, :-1]
+#     target = x[:, -1]
+#     return data, target
 
 
 print("Loading Vocab")
@@ -69,7 +69,7 @@ games = games.splitlines()
 # print(len(games))
 # sys.exit()
  
-games = games[100000:130000]
+# games = games[100000:130000]
 
 
 tokenizedGames = []
