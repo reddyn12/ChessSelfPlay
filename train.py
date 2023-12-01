@@ -91,93 +91,93 @@ import time
 print("Sleeping for 20 seconds")
 time.sleep(20)
 
-config = GPTConfig()
-config.vocab_size = vocabSize
-config.n_layer = 12
-config.n_head = 12
-config.n_embd = 768
-config.dropout = 0.0
-config.block_size = CONTEXT_LENGTH
-config.bias = True
+# config = GPTConfig()
+# config.vocab_size = vocabSize
+# config.n_layer = 12
+# config.n_head = 12
+# config.n_embd = 768
+# config.dropout = 0.0
+# config.block_size = CONTEXT_LENGTH
+# config.bias = True
 
-chessModel = Tranformer(config)
-randKEY, k = jax.random.split(randKEY)
-
-b = getBatch()
-d,t = splitGames(b)
-params = chessModel.init(k, d)
-# p1 = chessModel.init(k, JtokenizedGames[5:7])
-# print("Params", params['params']['wte'])
-# print("Params", p1['params']['wte'])
-
-@jax.jit
-def getLoss(params, d, t):
-    # Calculate the mask
-    mask = jnp.equal(d, PAD_TOKEN)
-    mask = 1 - mask  # Invert the mask
-
-    # Apply the mask to logits
-    logits = chessModel.apply(params, d)
-    logits = logits * mask[:, :, None]  # None is used to match the shape of logits
-    t_one_hot = jax.nn.one_hot(t, config.vocab_size)
-    loss = optax.softmax_cross_entropy(logits, t_one_hot)
-    loss = jnp.mean(loss * mask)  # Apply the mask to the loss
-    return loss
-
-    # # Create a mask for pad tokens
-    # # SWITCHED t WITH d vvvvvv
-    # pad_mask = jnp.where(d == vocab['<PAD>'], 0, 1)
-    
-    # logits = chessModel.apply(params, d)
-    # logits = logits[:, -1, :]
-    
-    # t_one_hot = jax.nn.one_hot(t, config.vocab_size)
-    
-    # loss = optax.softmax_cross_entropy(logits, t_one_hot)
-    # loss = jnp.mean(loss * pad_mask)  # Apply the mask to the loss
-    # return loss
-
+# chessModel = Tranformer(config)
+# randKEY, k = jax.random.split(randKEY)
 
 # b = getBatch()
 # d,t = splitGames(b)
-# # dd,tt = makeTargets(b)
-# print(d.shape, t.shape)
-# print(d)
-# # print()
-# print(d[0])
-# print(t[0])
-# # print(b[0])
-# print(getLoss(params, d, t))
-# sys.exit()
+# params = chessModel.init(k, d)
+# # p1 = chessModel.init(k, JtokenizedGames[5:7])
+# # print("Params", params['params']['wte'])
+# # print("Params", p1['params']['wte'])
 
-# # %%
-losses = []
-# Create the Adam optimizer
-optimizer = optax.adam(learning_rate=1e-3)
-opt_state = optimizer.init(params)
+# @jax.jit
+# def getLoss(params, d, t):
+#     # Calculate the mask
+#     mask = jnp.equal(d, PAD_TOKEN)
+#     mask = 1 - mask  # Invert the mask
 
-print("Starting Training")
-# Training loop
-# 96 min 1000 batches with size batch 100 -CPU
+#     # Apply the mask to logits
+#     logits = chessModel.apply(params, d)
+#     logits = logits * mask[:, :, None]  # None is used to match the shape of logits
+#     t_one_hot = jax.nn.one_hot(t, config.vocab_size)
+#     loss = optax.softmax_cross_entropy(logits, t_one_hot)
+#     loss = jnp.mean(loss * mask)  # Apply the mask to the loss
+#     return loss
 
-losses = []
-for i in tqdm(range(nBatches)):
-    b = getBatch()
-    # d,t = makeTargets(b)
-    d,t = splitGames(b)
-    loss, grads = jax.value_and_grad(getLoss)(params, d, t)
-    updates, opt_state = optimizer.update(grads, opt_state)
-    params = optax.apply_updates(params, updates)
+#     # # Create a mask for pad tokens
+#     # # SWITCHED t WITH d vvvvvv
+#     # pad_mask = jnp.where(d == vocab['<PAD>'], 0, 1)
+    
+#     # logits = chessModel.apply(params, d)
+#     # logits = logits[:, -1, :]
+    
+#     # t_one_hot = jax.nn.one_hot(t, config.vocab_size)
+    
+#     # loss = optax.softmax_cross_entropy(logits, t_one_hot)
+#     # loss = jnp.mean(loss * pad_mask)  # Apply the mask to the loss
+#     # return loss
 
-    print(i, " | Loss", loss)
 
-    if i%100==20:
-        saveWeights('model_weights.pkl', params)
+# # b = getBatch()
+# # d,t = splitGames(b)
+# # # dd,tt = makeTargets(b)
+# # print(d.shape, t.shape)
+# # print(d)
+# # # print()
+# # print(d[0])
+# # print(t[0])
+# # # print(b[0])
+# # print(getLoss(params, d, t))
+# # sys.exit()
+
+# # # %%
+# losses = []
+# # Create the Adam optimizer
+# optimizer = optax.adam(learning_rate=1e-3)
+# opt_state = optimizer.init(params)
+
+# print("Starting Training")
+# # Training loop
+# # 96 min 1000 batches with size batch 100 -CPU
+
+# losses = []
+# for i in tqdm(range(nBatches)):
+#     b = getBatch()
+#     # d,t = makeTargets(b)
+#     d,t = splitGames(b)
+#     loss, grads = jax.value_and_grad(getLoss)(params, d, t)
+#     updates, opt_state = optimizer.update(grads, opt_state)
+#     params = optax.apply_updates(params, updates)
+
+#     print(i, " | Loss", loss)
+
+#     if i%100==20:
+#         saveWeights('model_weights.pkl', params)
         
-# # %%
-for i in range(3):
-    b = getBatch()
-    # d,t = makeTargets(b)
-    d,t = splitGames(b)
-    loss = getLoss(params, d, t)
-    print(loss)
+# # # %%
+# for i in range(3):
+#     b = getBatch()
+#     # d,t = makeTargets(b)
+#     d,t = splitGames(b)
+#     loss = getLoss(params, d, t)
+#     print(loss)
