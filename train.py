@@ -82,10 +82,12 @@ for g in tqdm(games):
     # tokenizedGames = jnp.vstack((tokenizedGames, arr))
 # print(tokenizedGames[180:210])
 # sys.exit()   
-print("Converting to jnp array")
-# JtokenizedGames = tokenizer.pad_sequences(tokenizedGames, vocab['<PAD>'])
-JtokenizedGames = jnp.vstack(tokenizedGames)
-print("FINISHED converting to jnp array")
+# print("Converting to jnp array")
+
+
+# # JtokenizedGames = tokenizer.pad_sequences(tokenizedGames, vocab['<PAD>'])
+# JtokenizedGames = jnp.vstack(tokenizedGames)
+# print("FINISHED converting to jnp array")
 
 import time
 print("Sleeping for 20 seconds")
