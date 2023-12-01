@@ -23,7 +23,7 @@ CONTEXT_LENGTH = tokenizer.MAX_MOVES*3+1
 
 randKEY = jax.random.PRNGKey(123)
 test = jax.random.randint(randKEY, (10,), 0, 100)
-
+del randKEY
 
 # @jax.jit
 # def getBatch(randKEY = randKEY):
