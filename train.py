@@ -30,7 +30,7 @@ def getBatch():
     # k = jax.random.PRNGKey(0)
     # global randKEY
     # global JtokenizedGames
-    randKEY, k = jax.random.split(randKEY)
+    # randKEY, k = jax.random.split(randKEY)
     idx = jax.random.randint(jax.random.PRNGKey(RAND_SEED), (BATCH_SIZE,), 0, len(JtokenizedGames))
     batch = jnp.take(JtokenizedGames, idx, axis=0)
     return batch
@@ -39,7 +39,7 @@ def getBatch():
 def splitGame(x:jnp.array):
     # global randKEY
     ind = jnp.argmax(jnp.equal(x, PAD_TOKEN), axis=0)
-    randKEY, k = jax.random.split(randKEY)
+    # randKEY, k = jax.random.split(randKEY)
     idx = jax.random.randint(jax.random.PRNGKey(RAND_SEED), (1,), 2, ind)[0]
     # print(ind, 'with split at', idx)
     maskY = jnp.where(jnp.arange(x.shape[0]) <= idx, 1, 0)
