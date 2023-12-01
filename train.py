@@ -11,9 +11,15 @@ import optax
 from tqdm import tqdm
 import pickle
 from utils import saveWeights, loadWeights
+import numpy as np
+
+
 
 
 print(jax.devices())
+
+# jax.random.key()
+# jax.random.PRNGKey()
 
 nBatches = 10000
 BATCH_SIZE = 128
@@ -31,7 +37,9 @@ def getBatch():
     # global randKEY
     # global JtokenizedGames
     # randKEY, k = jax.random.split(randKEY)
-    idx = jax.random.randint(jax.random.PRNGKey(RAND_SEED), (BATCH_SIZE,), 0, len(JtokenizedGames))
+    # idx = jax.random.randint(jax.random.PRNGKey(RAND_SEED), (BATCH_SIZE,), 0, len(JtokenizedGames))
+
+    idx = np.random.randint(0, len(JtokenizedGames), (BATCH_SIZE,))
     batch = jnp.take(JtokenizedGames, idx, axis=0)
     return batch
 
@@ -40,7 +48,9 @@ def splitGame(x:jnp.array):
     # global randKEY
     ind = jnp.argmax(jnp.equal(x, PAD_TOKEN), axis=0)
     # randKEY, k = jax.random.split(randKEY)
-    idx = jax.random.randint(jax.random.PRNGKey(RAND_SEED), (1,), 2, ind)[0]
+    # idx = jax.random.randint(jax.random.PRNGKey(RAND_SEED), (1,), 2, ind)[0]
+
+    idx = np.random.randint(2, ind)
     # print(ind, 'with split at', idx)
     maskY = jnp.where(jnp.arange(x.shape[0]) <= idx, 1, 0)
     # print(maskY)
