@@ -1,21 +1,21 @@
 __pycache__/
-data
-data/ELO_2000.txt
-data/dataPre/KingBase2019-pgn/KingBase2019-A00-A39.pgn
-data/dataPre/KingBase2019-pgn/KingBase2019-A40-A79.pgn
-data/dataPre/KingBase2019-pgn/KingBase2019-A80-A99.pgn
-data/dataPre/KingBase2019-pgn/KingBase2019-B00-B19.pgn
-data/dataPre/KingBase2019-pgn/KingBase2019-B20-B49.pgn
-data/dataPre/KingBase2019-pgn/KingBase2019-B50-B99.pgn
-data/dataPre/KingBase2019-pgn/KingBase2019-C00-C19.pgn
-data/dataPre/KingBase2019-pgn/KingBase2019-C20-C59.pgn
-data/dataPre/KingBase2019-pgn/KingBase2019-C60-C99.pgn
-data/dataPre/KingBase2019-pgn/KingBase2019-D00-D29.pgn
-data/dataPre/KingBase2019-pgn/KingBase2019-D30-D69.pgn
-data/dataPre/KingBase2019-pgn/KingBase2019-D70-D99.pgn
-data/dataPre/KingBase2019-pgn/KingBase2019-E00-E19.pgn
-data/dataPre/KingBase2019-pgn/KingBase2019-E20-E59.pgn
-data/dataPre/KingBase2019-pgn/KingBase2019-E60-E99.pgn
+data/*
+# data/ELO_2000.txt
+# data/dataPre/KingBase2019-pgn/KingBase2019-A00-A39.pgn
+# data/dataPre/KingBase2019-pgn/KingBase2019-A40-A79.pgn
+# data/dataPre/KingBase2019-pgn/KingBase2019-A80-A99.pgn
+# data/dataPre/KingBase2019-pgn/KingBase2019-B00-B19.pgn
+# data/dataPre/KingBase2019-pgn/KingBase2019-B20-B49.pgn
+# data/dataPre/KingBase2019-pgn/KingBase2019-B50-B99.pgn
+# data/dataPre/KingBase2019-pgn/KingBase2019-C00-C19.pgn
+# data/dataPre/KingBase2019-pgn/KingBase2019-C20-C59.pgn
+# data/dataPre/KingBase2019-pgn/KingBase2019-C60-C99.pgn
+# data/dataPre/KingBase2019-pgn/KingBase2019-D00-D29.pgn
+# data/dataPre/KingBase2019-pgn/KingBase2019-D30-D69.pgn
+# data/dataPre/KingBase2019-pgn/KingBase2019-D70-D99.pgn
+# data/dataPre/KingBase2019-pgn/KingBase2019-E00-E19.pgn
+# data/dataPre/KingBase2019-pgn/KingBase2019-E20-E59.pgn
+# data/dataPre/KingBase2019-pgn/KingBase2019-E60-E99.pgn
 model1_CPU.npz
 model1_CPU.pkl
 model_weights.pkl
