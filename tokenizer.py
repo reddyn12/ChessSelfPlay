@@ -46,7 +46,7 @@ MAX_MOVES = 300
 #     return vocab
 def makeVocabUCI_SMALL():
     vocab = {}
-    v = ['<PAD>', '<EOL>','', '0-1', '1-0', '1/2-1/2', '*', 'O-O']     #'k', 'q', 'n', 'b', 'r'
+    v = ['<PAD>', '<EOL>','', '0-1', '1-0', '1/2-1/2', '*', 'O-O', '0000']     #'k', 'q', 'n', 'b', 'r'
     c = []
     for i in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']:
         for j in ['1', '2', '3', '4', '5', '6', '7', '8']:
@@ -166,7 +166,7 @@ def tokenizeLine(text, vocab, length=(MAX_MOVES*3)+1, truncate = True, pad = Fal
     # elements = text.split(' ')
     # return [vocab[element] for element in elements]
     for e in text.split(' '):
-            if cnt>length and truncate:
+            if cnt>length-1 and truncate:
                 return arr
             arr.append(vocab[e])
             cnt+=1

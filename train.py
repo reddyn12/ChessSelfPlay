@@ -1,7 +1,7 @@
 
 
 # # %%
-from model import Tranformer, GPTConfig, ChessGPT, cross_entropy_loss
+from model import Tranformer, GPTConfig #, ChessGPT, cross_entropy_loss
 import os
 import jax
 import optax
@@ -12,62 +12,78 @@ import jax
 import optax
 from tqdm import tqdm
 import pickle
-
-# # %%
-randKEY = jax.random.PRNGKey(seed=123)
+from utils import saveWeights, loadWeights
 
 
-def saveWeights(filename, params):
-    file = open(filename, "wb")
-    pickle.dump(params, file)
-    file.close()
-def loadWeights(filename):
-    file = open(filename, "rb")
-    p = pickle.load(file)
-    file.close()
-    return p
+print(jax.devices())
 
+nBatches = 10000
+BATCH_SIZE = 10
+BLOCK_SIZE = 512
 CONTEXT_LENGTH = tokenizer.MAX_MOVES*3+1
+
+randKEY = jax.random.PRNGKey(seed=1123)
+
+
+@jax.jit
+def getBatch(randKEY = randKEY):
+    # k = jax.random.PRNGKey(0)
+    # global randKEY
+    global JtokenizedGames
+    randKEY, k = jax.random.split(randKEY)
+    idx = jax.random.randint(k, (BATCH_SIZE,), 0, len(JtokenizedGames))
+    batch = jnp.take(JtokenizedGames, idx, axis=0)
+    return batch
+
+@jax.jit
+def splitGame(x:jnp.array, randKEY = randKEY):
+    # global randKEY
+    ind = jnp.argmax(jnp.equal(x, PAD_TOKEN), axis=0)
+    randKEY, k = jax.random.split(randKEY)
+    idx = jax.random.randint(k, (1,), 2, ind)[0]
+    # print(ind, 'with split at', idx)
+    maskY = jnp.where(jnp.arange(x.shape[0]) <= idx, 1, 0)
+    # print(maskY)
+    maskX = jnp.where(jnp.arange(x.shape[0]) < idx, 1, 0)
+    # print(maskX)
+    return x*maskX, x*maskY
+@jax.jit
+def splitGames(batch:jnp.array):
+    d,t = jax.vmap(splitGame)(batch)
+    return d,t
+
+
+@jax.jit
 def makeTargets(x):
     data = x[:, :-1]
     target = x[:, -1]
     return data, target
-def getBatch(games, size = 10, clip = None):
-    # k = jax.random.PRNGKey(0)
-    global randKEY
-
-    randKEY, k = jax.random.split(randKEY)
-    idx = jax.random.randint(k, (size,), 0, len(games))
-    batch = jnp.take(games, idx, axis=0)
-    min_length = jnp.min(jnp.sum(batch != 0, axis = 1))
-    # print("Min Length", min_length, games.shape, batch.shape)
-    randKEY, k = jax.random.split(randKEY)
-    randInd = jax.random.randint(k, (1,), 2, min_length)
-    print("Current Batch Min Length", min_length, "Random Slice @:", randInd)
-    # print("Get Batch RAndom",randInd)
-    batch = batch[:, :randInd[0]]
-    return batch
 
 
 print("Loading Vocab")
 vocab, vocabDecode = tokenizer.makeVocabUCI_SMALL()
+PAD_TOKEN = vocab['<PAD>']
 vocabSize = len(vocabDecode)
 games = open('data/ELO_2000_UCI.txt', 'r').read()
 games = games.splitlines()
-
+# print(len(games))
+# sys.exit()
  
-games = games[:3000]
+games = games[100000:130000]
 
 
 tokenizedGames = []
 
 for g in games:
-    arr = jnp.array(tokenizer.tokenizeLine(g, vocab), dtype=jnp.int32)
+    # g = g[:min((len(g), 500))]
+    arr = jnp.array(tokenizer.tokenizeLine(g, vocab, 500, pad=True), dtype=jnp.int32)
     tokenizedGames.append(arr)
     # tokenizedGames = jnp.vstack((tokenizedGames, arr))
-    
+# print(tokenizedGames[180:210])
+# sys.exit()   
 print("Converting to jnp array")
-JtokenizedGames = tokenizer.pad_sequences(tokenizedGames, vocab['<PAD>'])
+# JtokenizedGames = tokenizer.pad_sequences(tokenizedGames, vocab['<PAD>'])
+JtokenizedGames = jnp.vstack(tokenizedGames)
 print("FINISHED converting to jnp array")
 
 config = GPTConfig()
@@ -86,26 +102,47 @@ params = chessModel.init(k, JtokenizedGames[:2])
 # print("Params", params['params']['wte'])
 # print("Params", p1['params']['wte'])
 
-
-
-# # %%
-# jnp.save('ELO_2000_UCI_Token.npy', JtokenizedGames)
+@jax.jit
 def getLoss(params, d, t):
-    # b = getBatch(JtokenizedGames, size)
-    # d,t = makeTargets(b)
-    logits= chessModel.apply(params, d)
-    logits = logits[:, -1, :]
+    # Calculate the mask
+    mask = jnp.equal(d, PAD_TOKEN)
+    mask = 1 - mask  # Invert the mask
 
+    # Apply the mask to logits
+    logits = chessModel.apply(params, d)
+    logits = logits * mask[:, :, None]  # None is used to match the shape of logits
     t_one_hot = jax.nn.one_hot(t, config.vocab_size)
-    # logits = jnp.argmax(logits, axis=-1)
-    # print("Logits", logits.shape, "Y:",t.shape)
-
     loss = optax.softmax_cross_entropy(logits, t_one_hot)
-    loss = jnp.mean(loss)
+    loss = jnp.mean(loss * mask)  # Apply the mask to the loss
     return loss
 
+    # # Create a mask for pad tokens
+    # # SWITCHED t WITH d vvvvvv
+    # pad_mask = jnp.where(d == vocab['<PAD>'], 0, 1)
+    
+    # logits = chessModel.apply(params, d)
+    # logits = logits[:, -1, :]
+    
+    # t_one_hot = jax.nn.one_hot(t, config.vocab_size)
+    
+    # loss = optax.softmax_cross_entropy(logits, t_one_hot)
+    # loss = jnp.mean(loss * pad_mask)  # Apply the mask to the loss
+    # return loss
+
+
+# b = getBatch()
+# d,t = splitGames(b)
+# # dd,tt = makeTargets(b)
+# print(d.shape, t.shape)
+# print(d)
+# # print()
+# print(d[0])
+# print(t[0])
+# # print(b[0])
+# print(getLoss(params, d, t))
+# sys.exit()
+
 # # %%
-nBatches = 1000
 losses = []
 # Create the Adam optimizer
 optimizer = optax.adam(learning_rate=1e-3)
@@ -114,32 +151,25 @@ opt_state = optimizer.init(params)
 print("Starting Training")
 # Training loop
 # 96 min 1000 batches with size batch 100 -CPU
-nBatches = 1000
+
 losses = []
 for i in tqdm(range(nBatches)):
-    if i%100==0:
-        saveWeights('model_weights.pkl', params)
-    b = getBatch(JtokenizedGames, 100)
-    d,t = makeTargets(b)
+    b = getBatch()
+    # d,t = makeTargets(b)
+    d,t = splitGames(b)
     loss, grads = jax.value_and_grad(getLoss)(params, d, t)
     updates, opt_state = optimizer.update(grads, opt_state)
     params = optax.apply_updates(params, updates)
-    # d, t = makeTargets(b)
-    # logits= chessModel.apply(params, d)
-    # loss, grads = jax.value_and_grad(cross_entropy_loss)(logits, t)
-    # print(opt_state)
-    # params, opt_state, loss = update(params, opt_state, b)
-    # ans = logits[:, -1]
-    # ansTokens = jnp.argmax(ans, axis=-1)
+
     print(i, " | Loss", loss)
-    # print('ans', ans.shape, ansTokens.shape)
-    # print(tokenizer.decodeArray(ansTokens, vocabDecode))
-# %%
-b = getBatch(JtokenizedGames, 100)
-d,t = makeTargets(b)
-loss = getLoss(params, d, t)
-print(loss)
 
-
-
-# %%
+    if i%100==20:
+        saveWeights('model_weights.pkl', params)
+        
+# # %%
+for i in range(3):
+    b = getBatch()
+    # d,t = makeTargets(b)
+    d,t = splitGames(b)
+    loss = getLoss(params, d, t)
+    print(loss)

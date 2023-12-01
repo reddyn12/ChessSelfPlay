@@ -1,5 +1,5 @@
-
-# data/
+__pycache__/
+data/
 data/ELO_2000.txt
 data/dataPre/KingBase2019-pgn/KingBase2019-A00-A39.pgn
 data/dataPre/KingBase2019-pgn/KingBase2019-A40-A79.pgn
@@ -18,3 +18,4 @@ data/dataPre/KingBase2019-pgn/KingBase2019-E20-E59.pgn
 data/dataPre/KingBase2019-pgn/KingBase2019-E60-E99.pgn
 model1_CPU.npz
 model1_CPU.pkl
+model_weights.pkl
