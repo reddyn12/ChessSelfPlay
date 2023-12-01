@@ -2,7 +2,7 @@ import chess
 import chess.svg
 
 import pickle
-from IPython.display import display, HTML
+# from IPython.display import display, HTML
 
 # def display_board(board):
 #     display(HTML(chess.svg.board(board=board)))
