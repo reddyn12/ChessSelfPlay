@@ -77,7 +77,7 @@ tokenizedGames = []
 print("Tokenizing Games")
 for g in tqdm(games):
     # g = g[:min((len(g), 500))]
-    arr = jnp.array(tokenizer.tokenizeLine(g, vocab, 500, pad=True), dtype=jnp.int16)
+    arr = jnp.array(tokenizer.tokenizeLine(g, vocab, BLOCK_SIZE, pad=True), dtype=jnp.int16)
     tokenizedGames.append(arr)
     # tokenizedGames = jnp.vstack((tokenizedGames, arr))
 # print(tokenizedGames[180:210])
