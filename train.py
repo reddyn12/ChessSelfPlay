@@ -109,7 +109,9 @@ PAD_TOKEN = vocab['<PAD>']
 vocabSize = len(vocabDecode)
 print("Opening Games File")
 games = open('./data/ELO_2000_UCI.txt', 'r').read()
+print("Read Games File")
 games = games.splitlines()
+print("FNIISHED Spliting Games File")
 print('Length of GAMES:',len(games))
 sys.exit()
  
