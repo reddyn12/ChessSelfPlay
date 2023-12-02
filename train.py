@@ -103,12 +103,12 @@ def getLoss(params, d, t):
 
 
 print("Loading Vocab")
-vocabPath = './data/ELO_2000_UCI.txt'
+vocabPath = 'data/ELO_2000_UCI.txt'
 vocab, vocabDecode = tokenizer.makeVocabUCI_SMALL()
 PAD_TOKEN = vocab['<PAD>']
 vocabSize = len(vocabDecode)
 print("Opening Games File")
-games = open('./data/ELO_2000_UCI.txt', 'r').read()
+games = open('data/ELO_2000_UCI.txt', 'r').read()
 print("Read Games File")
 games = games.splitlines()
 print("FNIISHED Spliting Games File")
