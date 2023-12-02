@@ -111,6 +111,7 @@ print("Opening Games File")
 file = open('data/ELO_2000_UCI.txt', 'r')
 print("Reading Games File")
 
+# PROBLEMO -------------------------- HUGE --------------------- PROBLEMO
 games = file.read(200000000)
 print("Closing Games File")
 file.close()
@@ -118,10 +119,10 @@ print('Spliting Games')
 games = games.splitlines()
 print("FNIISHED Spliting Games File")
 print('Length of GAMES:',len(games))
-sys.exit()
+# sys.exit()
  
 # games = games[100000:130000]
-games = games[:13000]
+# games = games[:13000]
 
 tokenizedGames = []
 print("Tokenizing Games")
