@@ -111,7 +111,7 @@ print("Opening Games File")
 file = open('data/ELO_2000_UCI.txt', 'r')
 print("Reading Games File")
 
-games = file.read(500000000)
+games = file.read(200000000)
 print("Closing Games File")
 file.close()
 print('Spliting Games')
