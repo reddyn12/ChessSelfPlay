@@ -17,7 +17,7 @@ import numpy as np
 
 
 print(jax.devices())
-print(jax.local_devices())
+# print(jax.local_devices())
 
 # jax.config.update("jax_default_float_precision", "float16")
 # print(jax.config.values['jax_default_float_precision'])
@@ -103,13 +103,14 @@ def getLoss(params, d, t):
 
 
 print("Loading Vocab")
+vocabPath = './data/ELO_2000_UCI.txt'
 vocab, vocabDecode = tokenizer.makeVocabUCI_SMALL()
 PAD_TOKEN = vocab['<PAD>']
 vocabSize = len(vocabDecode)
 games = open('./data/ELO_2000_UCI.txt', 'r').read()
 games = games.splitlines()
 print('Length of GAMES:',len(games))
-# sys.exit()
+sys.exit()
  
 # games = games[100000:130000]
 games = games[:13000]
