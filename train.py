@@ -34,7 +34,7 @@ config.block_size = CONTEXT_LENGTH
 config.bias = True
 
 chessModel = Tranformer(config)
-d = jnp.ones((BATCH_SIZE, BLOCK_SIZE), dtype=INT_DTYPE)
+# d = jnp.ones((BATCH_SIZE, BLOCK_SIZE), dtype=INT_DTYPE)
 dnp = np.ones((BATCH_SIZE, BLOCK_SIZE), dtype=np.int16)
 input('Cont?')
 # params = chessModel.init(jax.random.PRNGKey(0), d)
