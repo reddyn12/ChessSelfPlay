@@ -52,7 +52,7 @@ for g in tqdm(games):
 print("Converting to jnp array")
 JtokenizedGames = jnp.vstack(tokenizedGames)
 print("FINISHED converting to jnp array")
-@jax.jit
+# @jax.jit
 def getBatch():
     # k = jax.random.PRNGKey(0)
     global randKEY
@@ -63,7 +63,7 @@ def getBatch():
     batch = jnp.take(JtokenizedGames, idx, axis=0)
     return batch
 
-@jax.jit
+# @jax.jit
 def splitGame(x:jnp.array):
     global randKEY
     ind = jnp.argmax(jnp.equal(x, PAD_TOKEN), axis=0)
