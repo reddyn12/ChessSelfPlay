@@ -48,7 +48,7 @@ def getBatch():
     batch = jnp.take(JtokenizedGames, idx, axis=0)
     return batch
 
-@jax.jit
+# @jax.jit
 def splitGame(x:jnp.array):
     # global randKEY
     ind = jnp.argmax(jnp.equal(x, PAD_TOKEN), axis=0)
@@ -62,7 +62,7 @@ def splitGame(x:jnp.array):
     maskX = jnp.where(jnp.arange(x.shape[0]) < idx, 1, 0)
     # print(maskX)
     return x*maskX, x*maskY
-@jax.jit
+# @jax.jit
 def splitGames(batch:jnp.array):
     d,t = jax.vmap(splitGame)(batch)
     return d,t
