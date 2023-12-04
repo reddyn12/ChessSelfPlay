@@ -10,8 +10,29 @@ from tqdm import tqdm
 import pickle
 from utils import saveWeights, loadWeights
 import numpy as np
+vocab, vocabDecode = tokenizer.makeVocabUCI_SMALL()
+
+nBatches = 10000
+BATCH_SIZE = 128
+BLOCK_SIZE = 400
+# BLOCK_SIZE = 512
+CONTEXT_LENGTH = tokenizer.MAX_MOVES*3+1
+RAND_SEED = 123
+VOCAB_SIZE = len(vocabDecode)
 
 
 
+config = GPTConfig()
+config.vocab_size = VOCAB_SIZE
+config.n_layer = 12
+config.n_head = 12
+config.n_embd = 768
+config.dropout = 0.0
+config.block_size = CONTEXT_LENGTH
+config.bias = True
 
+chessModel = Tranformer(config)
+
+
+print('SLEEPING')
 time.sleep(1000)
