@@ -61,14 +61,14 @@ def getBatch(randKey:jax.random.PRNGKey):
     idx = jax.random.randint(k, (BATCH_SIZE,), 0, len(JtokenizedGames))
     # idx = np.random.randint(0, len(JtokenizedGames), (BATCH_SIZE,))
     batch = jnp.take(JtokenizedGames, idx, axis=0)
-    return batch
+    return batch, randKey
 
 @jax.jit
 def splitGame(x:jnp.array, randKey:jax.random.PRNGKey):
     # global randKEY
     ind = jnp.argmax(jnp.equal(x, PAD_TOKEN), axis=0)
-    randKey, k = jax.random.split(randKey)
-    idx = jax.random.randint(k, (1,), 2, ind)[0]
+    # randKey, k = jax.random.split(randKey)
+    idx = jax.random.randint(randKey, (1,), 2, ind)[0]
 
     # idx = np.random.randint(2, ind)
     # print(ind, 'with split at', idx)
@@ -82,7 +82,7 @@ def splitGames(batch:jnp.array, randKey:jax.random.PRNGKey):
     randKeys = jax.random.split(randKey, BATCH_SIZE)
     randKey, k = jax.random.split(randKey)
     d,t = jax.vmap(splitGame)(batch,randKeys)
-    return d,t
+    return d,t, randKey
 @jax.jit
 def getLoss(params, d, t):
     maskD = jnp.equal(d, PAD_TOKEN)
@@ -137,9 +137,9 @@ print('FINISHED Making ADAM Optimizer')
 
 losses = []
 for i in tqdm(range(nBatches)):
-    b = getBatch(randKEY)
+    b, randKEY = getBatch(randKEY)
     # d,t = makeTargets(b)
-    d,t = splitGames(b,randKEY)
+    d,t, randKEY = splitGames(b,randKEY)
     loss, grads = jax.value_and_grad(getLoss)(params, d, t)
     updates, opt_state = optimizer.update(grads, opt_state)
     params = optax.apply_updates(params, updates)
