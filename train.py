@@ -34,16 +34,17 @@ config.block_size = CONTEXT_LENGTH
 config.bias = True
 
 chessModel = Tranformer(config)
-# d = jnp.empty((BATCH_SIZE, BLOCK_SIZE), dtype=INT_DTYPE)
-# d_size_gb = d.size * d.itemsize / 1024**3
-# print('JNP Batch GB size',d_size_gb)
+d = jnp.empty((BATCH_SIZE, BLOCK_SIZE), dtype=INT_DTYPE)
+d_size_gb = d.size * d.itemsize / 1024**3
+print('JNP Batch GB size',d_size_gb)
 
-dnp = np.ones((BATCH_SIZE, BLOCK_SIZE), dtype=np.int16)
+# dnp = np.ones((BATCH_SIZE, BLOCK_SIZE), dtype=np.int16)
 
 
-input('Cont?')
-params = chessModel.init(jax.random.PRNGKey(0), dnp)
-
+# input('Cont?')
+params = chessModel.init(jax.random.PRNGKey(0), d)
+d.delete()
+# del d
 
 
 
