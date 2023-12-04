@@ -123,7 +123,7 @@ print('Length of GAMES:',len(games))
 # sys.exit()
  
 # games = games[100000:130000]
-# games = games[:13000]
+games = games[:13000]
 
 tokenizedGames = []
 print("Tokenizing Games")
