@@ -25,11 +25,9 @@ VOCAB_SIZE = len(vocabDecode)
 
 print("Loading Vocab")
 gamePath = 'data/ELO_2000_UCI.txt'
-
 print("Opening Games File")
 file = open(gamePath, 'r')
 print("Reading Games File")
-
 # PROBLEMO -------------------------- HUGE --------------------- PROBLEMO 
 # games = file.read(200000000)
 games = file.read()
@@ -40,10 +38,8 @@ games = games.splitlines()
 print("FNIISHED Spliting Games File")
 print('Length of GAMES:',len(games))
 # sys.exit()
- 
 # games = games[100000:130000]
 games = games[:13000]
-
 tokenizedGames = []
 print("Tokenizing Games")
 for g in tqdm(games):
@@ -51,16 +47,53 @@ for g in tqdm(games):
     arr = jnp.array(tokenizer.tokenizeLine(g, vocab, BLOCK_SIZE, pad=True), dtype=jnp.int16)
     tokenizedGames.append(arr)
 
-
-    # tokenizedGames = jnp.vstack((tokenizedGames, arr))
-# print(tokenizedGames[180:210])
-# sys.exit()   
-
-
 print("Converting to jnp array")
-# JtokenizedGames = tokenizer.pad_sequences(tokenizedGames, vocab['<PAD>'])
 JtokenizedGames = jnp.vstack(tokenizedGames)
 print("FINISHED converting to jnp array")
+
+@jax.jit
+def getBatch():
+    # k = jax.random.PRNGKey(0)
+    # global randKEY
+    # global JtokenizedGames
+    # randKEY, k = jax.random.split(randKEY)
+    idx = jax.random.randint(jax.random.PRNGKey(RAND_SEED), (BATCH_SIZE,), 0, len(JtokenizedGames))
+    # idx = np.random.randint(0, len(JtokenizedGames), (BATCH_SIZE,))
+    batch = jnp.take(JtokenizedGames, idx, axis=0)
+    return batch
+
+@jax.jit
+def splitGame(x:jnp.array):
+    # global randKEY
+    ind = jnp.argmax(jnp.equal(x, PAD_TOKEN), axis=0)
+    # randKEY, k = jax.random.split(randKEY)
+    idx = jax.random.randint(jax.random.PRNGKey(RAND_SEED), (1,), 2, ind)[0]
+
+    # idx = np.random.randint(2, ind)
+    # print(ind, 'with split at', idx)
+    maskY = jnp.where(jnp.arange(x.shape[0]) <= idx, 1, 0)
+    # print(maskY)
+    maskX = jnp.where(jnp.arange(x.shape[0]) < idx, 1, 0)
+    # print(maskX)
+    return x*maskX, x*maskY
+@jax.jit
+def splitGames(batch:jnp.array):
+    d,t = jax.vmap(splitGame)(batch)
+    return d,t
+
+@jax.jit
+def getLoss(params, d, t):
+    # Calculate the mask
+    mask = jnp.equal(d, PAD_TOKEN)
+    mask = 1 - mask  # Invert the mask
+    # Apply the mask to logits
+    logits = chessModel.apply(params, d)
+    logits = logits * mask[:, :, None]  # None is used to match the shape of logits
+    t_one_hot = jax.nn.one_hot(t, config.vocab_size)
+    loss = optax.softmax_cross_entropy(logits, t_one_hot)
+    loss = jnp.mean(loss * mask)  # Apply the mask to the loss
+    return loss
+
 
 config = GPTConfig()
 config.vocab_size = VOCAB_SIZE
@@ -77,6 +110,7 @@ d_size_gb = d.size * d.itemsize / 1024**3
 print('JNP Batch GB size',d_size_gb)
 # dnp = np.ones((BATCH_SIZE, BLOCK_SIZE), dtype=np.int16)
 # input('Cont?')
+print('Initializing PARAMS')
 params = chessModel.init(jax.random.PRNGKey(0), d)
 print('Casting to PARAMS float16')
 params = jax.tree_map(lambda x: x.astype(jnp.float16), params)
