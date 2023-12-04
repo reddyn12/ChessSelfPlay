@@ -44,7 +44,7 @@ print('JNP Batch GB size',d_size_gb)
 # input('Cont?')
 params = chessModel.init(jax.random.PRNGKey(0), d)
 d.delete()
-# del d
+del d
 
 
 
