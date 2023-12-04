@@ -160,62 +160,62 @@ config.bias = True
 chessModel = Tranformer(config)
 # randKEY, k = jax.random.split(randKEY)
 
-print('Sleeping PRE RAND SEEC')
-time.sleep(100)
+# print('Sleeping PRE RAND SEEC')
+# time.sleep(100)
+b = getBatch()
+d,t = splitGames(b)
+params = chessModel.init(jax.random.PRNGKey(RAND_SEED), d)
+
+print('Casting to float16')
+params = jax.tree_map(lambda x: x.astype(jnp.float16), params)
+print('FINISHED Casting to float16')
+
+# p1 = chessModel.init(k, JtokenizedGames[5:7])
+# print("Params", params['params']['wte'])
+# print("Params", p1['params']['wte'])
+
+
+
 # b = getBatch()
 # d,t = splitGames(b)
-# params = chessModel.init(jax.random.PRNGKey(RAND_SEED), d)
+# # dd,tt = makeTargets(b)
+# print(d.shape, t.shape)
+# print(d)
+# # print()
+# print(d[0])
+# print(t[0])
+# # print(b[0])
+# print(getLoss(params, d, t))
+# sys.exit()
 
-# print('Casting to float16')
-# params = jax.tree_map(lambda x: x.astype(jnp.float16), params)
-# print('FINISHED Casting to float16')
+# # %%
+losses = []
+# Create the Adam optimizer
+optimizer = optax.adam(learning_rate=1e-3)
+opt_state = optimizer.init(params)
 
-# # p1 = chessModel.init(k, JtokenizedGames[5:7])
-# # print("Params", params['params']['wte'])
-# # print("Params", p1['params']['wte'])
+print("Starting Training")
+# Training loop
+# 96 min 1000 batches with size batch 100 -CPU
 
+losses = []
+for i in tqdm(range(nBatches)):
+    b = getBatch()
+    # d,t = makeTargets(b)
+    d,t = splitGames(b)
+    loss, grads = jax.value_and_grad(getLoss)(params, d, t)
+    updates, opt_state = optimizer.update(grads, opt_state)
+    params = optax.apply_updates(params, updates)
 
+    print(i, " | Loss", loss)
 
-# # b = getBatch()
-# # d,t = splitGames(b)
-# # # dd,tt = makeTargets(b)
-# # print(d.shape, t.shape)
-# # print(d)
-# # # print()
-# # print(d[0])
-# # print(t[0])
-# # # print(b[0])
-# # print(getLoss(params, d, t))
-# # sys.exit()
-
-# # # %%
-# losses = []
-# # Create the Adam optimizer
-# optimizer = optax.adam(learning_rate=1e-3)
-# opt_state = optimizer.init(params)
-
-# print("Starting Training")
-# # Training loop
-# # 96 min 1000 batches with size batch 100 -CPU
-
-# losses = []
-# for i in tqdm(range(nBatches)):
-#     b = getBatch()
-#     # d,t = makeTargets(b)
-#     d,t = splitGames(b)
-#     loss, grads = jax.value_and_grad(getLoss)(params, d, t)
-#     updates, opt_state = optimizer.update(grads, opt_state)
-#     params = optax.apply_updates(params, updates)
-
-#     print(i, " | Loss", loss)
-
-#     if i%100==20:
-#         saveWeights('model_weights.pkl', params)
+    if i%100==20:
+        saveWeights('model_weights.pkl', params)
         
-# # # %%
-# for i in range(3):
-#     b = getBatch()
-#     # d,t = makeTargets(b)
-#     d,t = splitGames(b)
-#     loss = getLoss(params, d, t)
-#     print(loss)
+# # %%
+for i in range(3):
+    b = getBatch()
+    # d,t = makeTargets(b)
+    d,t = splitGames(b)
+    loss = getLoss(params, d, t)
+    print(loss)
