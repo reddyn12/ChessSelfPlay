@@ -83,7 +83,7 @@ def splitGames(batch:jnp.array, randKey:jax.random.PRNGKey):
     randKey, k = jax.random.split(randKey)
     d,t = jax.vmap(splitGame)(batch,randKeys)
     return d,t, randKey
-@jax.jit
+# @jax.jit
 def getLoss(params, d, t):
     maskD = jnp.equal(d, PAD_TOKEN)
     maskD = 1 - maskD
