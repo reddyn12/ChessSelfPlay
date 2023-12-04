@@ -84,6 +84,20 @@ def splitGames(batch:jnp.array):
 
 @jax.jit
 def getLoss(params, d, t):
+    maskD = jnp.equal(d, PAD_TOKEN)
+    maskD = 1 - maskD
+    maskT = jnp.equal(t, PAD_TOKEN)
+    maskT = 1 - maskT
+    logits = chessModel.apply(params, d)
+    logits = logits * maskD[:, :, None]
+    t_one_hot = jax.nn.one_hot(t, config.vocab_size)
+    t_one_hot = t_one_hot * maskT[:, :, None]
+    loss = optax.softmax_cross_entropy(logits, t_one_hot)
+    loss = jnp.mean(loss)
+    return loss
+
+
+
     # Calculate the mask
     mask = jnp.equal(d, PAD_TOKEN)
     mask = 1 - mask  # Invert the mask
