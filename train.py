@@ -23,6 +23,7 @@ BLOCK_SIZE = 400
 CONTEXT_LENGTH = tokenizer.MAX_MOVES*3+1
 RAND_SEED = 123
 VOCAB_SIZE = len(vocabDecode)
+randKEY = jax.random.PRNGKey(seed=RAND_SEED)
 
 print("Loading Vocab")
 gamePath = 'data/ELO_2000_UCI.txt'
@@ -51,24 +52,23 @@ for g in tqdm(games):
 print("Converting to jnp array")
 JtokenizedGames = jnp.vstack(tokenizedGames)
 print("FINISHED converting to jnp array")
-
 @jax.jit
 def getBatch():
     # k = jax.random.PRNGKey(0)
-    # global randKEY
+    global randKEY
     # global JtokenizedGames
-    # randKEY, k = jax.random.split(randKEY)
-    idx = jax.random.randint(jax.random.PRNGKey(RAND_SEED), (BATCH_SIZE,), 0, len(JtokenizedGames))
+    randKEY, k = jax.random.split(randKEY)
+    idx = jax.random.randint(k, (BATCH_SIZE,), 0, len(JtokenizedGames))
     # idx = np.random.randint(0, len(JtokenizedGames), (BATCH_SIZE,))
     batch = jnp.take(JtokenizedGames, idx, axis=0)
     return batch
 
 @jax.jit
 def splitGame(x:jnp.array):
-    # global randKEY
+    global randKEY
     ind = jnp.argmax(jnp.equal(x, PAD_TOKEN), axis=0)
-    # randKEY, k = jax.random.split(randKEY)
-    idx = jax.random.randint(jax.random.PRNGKey(RAND_SEED), (1,), 2, ind)[0]
+    randKEY, k = jax.random.split(randKEY)
+    idx = jax.random.randint(k, (1,), 2, ind)[0]
 
     # idx = np.random.randint(2, ind)
     # print(ind, 'with split at', idx)
@@ -81,7 +81,6 @@ def splitGame(x:jnp.array):
 def splitGames(batch:jnp.array):
     d,t = jax.vmap(splitGame)(batch)
     return d,t
-
 @jax.jit
 def getLoss(params, d, t):
     maskD = jnp.equal(d, PAD_TOKEN)
@@ -96,18 +95,16 @@ def getLoss(params, d, t):
     loss = jnp.mean(loss)
     return loss
 
-
-
-    # Calculate the mask
-    mask = jnp.equal(d, PAD_TOKEN)
-    mask = 1 - mask  # Invert the mask
-    # Apply the mask to logits
-    logits = chessModel.apply(params, d)
-    logits = logits * mask[:, :, None]  # None is used to match the shape of logits
-    t_one_hot = jax.nn.one_hot(t, config.vocab_size)
-    loss = optax.softmax_cross_entropy(logits, t_one_hot)
-    loss = jnp.mean(loss * mask)  # Apply the mask to the loss
-    return loss
+    # # Calculate the mask
+    # mask = jnp.equal(d, PAD_TOKEN)
+    # mask = 1 - mask  # Invert the mask
+    # # Apply the mask to logits
+    # logits = chessModel.apply(params, d)
+    # logits = logits * mask[:, :, None]  # None is used to match the shape of logits
+    # t_one_hot = jax.nn.one_hot(t, config.vocab_size)
+    # loss = optax.softmax_cross_entropy(logits, t_one_hot)
+    # loss = jnp.mean(loss * mask)  # Apply the mask to the loss
+    # return loss
 
 
 config = GPTConfig()
