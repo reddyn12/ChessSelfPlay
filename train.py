@@ -144,7 +144,7 @@ for i in tqdm(range(nBatches)):
     updates, opt_state = optimizer.update(grads, opt_state)
     params = optax.apply_updates(params, updates)
 
-    print(i, " | Loss", loss)
+    print(i, " | Loss", loss, randKEY)
 
     if i%100==20:
         saveWeights('model_weights.pkl', params)
