@@ -121,6 +121,27 @@ opt_state = optimizer.init(params)
 print('FINISHED Making ADAM Optimizer')
 
 
+losses = []
+for i in tqdm(range(nBatches)):
+    b = getBatch()
+    # d,t = makeTargets(b)
+    d,t = splitGames(b)
+    loss, grads = jax.value_and_grad(getLoss)(params, d, t)
+    updates, opt_state = optimizer.update(grads, opt_state)
+    params = optax.apply_updates(params, updates)
+
+    print(i, " | Loss", loss)
+
+    if i%100==20:
+        saveWeights('model_weights.pkl', params)
+        
+# # %%
+for i in range(3):
+    b = getBatch()
+    # d,t = makeTargets(b)
+    d,t = splitGames(b)
+    loss = getLoss(params, d, t)
+    print(loss)
 
 
 print('SLEEPING')
