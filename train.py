@@ -17,13 +17,16 @@ vocab, vocabDecode = tokenizer.makeVocabUCI_SMALL()
 PAD_TOKEN = vocab['<PAD>']
 nBatches = 10000
 BATCH_SIZE = 128
-BATCH_SIZE = 64
+
 BLOCK_SIZE = 400
 # BLOCK_SIZE = 512
 CONTEXT_LENGTH = tokenizer.MAX_MOVES*3+1
 RAND_SEED = 123
 VOCAB_SIZE = len(vocabDecode)
 randKEY = jax.random.PRNGKey(seed=RAND_SEED)
+
+BATCH_SIZE = 64
+nBatches = 10
 
 print("Loading Vocab")
 gamePath = 'data/ELO_2000_UCI.txt'
@@ -145,6 +148,8 @@ for i in tqdm(range(nBatches)):
     params = optax.apply_updates(params, updates)
 
     print(i, " | Loss", loss, randKEY)
+    print(d[0, :100])
+    print(t[0, :100])
 
     if i%100==20:
         saveWeights('model_weights.pkl', params)
