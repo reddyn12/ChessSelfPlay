@@ -52,22 +52,22 @@ for g in tqdm(games):
 print("Converting to jnp array")
 JtokenizedGames = jnp.vstack(tokenizedGames)
 print("FINISHED converting to jnp array")
-# @jax.jit
-def getBatch():
+@jax.jit
+def getBatch(randKey:jax.random.PRNGKey):
     # k = jax.random.PRNGKey(0)
-    global randKEY
+    # global randKEY
     # global JtokenizedGames
-    randKEY, k = jax.random.split(randKEY)
+    randKey, k = jax.random.split(randKey)
     idx = jax.random.randint(k, (BATCH_SIZE,), 0, len(JtokenizedGames))
     # idx = np.random.randint(0, len(JtokenizedGames), (BATCH_SIZE,))
     batch = jnp.take(JtokenizedGames, idx, axis=0)
     return batch
 
-# @jax.jit
-def splitGame(x:jnp.array):
-    global randKEY
+@jax.jit
+def splitGame(x:jnp.array, randKey:jax.random.PRNGKey):
+    # global randKEY
     ind = jnp.argmax(jnp.equal(x, PAD_TOKEN), axis=0)
-    randKEY, k = jax.random.split(randKEY)
+    randKey, k = jax.random.split(randKey)
     idx = jax.random.randint(k, (1,), 2, ind)[0]
 
     # idx = np.random.randint(2, ind)
@@ -78,8 +78,10 @@ def splitGame(x:jnp.array):
     # print(maskX)
     return x*maskX, x*maskY
 @jax.jit
-def splitGames(batch:jnp.array):
-    d,t = jax.vmap(splitGame)(batch)
+def splitGames(batch:jnp.array, randKey:jax.random.PRNGKey):
+    randKeys = jax.random.split(randKey, BATCH_SIZE)
+    randKey, k = jax.random.split(randKey)
+    d,t = jax.vmap(splitGame)(batch,randKeys)
     return d,t
 @jax.jit
 def getLoss(params, d, t):
@@ -135,9 +137,9 @@ print('FINISHED Making ADAM Optimizer')
 
 losses = []
 for i in tqdm(range(nBatches)):
-    b = getBatch()
+    b = getBatch(randKEY)
     # d,t = makeTargets(b)
-    d,t = splitGames(b)
+    d,t = splitGames(b,randKEY)
     loss, grads = jax.value_and_grad(getLoss)(params, d, t)
     updates, opt_state = optimizer.update(grads, opt_state)
     params = optax.apply_updates(params, updates)
