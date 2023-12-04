@@ -1,6 +1,7 @@
 
 
 # # %%
+import time
 from model import Tranformer, GPTConfig #, ChessGPT, cross_entropy_loss
 import os
 import jax
@@ -159,6 +160,8 @@ config.bias = True
 chessModel = Tranformer(config)
 # randKEY, k = jax.random.split(randKEY)
 
+print('Sleeping PRE RAND SEEC')
+time.sleep(100)
 b = getBatch()
 d,t = splitGames(b)
 params = chessModel.init(jax.random.PRNGKey(RAND_SEED), d)
