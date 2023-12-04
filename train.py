@@ -39,12 +39,12 @@ d_size_gb = d.size * d.itemsize / 1024**3
 print('JNP Batch GB size',d_size_gb)
 
 # dnp = np.ones((BATCH_SIZE, BLOCK_SIZE), dtype=np.int16)
-
-
 # input('Cont?')
 params = chessModel.init(jax.random.PRNGKey(0), d)
-d.delete()
-del d
+params = jax.tree_map(lambda x: x.astype(jnp.float16), params)
+
+# d.delete()
+# del d
 
 
 
