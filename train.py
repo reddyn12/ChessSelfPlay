@@ -37,7 +37,7 @@ chessModel = Tranformer(config)
 d = jnp.ones((BATCH_SIZE, BLOCK_SIZE), dtype=INT_DTYPE)
 dnp = np.ones((BATCH_SIZE, BLOCK_SIZE), dtype=np.int16)
 input('Cont?')
-params = chessModel.init(jax.random.PRNGKey(RAND_SEED), d)
+params = chessModel.init(jax.random.PRNGKey(0), d)
 
 
 
