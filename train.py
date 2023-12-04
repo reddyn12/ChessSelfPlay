@@ -17,6 +17,7 @@ vocab, vocabDecode = tokenizer.makeVocabUCI_SMALL()
 PAD_TOKEN = vocab['<PAD>']
 nBatches = 10000
 BATCH_SIZE = 128
+BATCH_SIZE = 10
 BLOCK_SIZE = 400
 # BLOCK_SIZE = 512
 CONTEXT_LENGTH = tokenizer.MAX_MOVES*3+1
