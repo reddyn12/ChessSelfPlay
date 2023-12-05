@@ -158,7 +158,7 @@ opt_state = optimizer.init(params)
 print('FINISHED Making ADAM Optimizer')
 lossGrad = jax.jit(jax.grad(getLoss))
 
-# @jax.pmap
+@jax.jit
 def update(params, d, t, idxs, opt_state):
     logits, tt = forwardClips(params, d, t, idxs)
     loss = getLoss(params, logits, tt)
@@ -167,7 +167,8 @@ def update(params, d, t, idxs, opt_state):
     params = optax.apply_updates(params, updates)
     return params, opt_state, loss
 
-
+updatePmap = jax.pmap(update)
+# updatePmap = jax.pmap(update, axis_name='batch', donate_argnums=(0,1,2,3))
 for i in tqdm(range(nBatches)):
     # randKeys = jax.random.split(randKEY, deviceCnt)
     # randKEY, k = jax.random.split(randKEY)
@@ -182,7 +183,7 @@ for i in tqdm(range(nBatches)):
     # grads = lossGrad(params, logits, tt)
     # updates, opt_state = optimizer.update(grads, opt_state)
     # params = optax.apply_updates(params, updates)
-    params, opt_state, losses = update(params, d, t, idxs, opt_state)
+    params, opt_state, losses = updatePmap(params, d, t, idxs, opt_state)
     loss = jnp.mean(losses)
     print(i, " | Loss", loss, randKEY)
     # print(d[0, :100])
