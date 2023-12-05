@@ -21,7 +21,7 @@ FLOAT_DTYPE = jnp.float16
 vocab, vocabDecode = tokenizer.makeVocabUCI_SMALL()
 PAD_TOKEN = vocab['<PAD>']
 nBatches = 10000
-BATCH_SIZE = 128*4 #* deviceCnt
+BATCH_SIZE = 128 #* deviceCnt
 BATCH_ACC = 16
 # BLOCK_SIZE = 400
 BLOCK_SIZE = 512
@@ -107,10 +107,12 @@ def splitGames(batch:jnp.array, randKey:jax.dtypes.prng_key):
     randKey, k = jax.random.split(randKey)
     d,t,idxs = jax.vmap(splitGame)(batch,randKeys)
     return d,t, idxs, randKey
+
 def trainStep(rng, state):
-    d,t,idxs, rng = getBatchSplit(rng)
-    grads, loss, accuracy = model.apply_model(state, d,t,idxs)
-    state = model.update_model(state, grads)
+    for j in range(BATCH_ACC):
+        d,t,idxs, rng = getBatchSplit(rng)
+        grads, loss, accuracy = model.apply_model(state, d,t,idxs)
+        state = model.update_model(state, grads)
     return state, loss, accuracy
 
 
