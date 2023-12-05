@@ -183,8 +183,10 @@ def update(randKey:jax.dtypes.prng_key):
     # params1, opt_state1, loss = updateParams(params, d, t, idxs, opt_state)
     # return params1, opt_state1, loss
     # gradStacked = {k: jnp.vstack([d[k] for d in dicts]) for k in dicts[0].keys()}
-    grads = jax.tree_map(lambda *x: jnp.stack(x), *gradArr)
-    grads = jax.tree_map(lambda x: jnp.mean(x, axis=0), grads)
+    # grads = jax.tree_map(lambda *x: jnp.stack(x), *gradArr)
+    # grads = jax.tree_map(lambda x: jnp.mean(x, axis=0), grads)
+    grads = stack_nested_dict(gradArr)
+    grads = pmean_nested_dict(grads)
     losses = jnp.array(losses)
     loss = jnp.mean(losses)
 
@@ -194,6 +196,12 @@ updatePmap = jax.pmap(update)
 
 def pmean_nested_dict(nested_dict):
     return {k: pmean_nested_dict(v) if isinstance(v, dict) else jnp.mean(v) for k, v in nested_dict.items()}
+def stack_nested_dict_helper(nested_dict, new_dict):
+    return {k: stack_nested_dict_helper(v, new_dict[k]) if isinstance(v, dict) else jnp.vstack(v, new_dict[k]) for k, v in nested_dict.items()}
+def stack_nested_dict(nested_dict_list):
+    ans = nested_dict_list[0].copy()
+    for d in nested_dict_list[1:]:
+        ans = stack_nested_dict_helper(ans,d)
 
 for i in tqdm(range(nBatches)):
     # randKeys = jax.random.split(randKEY, deviceCnt)
