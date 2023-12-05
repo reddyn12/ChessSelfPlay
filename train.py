@@ -18,7 +18,7 @@ vocab, vocabDecode = tokenizer.makeVocabUCI_SMALL()
 PAD_TOKEN = vocab['<PAD>']
 nBatches = 10000
 BATCH_SIZE = 128*4 #* deviceCnt
-
+BATCH_ACC = 5
 # BLOCK_SIZE = 400
 BLOCK_SIZE = 512
 CONTEXT_LENGTH = tokenizer.MAX_MOVES*3+1
@@ -166,7 +166,8 @@ def updateParams(params, d, t, idxs, opt_state):
     updates, opt_state = optimizer.update(grads, opt_state)
     params = optax.apply_updates(params, updates)
     return params, opt_state, loss
-def update(randKey:jax.dtypes.prng_key,params=params, opt_state=opt_state):
+def update(randKey:jax.dtypes.prng_key):
+    # for i in range(BATCH_ACC):
     # randKey, k = jax.random.split(randKey)
     d,t,idxs, randKey = getBatchSplit(randKey)
     # logits, tt = forwardClips(params, d, t, idxs)
