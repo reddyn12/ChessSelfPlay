@@ -84,7 +84,7 @@ print("Converting to jnp array")
 JtokenizedGames = jnp.vstack(tokenizedGames)
 print("FINISHED converting to jnp array")
 print('Making model State')
-state = model.create_train_state(randKEY, config)
+state = model.create_train_state(randKEY, config, hyperconfig)
 print('Finished making model State')
 
 @jax.jit
@@ -126,9 +126,9 @@ for currStep in range(nBatches):
         # print('Saved Weights')
 
 
+
 print('Finished Training')
 saveWeights(state.params, 'model_weights.pkl')
-
 d,t,idxs, randKey = getBatchSplit(randKEY)
 g,l,a = model.apply_model(state, d,t,idxs)
 print('loss: ', l, 'accuracy: ', a)
