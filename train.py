@@ -59,7 +59,7 @@ print("FINISHED converting to jnp array")
 
 # IDXS is ind for last token in target set.. so the y_actual
 @jax.jit
-def getBatchSplit(randKey:jax.random.PRNGKey):
+def getBatchSplit(randKey:jax.dtypes.prng_key):
     randKey, k = jax.random.split(randKey)
     idx = jax.random.randint(k, (BATCH_SIZE,), 0, len(JtokenizedGames))
     batch = jnp.take(JtokenizedGames, idx, axis=0)
@@ -67,7 +67,7 @@ def getBatchSplit(randKey:jax.random.PRNGKey):
     return d,t, idxs, randKey
 
 @jax.jit
-def getBatch(randKey:jax.random.PRNGKey):
+def getBatch(randKey:jax.dtypes.prng_key):
 
     randKey, k = jax.random.split(randKey)
     idx = jax.random.randint(k, (BATCH_SIZE,), 0, len(JtokenizedGames))
@@ -75,14 +75,14 @@ def getBatch(randKey:jax.random.PRNGKey):
     return batch, randKey
 
 @jax.jit
-def splitGame(x:jnp.array, randKey:jax.random.PRNGKey):
+def splitGame(x:jnp.array, randKey:jax.dtypes.prng_key):
     ind = jnp.argmax(jnp.equal(x, PAD_TOKEN), axis=0)
     idx = jax.random.randint(randKey, (1,), 2, ind)[0]
     maskY = jnp.where(jnp.arange(x.shape[0]) <= idx, 1, 0)
     maskX = jnp.where(jnp.arange(x.shape[0]) < idx, 1, 0)
     return x*maskX, x*maskY, idx
 @jax.jit
-def splitGames(batch:jnp.array, randKey:jax.random.PRNGKey):
+def splitGames(batch:jnp.array, randKey:jax.dtypes.prng_key):
     randKeys = jax.random.split(randKey, BATCH_SIZE)
     randKey, k = jax.random.split(randKey)
     d,t,idxs = jax.vmap(splitGame)(batch,randKeys)
@@ -159,14 +159,18 @@ print('FINISHED Making ADAM Optimizer')
 lossGrad = jax.jit(jax.grad(getLoss))
 
 @jax.jit
-def update(params, d, t, idxs, opt_state):
+def updateParams(params, d, t, idxs, opt_state):
     logits, tt = forwardClips(params, d, t, idxs)
     loss = getLoss(params, logits, tt)
     grads = lossGrad(params, logits, tt)
     updates, opt_state = optimizer.update(grads, opt_state)
     params = optax.apply_updates(params, updates)
     return params, opt_state, loss
-
+def update(randKey:jax.dtypes.prng_key):
+    # randKey, k = jax.random.split(randKey)
+    d,t,idxs, randKey = getBatchSplit(randKey)
+    params, opt_state, loss = updateParams(params, d, t, idxs, opt_state)
+    return params, opt_state, loss
 updatePmap = jax.pmap(update)
 # updatePmap = jax.pmap(update, axis_name='batch', donate_argnums=(0,1,2,3))
 for i in tqdm(range(nBatches)):
@@ -174,23 +178,33 @@ for i in tqdm(range(nBatches)):
     # randKEY, k = jax.random.split(randKEY)
     # randKEY, k = jax.random.split(randKEY)
 
+    
+    randKEY, pmapBatch = jax.random.split(randKEY,deviceCnt+1)
+    print('RANDKEY', randKEY)
+    print('PMAPBATCH', pmapBatch)
+    sys.exit()
     # d,t,idxs, randKEY_Disc = jax.vmap(getBatchSplit)(randKeys)
-    pmapBatch = []
-    for j in range(deviceCnt):
-        d,t,idxs, randKEY= getBatchSplit(randKEY)
-        pmapBatch.append([params,d,t,idxs, opt_state])
+
+    # # pmapBatch = []
+    # # for j in range(deviceCnt):
+    # #     d,t,idxs, randKEY= getBatchSplit(randKEY)
+    # #     pmapBatch.append((params,d,t,idxs, opt_state))
     
     # d,t,idxs, randKEY = getBatchSplit(randKEY)
     
-    # logits,tt = forwardClips(params, d,t,idxs)
-    # # print('LOGITS',logits.shape, 'TT', tt.shape)
-    # loss = getLoss(params, logits, tt)
-    # grads = lossGrad(params, logits, tt)
-    # updates, opt_state = optimizer.update(grads, opt_state)
-    # params = optax.apply_updates(params, updates)
+    # # logits,tt = forwardClips(params, d,t,idxs)
+    # # # print('LOGITS',logits.shape, 'TT', tt.shape)
+    # # loss = getLoss(params, logits, tt)
+    # # grads = lossGrad(params, logits, tt)
+    # # updates, opt_state = optimizer.update(grads, opt_state)
+    # # params = optax.apply_updates(params, updates)
     
-    params, opt_state, losses = updatePmap(pmapBatch)
-    # params, opt_state, losses = updatePmap(params, d, t, idxs,opt_state)
+    params, opt_state, loss = updatePmap(pmapBatch)
+    # params, opt_state, loss = update(randKEY)
+    # params, opt_state, loss = update(randKEY
+    # params, opt_state, losses = update(params, d, t, idxs, opt_state)
+    # # params, opt_state, losses = updatePmap(pmapBatch)
+    # # params, opt_state, losses = updatePmap(params, d, t, idxs,opt_state)
     loss = jnp.mean(losses)
     print(i, " | Loss", loss, randKEY)
     # print(d[0, :100])

@@ -1,4 +1,4 @@
-__pycache__/
+__pycache__/*
 data/*
 # data/ELO_2000.txt
 # data/dataPre/KingBase2019-pgn/KingBase2019-A00-A39.pgn
