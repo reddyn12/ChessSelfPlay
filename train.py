@@ -93,7 +93,7 @@ def getLoss(params, d, t, idxs):
     t = t[:, idxs]
     t_one_hot = jax.nn.one_hot(t, config.vocab_size)
     loss = optax.softmax_cross_entropy(logits, t_one_hot)
-    loss = jnp.mean(loss)
+    # loss = jnp.mean(loss)
     return loss
 @jax.jit
 def getLossOLD(params, d, t):
