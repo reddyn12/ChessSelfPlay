@@ -161,6 +161,7 @@ losses = []
 for i in tqdm(range(nBatches)):
     d,t,idxs, randKEY = getBatchSplit(randKEY)
     logits,tt = forwardClips(params, d,t,idxs)
+    print('LOGITS',logits.shape, 'TT', tt.shape)
     loss = getLoss(params, logits, tt)
     grads = lossGrad(params, logits, tt)
 
