@@ -180,9 +180,9 @@ for i in tqdm(range(nBatches)):
 
     
     pmapBatch = jax.random.split(randKEY,deviceCnt)
-    print('RANDKEY', randKEY)
-    print('PMAPBATCH', pmapBatch)
-    sys.exit()
+    # print('RANDKEY', randKEY)
+    # print('PMAPBATCH', pmapBatch)
+    # sys.exit()
     # d,t,idxs, randKEY_Disc = jax.vmap(getBatchSplit)(randKeys)
 
     # # pmapBatch = []
@@ -205,7 +205,7 @@ for i in tqdm(range(nBatches)):
     # params, opt_state, losses = update(params, d, t, idxs, opt_state)
     # # params, opt_state, losses = updatePmap(pmapBatch)
     # # params, opt_state, losses = updatePmap(params, d, t, idxs,opt_state)
-    loss = jnp.mean(losses)
+    # loss = jnp.mean(losses)
     print(i, " | Loss", loss, randKEY)
     # print(d[0, :100])
     # print(t[0, :100])
