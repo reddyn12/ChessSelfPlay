@@ -169,6 +169,7 @@ def updateParams(params, d, t, idxs, opt_state):
 def update(randKey:jax.dtypes.prng_key):
     # for i in range(BATCH_ACC):
     # randKey, k = jax.random.split(randKey)
+    global params, opt_state
     d,t,idxs, randKey = getBatchSplit(randKey)
     # logits, tt = forwardClips(params, d, t, idxs)
     # loss = getLoss(params, logits, tt)
