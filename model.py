@@ -29,7 +29,7 @@ class HyperConfig:
     CONTEXT_LENGTH: int = CONTEXT_LENGTH
     RAND_SEED: int = 123
     VOCAB_SIZE: int = VOCAB_SIZE
-    deviceCnt: int = jax.device_count()
+    deviceCnt: int = 1
     nBatches: int = 10000
     BATCH_SIZE_CUM: int = None
     INT_DTYPE: int = INT_DTYPE

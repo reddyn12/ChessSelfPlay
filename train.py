@@ -40,6 +40,19 @@ config.dropout = 0.0
 config.block_size = CONTEXT_LENGTH
 config.bias = True
 
+hyperconfig = model.HyperConfig()
+hyperconfig.BATCH_SIZE = BATCH_SIZE
+hyperconfig.BATCH_ACC = BATCH_ACC
+hyperconfig.BLOCK_SIZE = BLOCK_SIZE
+hyperconfig.CONTEXT_LENGTH = CONTEXT_LENGTH
+hyperconfig.RAND_SEED = RAND_SEED
+hyperconfig.VOCAB_SIZE = VOCAB_SIZE
+hyperconfig.deviceCnt = deviceCnt
+hyperconfig.nBatches = nBatches
+hyperconfig.BATCH_SIZE_CUM = BATCH_SIZE_CUM
+hyperconfig.INT_DTYPE = INT_DTYPE
+hyperconfig.FLOAT_DTYPE = FLOAT_DTYPE
+
 # BATCH_SIZE = 64
 # nBatches = 10
 
@@ -110,4 +123,12 @@ for currStep in range(nBatches):
         print('Step:',currStep, 'Loss:', loss, 'Accuracy:', accuracy)
     if currStep%100==20:
         saveWeights(state.params, 'model_weights.pkl')
-    pass
+        # print('Saved Weights')
+
+
+print('Finished Training')
+saveWeights(state.params, 'model_weights.pkl')
+
+d,t,idxs, randKey = getBatchSplit(randKEY)
+g,l,a = model.apply_model(state, d,t,idxs)
+print('loss: ', l, 'accuracy: ', a)
