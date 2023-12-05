@@ -222,7 +222,7 @@ for i in tqdm(range(nBatches)):
     # print(opt_stateTemp)
     params = pmean_nested_dict(paramsTemp)
     # print(params['params'])
-    print(params['params']['bloacks_0'])
+    print(params['params']['blocks_0'])
     opt_state = opt_stateTemp[0]
     loss = jnp.mean(losses)
 
