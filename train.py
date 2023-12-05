@@ -1,5 +1,6 @@
 import time
-# from model import Tranformer, GPTConfig #, ChessGPT, cross_entropy_loss
+# from model import Tranformer, GPTConfig
+#  #, ChessGPT, cross_entropy_loss
 import os
 import jax
 import model

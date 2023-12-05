@@ -6,7 +6,7 @@ import flax.linen as nn
 from flax.training import train_state
 from dataclasses import dataclass
 import random
-from tokenizer import makeVocabUCI_SMALL
+from tokenizer import makeVocabUCI_SMALL, CONTEXT_LENGTH
 DETERMINISTIC = False
 INT_DTYPE = jnp.int16
 FLOAT_DTYPE = jnp.float16
@@ -21,7 +21,19 @@ class GPTConfig:
     n_embd: int = 768
     dropout: float = 0.0
     bias: bool = True # True: bias in Linears and LayerNorms, like GPT-2. False: a bit better and faster
-
+@dataclass
+class HyperConfig:
+    BATCH_SIZE: int = 128
+    BATCH_ACC: int = 16
+    BLOCK_SIZE: int = 512
+    CONTEXT_LENGTH: int = CONTEXT_LENGTH
+    RAND_SEED: int = 123
+    VOCAB_SIZE: int = VOCAB_SIZE
+    deviceCnt: int = jax.device_count()
+    nBatches: int = 10000
+    BATCH_SIZE_CUM: int = None
+    INT_DTYPE: int = INT_DTYPE
+    FLOAT_DTYPE: int = FLOAT_DTYPE
 class LayerNorm(nn.Module):
     """Layer normalization (https://arxiv.org/abs/1607.06450)."""
     # def __init__(self, config: GPTConfig):
@@ -184,11 +196,11 @@ def apply_model(state, d,t,idxs):
 def update_model(state, grads):
   return state.apply_gradients(grads=grads)
 
-def create_train_state(rng, config):
+def create_train_state(rng, config, hyperconfig):
     """Creates initial `TrainState`."""
     model = Tranformer(config)
 #   cnn = CNN()
-    d = jnp.ones((config.BATCH_SIZE, config.BLOCK_SIZE), dtype=INT_DTYPE)
+    d = jnp.ones((hyperconfig.BATCH_SIZE, hyperconfig.BLOCK_SIZE), dtype=hyperconfig.INT_DTYPE)
     # d_size_gb = d.size * d.itemsize / 1024**3
     # print('JNP Batch GB size',d_size_gb)
     params = model.init(rng, d)['params']

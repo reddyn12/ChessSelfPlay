@@ -3,8 +3,10 @@ import sys
 import jax
 import jax.numpy as jnp
 
-MAX_MOVES = 300
+from train import CONTEXT_LENGTH
 
+MAX_MOVES = 300
+CONTEXT_LENGTH = (MAX_MOVES*3)+1
 # def makeVocabUCI():
 #     vocab = {}
 #     v = ['<PAD>', '', '0-1', '1-0', '1/2-1/2', '*', 'O-O']     #'k', 'q', 'n', 'b', 'r'
