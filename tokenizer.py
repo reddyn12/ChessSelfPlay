@@ -3,7 +3,7 @@ import sys
 import jax
 import jax.numpy as jnp
 
-from train import CONTEXT_LENGTH
+# from train import CONTEXT_LENGTH
 
 MAX_MOVES = 300
 CONTEXT_LENGTH = (MAX_MOVES*3)+1
