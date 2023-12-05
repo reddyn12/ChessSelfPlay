@@ -175,7 +175,12 @@ for i in tqdm(range(nBatches)):
     # randKEY, k = jax.random.split(randKEY)
 
     # d,t,idxs, randKEY_Disc = jax.vmap(getBatchSplit)(randKeys)
-    d,t,idxs, randKEY = getBatchSplit(randKEY)
+    pmapBatch = []
+    for j in range(deviceCnt):
+        d,t,idxs, randKEY_Disc = getBatchSplit(randKEY)
+        pmapBatch.append([params,d,t,idxs, opt_state])
+    
+    # d,t,idxs, randKEY = getBatchSplit(randKEY)
     
     # logits,tt = forwardClips(params, d,t,idxs)
     # # print('LOGITS',logits.shape, 'TT', tt.shape)
@@ -183,7 +188,9 @@ for i in tqdm(range(nBatches)):
     # grads = lossGrad(params, logits, tt)
     # updates, opt_state = optimizer.update(grads, opt_state)
     # params = optax.apply_updates(params, updates)
-    params, opt_state, losses = updatePmap([params], d, t, idxs, [opt_state])
+    
+    params, opt_state, losses = updatePmap(pmapBatch)
+    # params, opt_state, losses = updatePmap(params, d, t, idxs,opt_state)
     loss = jnp.mean(losses)
     print(i, " | Loss", loss, randKEY)
     # print(d[0, :100])
