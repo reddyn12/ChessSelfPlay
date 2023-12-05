@@ -171,7 +171,7 @@ def update(randKey:jax.dtypes.prng_key,params=params, opt_state=opt_state):
     d,t,idxs, randKey = getBatchSplit(randKey)
     params, opt_state, loss = updateParams(params, d, t, idxs, opt_state)
     return params, opt_state, loss
-updatePmap = jax.pmap(update, in_axes=(0,None, None))
+updatePmap = jax.pmap(update)
 # updatePmap = jax.pmap(update, axis_name='batch', donate_argnums=(0,1,2,3))
 for i in tqdm(range(nBatches)):
     # randKeys = jax.random.split(randKEY, deviceCnt)
