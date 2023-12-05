@@ -103,7 +103,7 @@ def forwardClips(params, d,t,idxs):
     logits = chessModel.apply(params, d)
     logits = logits[:, idxs-1, :]
     tt = t[:, idxs]
-    tt = jax.nn.one_hot(t, config.vocab_size)
+    tt = jax.nn.one_hot(tt, config.vocab_size)
     return logits, tt
 @jax.jit
 def getLossOLD(params, d, t):
@@ -161,7 +161,7 @@ losses = []
 for i in tqdm(range(nBatches)):
     d,t,idxs, randKEY = getBatchSplit(randKEY)
     logits,tt = forwardClips(params, d,t,idxs)
-    print('LOGITS',logits.shape, 'TT', tt.shape)
+    # print('LOGITS',logits.shape, 'TT', tt.shape)
     loss = getLoss(params, logits, tt)
     grads = lossGrad(params, logits, tt)
 
