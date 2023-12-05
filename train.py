@@ -55,39 +55,48 @@ for g in tqdm(games):
 print("Converting to jnp array")
 JtokenizedGames = jnp.vstack(tokenizedGames)
 print("FINISHED converting to jnp array")
+
+# IDXS is ind for last token in target set.. so the y_actual
 @jax.jit
-def getBatch(randKey:jax.random.PRNGKey):
-    # k = jax.random.PRNGKey(0)
-    # global randKEY
-    # global JtokenizedGames
+def getBatchSplit(randKey:jax.random.PRNGKey):
     randKey, k = jax.random.split(randKey)
     idx = jax.random.randint(k, (BATCH_SIZE,), 0, len(JtokenizedGames))
-    # idx = np.random.randint(0, len(JtokenizedGames), (BATCH_SIZE,))
+    batch = jnp.take(JtokenizedGames, idx, axis=0)
+    d,t, idxs, randKey = splitGames(batch,randKey)
+    return d,t, idxs, randKey
+
+@jax.jit
+def getBatch(randKey:jax.random.PRNGKey):
+
+    randKey, k = jax.random.split(randKey)
+    idx = jax.random.randint(k, (BATCH_SIZE,), 0, len(JtokenizedGames))
     batch = jnp.take(JtokenizedGames, idx, axis=0)
     return batch, randKey
 
 @jax.jit
 def splitGame(x:jnp.array, randKey:jax.random.PRNGKey):
-    # global randKEY
     ind = jnp.argmax(jnp.equal(x, PAD_TOKEN), axis=0)
-    # randKey, k = jax.random.split(randKey)
     idx = jax.random.randint(randKey, (1,), 2, ind)[0]
-
-    # idx = np.random.randint(2, ind)
-    # print(ind, 'with split at', idx)
     maskY = jnp.where(jnp.arange(x.shape[0]) <= idx, 1, 0)
-    # print(maskY)
     maskX = jnp.where(jnp.arange(x.shape[0]) < idx, 1, 0)
-    # print(maskX)
-    return x*maskX, x*maskY
+    return x*maskX, x*maskY, idx
 @jax.jit
 def splitGames(batch:jnp.array, randKey:jax.random.PRNGKey):
     randKeys = jax.random.split(randKey, BATCH_SIZE)
     randKey, k = jax.random.split(randKey)
-    d,t = jax.vmap(splitGame)(batch,randKeys)
-    return d,t, randKey
-# @jax.jit
-def getLoss(params, d, t):
+    d,t,idxs = jax.vmap(splitGame)(batch,randKeys)
+    return d,t, idxs, randKey
+@jax.jit
+def getLoss(params, d, t, idxs):
+    logits = chessModel.apply(params, d)
+    logits = logits[:, idxs-1, :]
+    t = t[:, idxs]
+    t_one_hot = jax.nn.one_hot(t, config.vocab_size)
+    loss = optax.softmax_cross_entropy(logits, t_one_hot)
+    loss = jnp.mean(loss)
+    return loss
+@jax.jit
+def getLossOLD(params, d, t):
     maskD = jnp.equal(d, PAD_TOKEN)
     maskD = 1 - maskD
     maskT = jnp.equal(t, PAD_TOKEN)
@@ -140,10 +149,10 @@ print('FINISHED Making ADAM Optimizer')
 
 losses = []
 for i in tqdm(range(nBatches)):
-    b, randKEY = getBatch(randKEY)
+    d,t,idxs, randKEY = getBatchSplit(randKEY)
     # d,t = makeTargets(b)
-    d,t, randKEY = splitGames(b,randKEY)
-    loss, grads = jax.value_and_grad(getLoss)(params, d, t)
+    # d,t, randKEY = splitGames(b,randKEY)
+    loss, grads = jax.value_and_grad(getLoss)(params, d, t, idxs)
     updates, opt_state = optimizer.update(grads, opt_state)
     params = optax.apply_updates(params, updates)
 
