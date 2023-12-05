@@ -169,15 +169,23 @@ def updateParams(params, d, t, idxs, opt_state):
     params = optax.apply_updates(params, updates)
     return params, opt_state, loss
 def update(randKey:jax.dtypes.prng_key):
-    # for i in range(BATCH_ACC):
+    gradArr = []
+    losses =[]
+    for i in range(BATCH_ACC):
     # randKey, k = jax.random.split(randKey)
     # global params, opt_state
-    d,t,idxs, randKey = getBatchSplit(randKey)
-    logits, tt = forwardClips(params, d, t, idxs)
-    loss = getLoss(params, logits, tt)
-    grads = lossGrad(params, logits, tt)
+        d,t,idxs, randKey = getBatchSplit(randKey)
+        logits, tt = forwardClips(params, d, t, idxs)
+        loss = getLoss(params, logits, tt)
+        grads = lossGrad(params, logits, tt)
+        gradArr.append(grads)
+        losses = jnp.stack(losses, loss)
     # params1, opt_state1, loss = updateParams(params, d, t, idxs, opt_state)
     # return params1, opt_state1, loss
+    grads = jax.tree_multimap(lambda *x: jnp.stack(x), *gradArr)
+    grads = jax.tree_map(lambda x: jnp.mean(x, axis=0), grads)
+    loss = jnp.mean(losses)
+
     return loss, grads
 updatePmap = jax.pmap(update)
 # updatePmap = jax.pmap(update, axis_name='batch', donate_argnums=(0,1,2,3))
@@ -219,30 +227,31 @@ for i in tqdm(range(nBatches)):
     # # params, opt_state, losses = updatePmap(pmapBatch)
     # # params, opt_state, losses = updatePmap(params, d, t, idxs,opt_state)
     # loss = jnp.mean(losses)
-    print(type(grads))
+    # print(type(grads))
     # print(grads.keys())
-    # print(grads['params'].keys())
-    print(grads['params']['blocks_0']['mlp']['layer_1']['bias'].shape)
-    print(grads['params']['blocks_0']['mlp'].keys())
-    # print(grads['params']['blocks_0']['ln_1'].keys())
-    # print(grads['params']['blocks_0']['ln_1']['scale'].shape)
-    # print(grads['params']['blocks_0']['ln_1']['scale'])
-    sys.exit()
+    # # print(grads['params'].keys())
+    # print(grads['params']['blocks_0']['mlp'])
+    # print(grads['params']['blocks_0']['mlp'].keys())
+    # sys.exit()
+    # # print(grads['params']['blocks_0']['ln_1'].keys())
+    # # print(grads['params']['blocks_0']['ln_1']['scale'].shape)
+    # # print(grads['params']['blocks_0']['ln_1']['scale'])
+   
     # print(grads.keys())
     # grad = pmean_nested_dict(grads)
 
     # print(opt_stateTemp)
     # params = pmean_nested_dict(paramsTemp)
     # # print(params['params'])
-    # print(params['params']['blocks_0'])
+    # 
     # print(paramsTemp)
     # print(type(paramsTemp))
     # opt_state = opt_stateTemp[0]
     loss = jnp.mean(losses)
-
-    # updates, opt_state = optimizer.update(grad, opt_state)
-    # params = optax.apply_updates(params, updates)
-
+    grad =jax.tree_map(lambda x: jnp.mean(x, axis=0), grads)
+    updates, opt_state = optimizer.update(grad, opt_state)
+    params = optax.apply_updates(params, updates)
+    print(params['params']['blocks_0'])
     print(i, " | Loss", loss, losses, randKEY)
     # print(d[0, :100])
     # print(t[0, :100])
