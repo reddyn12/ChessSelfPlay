@@ -173,7 +173,7 @@ for i in tqdm(range(nBatches)):
     randKEY, k = jax.random.split(randKEY)
     randKEY, k = jax.random.split(randKEY)
 
-    d,t,idxs, randKEY_Disc = jax.pmap(getBatchSplit)(randKeys)
+    d,t,idxs, randKEY_Disc = jax.vmap(getBatchSplit)(randKeys)
     # d,t,idxs, randKEY = getBatchSplit(randKEY)
     
     # logits,tt = forwardClips(params, d,t,idxs)
