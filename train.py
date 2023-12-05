@@ -116,7 +116,7 @@ def trainStep(rng, state):
 
     
 
-for currStep in range(nBatches):
+for currStep in tqdm(range(nBatches)):
     randKEY, rng = jax.random.split(randKEY)
     state, loss, accuracy = trainStep(rng, state)
     if currStep%100==0:
