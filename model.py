@@ -6,7 +6,6 @@ import flax.linen as nn
 from flax.training import train_state
 from dataclasses import dataclass
 import random
-from Rewrote_train2 import VOCAB_SIZE
 from tokenizer import makeVocabUCI_SMALL
 DETERMINISTIC = False
 INT_DTYPE = jnp.int16
