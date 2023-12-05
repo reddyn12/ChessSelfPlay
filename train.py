@@ -61,11 +61,11 @@ print("FINISHED converting to jnp array")
 
 # IDXS is ind for last token in target set.. so the y_actual
 @jax.jit
-def getBatchSplit(randKey:jax.dtypes.prng_key):
+def getBatchSplit(randKey:jax.dtypes.prng_key, batchSize = BATCH_SIZE):
     randKey, k = jax.random.split(randKey)
-    idx = jax.random.randint(k, (BATCH_SIZE,), 0, len(JtokenizedGames))
+    idx = jax.random.randint(k, (batchSize,), 0, len(JtokenizedGames))
     batch = jnp.take(JtokenizedGames, idx, axis=0)
-    d,t, idxs, randKey = splitGames(batch,randKey)
+    d,t, idxs, randKey = splitGames(batch,randKey, batchSize=batchSize)
     return d,t, idxs, randKey
 
 @jax.jit
@@ -84,7 +84,7 @@ def splitGame(x:jnp.array, randKey:jax.dtypes.prng_key):
     maskX = jnp.where(jnp.arange(x.shape[0]) < idx, 1, 0)
     return x*maskX, x*maskY, idx
 @jax.jit
-def splitGames(batch:jnp.array, randKey:jax.dtypes.prng_key):
+def splitGames(batch:jnp.array, randKey:jax.dtypes.prng_key, batchSize = BATCH_SIZE):
     randKeys = jax.random.split(randKey, BATCH_SIZE)
     randKey, k = jax.random.split(randKey)
     d,t,idxs = jax.vmap(splitGame)(batch,randKeys)
@@ -168,7 +168,7 @@ def updateParams(params, d, t, idxs, opt_state):
     updates, opt_state = optimizer.update(grads, opt_state)
     params = optax.apply_updates(params, updates)
     return params, opt_state, loss
-def update(randKey:jax.dtypes.prng_key):
+def updateOLD(randKey:jax.dtypes.prng_key):
     gradArr = []
     losses =[]
     for i in range(BATCH_ACC):
@@ -191,6 +191,12 @@ def update(randKey:jax.dtypes.prng_key):
     loss = jnp.mean(losses)
 
     return loss, grads
+def update(randKey:jax.dtypes.prng_key):
+    d,t,idxs, randKey = getBatchSplit(randKey, batchSize=BATCH_SIZE*deviceCnt)
+    params, opt_state, loss = updateParams(params, d, t, idxs, opt_state)
+    return params, opt_state, loss
+
+
 updatePmap = jax.pmap(update)
 # updatePmap = jax.pmap(update, axis_name='batch', donate_argnums=(0,1,2,3))
 
@@ -230,8 +236,9 @@ for i in tqdm(range(nBatches)):
     # # updates, opt_state = optimizer.update(grads, opt_state)
     # # params = optax.apply_updates(params, updates)
     
-    losses, grads  = updatePmap(pmapBatch)
-    # paramsTemp, opt_stateTemp, losses = updatePmap(pmapBatch)
+    # losses, grads  = updatePmap(pmapBatch)
+    paramsTemp, opt_stateTemp, losses = updatePmap(pmapBatch)
+    loss = jnp.mean(losses)
     # params, opt_state, loss = update(randKEY)
     # params, opt_state, loss = update(randKEY
     # params, opt_state, losses = update(params, d, t, idxs, opt_state)
@@ -258,11 +265,13 @@ for i in tqdm(range(nBatches)):
     # print(paramsTemp)
     # print(type(paramsTemp))
     # opt_state = opt_stateTemp[0]
-    loss = jnp.mean(losses)
+    
     # grad =jax.tree_map(lambda x: jnp.mean(x, axis=0), grads)
-    grad = pmean_nested_dict(grads)
-    updates, opt_state = optimizer.update(grad, opt_state, params)
-    params = optax.apply_updates(params, updates)
+    # grad = pmean_nested_dict(grads)
+    # updates, opt_state = optimizer.update(grad, opt_state, params)
+    # params = optax.apply_updates(params, updates)
+    print(type(paramsTemp))
+    time.sleep(100)
     print(params['params']['blocks_0']['mlp'])
     print(i, " | Loss", loss, losses, randKEY)
     # print(d[0, :100])
