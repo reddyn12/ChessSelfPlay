@@ -182,9 +182,10 @@ def update(randKey:jax.dtypes.prng_key):
         losses = losses + [loss]
     # params1, opt_state1, loss = updateParams(params, d, t, idxs, opt_state)
     # return params1, opt_state1, loss
-
+    # gradStacked = {k: jnp.vstack([d[k] for d in dicts]) for k in dicts[0].keys()}
     grads = jax.tree_map(lambda *x: jnp.stack(x), *gradArr)
     grads = jax.tree_map(lambda x: jnp.mean(x, axis=0), grads)
+    losses = jnp.array(losses)
     loss = jnp.mean(losses)
 
     return loss, grads
