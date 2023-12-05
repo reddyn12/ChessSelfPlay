@@ -17,7 +17,7 @@ FLOAT_DTYPE = jnp.float16
 vocab, vocabDecode = tokenizer.makeVocabUCI_SMALL()
 PAD_TOKEN = vocab['<PAD>']
 nBatches = 10000
-BATCH_SIZE = 128*4 #* deviceCnt
+BATCH_SIZE = 128*8 #* deviceCnt
 
 # BLOCK_SIZE = 400
 BLOCK_SIZE = 512
@@ -221,8 +221,8 @@ for i in tqdm(range(nBatches)):
 
     # print(opt_stateTemp)
     params = pmean_nested_dict(paramsTemp)
-    print(params['params'])
-    print(params['params'].keys())
+    # print(params['params'])
+    print(params['params']['bloacks_0'])
     opt_state = opt_stateTemp[0]
     loss = jnp.mean(losses)
 
