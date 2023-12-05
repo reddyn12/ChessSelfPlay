@@ -202,6 +202,7 @@ def stack_nested_dict(nested_dict_list):
     ans = nested_dict_list[0].copy()
     for d in nested_dict_list[1:]:
         ans = stack_nested_dict_helper(ans,d)
+    return ans
 
 for i in tqdm(range(nBatches)):
     # randKeys = jax.random.split(randKEY, deviceCnt)
