@@ -166,7 +166,7 @@ def updateParams(params, d, t, idxs, opt_state):
     updates, opt_state = optimizer.update(grads, opt_state)
     params = optax.apply_updates(params, updates)
     return params, opt_state, loss
-def update(randKey:jax.dtypes.prng_key):
+def update(randKey:jax.dtypes.prng_key, params):
     # randKey, k = jax.random.split(randKey)
     d,t,idxs, randKey = getBatchSplit(randKey)
     params, opt_state, loss = updateParams(params, d, t, idxs, opt_state)
