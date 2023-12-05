@@ -210,7 +210,7 @@ for i in tqdm(range(nBatches)):
     # # params, opt_state, losses = updatePmap(params, d, t, idxs,opt_state)
     # loss = jnp.mean(losses)
     
-    print(grads)
+    print(grads.keys())
     grad = jax.lax.pmean(grads, axis_name='batch')
     loss = jnp.mean(losses)
 
