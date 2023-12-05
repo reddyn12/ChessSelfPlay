@@ -173,12 +173,12 @@ def update(randKey:jax.dtypes.prng_key):
     # randKey, k = jax.random.split(randKey)
     # global params, opt_state
     d,t,idxs, randKey = getBatchSplit(randKey)
-    # logits, tt = forwardClips(params, d, t, idxs)
-    # loss = getLoss(params, logits, tt)
-    # grads = lossGrad(params, logits, tt)
-    params1, opt_state1, loss = updateParams(params, d, t, idxs, opt_state)
-    
-    return params1, opt_state1, loss
+    logits, tt = forwardClips(params, d, t, idxs)
+    loss = getLoss(params, logits, tt)
+    grads = lossGrad(params, logits, tt)
+    # params1, opt_state1, loss = updateParams(params, d, t, idxs, opt_state)
+    # return params1, opt_state1, loss
+    return loss, grads
 updatePmap = jax.pmap(update)
 # updatePmap = jax.pmap(update, axis_name='batch', donate_argnums=(0,1,2,3))
 
@@ -211,25 +211,26 @@ for i in tqdm(range(nBatches)):
     # # updates, opt_state = optimizer.update(grads, opt_state)
     # # params = optax.apply_updates(params, updates)
     
-    # losses, grads  = updatePmap(pmapBatch)
-    paramsTemp, opt_stateTemp, losses = updatePmap(pmapBatch)
+    losses, grads  = updatePmap(pmapBatch)
+    # paramsTemp, opt_stateTemp, losses = updatePmap(pmapBatch)
     # params, opt_state, loss = update(randKEY)
     # params, opt_state, loss = update(randKEY
     # params, opt_state, losses = update(params, d, t, idxs, opt_state)
     # # params, opt_state, losses = updatePmap(pmapBatch)
     # # params, opt_state, losses = updatePmap(params, d, t, idxs,opt_state)
     # loss = jnp.mean(losses)
-    
+    print(type(grads))
+    sys.exit()
     # print(grads.keys())
     # grad = pmean_nested_dict(grads)
 
     # print(opt_stateTemp)
-    params = pmean_nested_dict(paramsTemp)
-    # print(params['params'])
-    print(params['params']['blocks_0'])
-    print(paramsTemp)
-    print(type(paramsTemp))
-    opt_state = opt_stateTemp[0]
+    # params = pmean_nested_dict(paramsTemp)
+    # # print(params['params'])
+    # print(params['params']['blocks_0'])
+    # print(paramsTemp)
+    # print(type(paramsTemp))
+    # opt_state = opt_stateTemp[0]
     loss = jnp.mean(losses)
 
     # updates, opt_state = optimizer.update(grad, opt_state)
