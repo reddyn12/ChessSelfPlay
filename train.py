@@ -10,6 +10,8 @@ from tqdm import tqdm
 import pickle
 from utils import saveWeights, loadWeights
 import numpy as np
+
+
 deviceCnt = jax.device_count()
 print('Device Count', deviceCnt)
 INT_DTYPE = jnp.int16
@@ -169,7 +171,7 @@ def updateParams(params, d, t, idxs, opt_state):
 def update(randKey:jax.dtypes.prng_key):
     # for i in range(BATCH_ACC):
     # randKey, k = jax.random.split(randKey)
-    global params, opt_state
+    # global params, opt_state
     d,t,idxs, randKey = getBatchSplit(randKey)
     # logits, tt = forwardClips(params, d, t, idxs)
     # loss = getLoss(params, logits, tt)
@@ -225,6 +227,8 @@ for i in tqdm(range(nBatches)):
     params = pmean_nested_dict(paramsTemp)
     # print(params['params'])
     print(params['params']['blocks_0'])
+    print(paramsTemp)
+    print(type(paramsTemp))
     opt_state = opt_stateTemp[0]
     loss = jnp.mean(losses)
 
