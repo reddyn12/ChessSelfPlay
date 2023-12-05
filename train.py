@@ -144,7 +144,7 @@ config.block_size = CONTEXT_LENGTH
 config.bias = True
 
 chessModel = Tranformer(config)
-d = jnp.empty((BATCH_SIZE, BLOCK_SIZE), dtype=INT_DTYPE)
+d = jnp.ones((BATCH_SIZE, BLOCK_SIZE), dtype=INT_DTYPE)
 d_size_gb = d.size * d.itemsize / 1024**3
 print('JNP Batch GB size',d_size_gb)
 # dnp = snp.ones((BATCH_SIZE, BLOCK_SIZE), dtype=np.int16)
@@ -220,9 +220,9 @@ for i in tqdm(range(nBatches)):
     # # params, opt_state, losses = updatePmap(params, d, t, idxs,opt_state)
     # loss = jnp.mean(losses)
     print(type(grads))
-    print(grads.keys())
-    print(grads['params'].keys())
-    print(grads['params']['blocks_0']['mlp'])
+    # print(grads.keys())
+    # print(grads['params'].keys())
+    print(grads['params']['blocks_0']['mlp']['layer_1']['bias'].shape)
     print(grads['params']['blocks_0']['mlp'].keys())
     # print(grads['params']['blocks_0']['ln_1'].keys())
     # print(grads['params']['blocks_0']['ln_1']['scale'].shape)
