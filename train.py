@@ -177,7 +177,7 @@ for i in tqdm(range(nBatches)):
     # d,t,idxs, randKEY_Disc = jax.vmap(getBatchSplit)(randKeys)
     pmapBatch = []
     for j in range(deviceCnt):
-        d,t,idxs, randKEY_Disc = getBatchSplit(randKEY)
+        d,t,idxs, randKEY= getBatchSplit(randKEY)
         pmapBatch.append([params,d,t,idxs, opt_state])
     
     # d,t,idxs, randKEY = getBatchSplit(randKEY)
