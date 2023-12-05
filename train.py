@@ -17,7 +17,7 @@ FLOAT_DTYPE = jnp.float16
 vocab, vocabDecode = tokenizer.makeVocabUCI_SMALL()
 PAD_TOKEN = vocab['<PAD>']
 nBatches = 10000
-BATCH_SIZE = 128 #* deviceCnt
+BATCH_SIZE = 128*8 #* deviceCnt
 
 # BLOCK_SIZE = 400
 BLOCK_SIZE = 512
@@ -166,11 +166,14 @@ def updateParams(params, d, t, idxs, opt_state):
     updates, opt_state = optimizer.update(grads, opt_state)
     params = optax.apply_updates(params, updates)
     return params, opt_state, loss
-def update(randKey:jax.dtypes.prng_key,params=params, opt_state=opt_state):
+def update(randKey:jax.dtypes.prng_key,params=params):
     # randKey, k = jax.random.split(randKey)
     d,t,idxs, randKey = getBatchSplit(randKey)
-    params, opt_state, loss = updateParams(params, d, t, idxs, opt_state)
-    return params, opt_state, loss
+    logits, tt = forwardClips(params, d, t, idxs)
+    loss = getLoss(params, logits, tt)
+    grads = lossGrad(params, logits, tt)
+    # params, opt_state, loss = updateParams(params, d, t, idxs, opt_state)
+    return loss, grads
 updatePmap = jax.pmap(update)
 # updatePmap = jax.pmap(update, axis_name='batch', donate_argnums=(0,1,2,3))
 for i in tqdm(range(nBatches)):
@@ -178,8 +181,8 @@ for i in tqdm(range(nBatches)):
     # randKEY, k = jax.random.split(randKEY)
     # randKEY, k = jax.random.split(randKEY)
 
-    
-    pmapBatch = jax.random.split(randKEY,deviceCnt)
+    randKEY, k = jax.random.split(randKEY)
+    pmapBatch = jax.random.split(k,deviceCnt)
     # print('RANDKEY', randKEY)
     # print('PMAPBATCH', pmapBatch)
     # sys.exit()
@@ -199,14 +202,21 @@ for i in tqdm(range(nBatches)):
     # # updates, opt_state = optimizer.update(grads, opt_state)
     # # params = optax.apply_updates(params, updates)
     
-    params, opt_state, loss = updatePmap(pmapBatch)
+    losses, grads  = updatePmap(pmapBatch)
     # params, opt_state, loss = update(randKEY)
     # params, opt_state, loss = update(randKEY
     # params, opt_state, losses = update(params, d, t, idxs, opt_state)
     # # params, opt_state, losses = updatePmap(pmapBatch)
     # # params, opt_state, losses = updatePmap(params, d, t, idxs,opt_state)
     # loss = jnp.mean(losses)
-    print(i, " | Loss", loss, randKEY)
+
+    grad = jax.lax.pmean(grads)
+    loss = jnp.mean(losses)
+
+    updates, opt_state = optimizer.update(grad, opt_state)
+    params = optax.apply_updates(params, updates)
+
+    print(i, " | Loss", loss, losses, randKEY)
     # print(d[0, :100])
     # print(t[0, :100])
 
