@@ -221,7 +221,7 @@ for i in tqdm(range(nBatches)):
 
     print(opt_stateTemp)
     params = pmean_nested_dict(paramsTemp)
-    opt_state = pmean_nested_dict(opt_stateTemp)
+    opt_state = opt_stateTemp[0]
     loss = jnp.mean(losses)
 
     # updates, opt_state = optimizer.update(grad, opt_state)
