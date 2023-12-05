@@ -179,7 +179,7 @@ for i in tqdm(range(nBatches)):
     # randKEY, k = jax.random.split(randKEY)
 
     
-    randKEY, pmapBatch = jax.random.split(randKEY,deviceCnt+1)
+    pmapBatch = jax.random.split(randKEY,deviceCnt)
     print('RANDKEY', randKEY)
     print('PMAPBATCH', pmapBatch)
     sys.exit()
