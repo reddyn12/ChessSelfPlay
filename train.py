@@ -10,13 +10,14 @@ from tqdm import tqdm
 import pickle
 from utils import saveWeights, loadWeights
 import numpy as np
-
+deviceCnt = jax.device_count()
+print('Device Count', deviceCnt)
 INT_DTYPE = jnp.int16
 FLOAT_DTYPE = jnp.float16
 vocab, vocabDecode = tokenizer.makeVocabUCI_SMALL()
 PAD_TOKEN = vocab['<PAD>']
 nBatches = 10000
-BATCH_SIZE = 128
+BATCH_SIZE = 128 * deviceCnt
 
 # BLOCK_SIZE = 400
 BLOCK_SIZE = 512
@@ -157,23 +158,29 @@ opt_state = optimizer.init(params)
 print('FINISHED Making ADAM Optimizer')
 lossGrad = jax.jit(jax.grad(getLoss))
 
+@jax.pmap
+def update(params, d, t, idxs, opt_state):
+    logits, tt = forwardClips(params, d, t, idxs)
+    loss = getLoss(params, logits, tt)
+    grads = lossGrad(params, logits, tt)
+    updates, opt_state = optimizer.update(grads, opt_state)
+    params = optax.apply_updates(params, updates)
+    return params, opt_state, loss
+
 
 for i in tqdm(range(nBatches)):
     d,t,idxs, randKEY = getBatchSplit(randKEY)
-    logits,tt = forwardClips(params, d,t,idxs)
-    # print('LOGITS',logits.shape, 'TT', tt.shape)
-    loss = getLoss(params, logits, tt)
-    grads = lossGrad(params, logits, tt)
-
-    # d,t = makeTargets(b)
-    # d,t, randKEY = splitGames(b,randKEY)
-    # loss, grads = jax.value_and_grad(getLoss)(params, d, t, idxs)
-    updates, opt_state = optimizer.update(grads, opt_state)
-    params = optax.apply_updates(params, updates)
-
+    # logits,tt = forwardClips(params, d,t,idxs)
+    # # print('LOGITS',logits.shape, 'TT', tt.shape)
+    # loss = getLoss(params, logits, tt)
+    # grads = lossGrad(params, logits, tt)
+    # updates, opt_state = optimizer.update(grads, opt_state)
+    # params = optax.apply_updates(params, updates)
+    params, opt_state, losses = update(params, d, t, idxs, opt_state)
+    loss = jnp.mean(losses)
     print(i, " | Loss", loss, randKEY)
-    print(d[0, :100])
-    print(t[0, :100])
+    # print(d[0, :100])
+    # print(t[0, :100])
 
     if i%100==20:
         saveWeights('model_weights.pkl', params)
