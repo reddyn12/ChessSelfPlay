@@ -179,7 +179,7 @@ def update(randKey:jax.dtypes.prng_key):
         loss = getLoss(params, logits, tt)
         grads = lossGrad(params, logits, tt)
         gradArr.append(grads)
-        losses = jnp.stack(losses, loss)
+        losses = losses + [loss]
     # params1, opt_state1, loss = updateParams(params, d, t, idxs, opt_state)
     # return params1, opt_state1, loss
     grads = jax.tree_multimap(lambda *x: jnp.stack(x), *gradArr)
