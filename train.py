@@ -87,7 +87,10 @@ def splitGames(batch:jnp.array, randKey:jax.random.PRNGKey):
     d,t,idxs = jax.vmap(splitGame)(batch,randKeys)
     return d,t, idxs, randKey
 @jax.jit
-def getLoss(params, d, t, idxs):
+def getLoss(params, d, t):
+    loss = optax.softmax_cross_entropy(d, t)
+    loss = jnp.mean(loss)
+    return loss
     logits = chessModel.apply(params, d)
     logits = logits[:, idxs-1, :]
     t = t[:, idxs]
@@ -95,6 +98,13 @@ def getLoss(params, d, t, idxs):
     loss = optax.softmax_cross_entropy(logits, t_one_hot)
     loss = jnp.mean(loss)
     return loss
+@jax.jit
+def forwardClips(params, d,t,idxs):
+    logits = chessModel.apply(params, d)
+    logits = logits[:, idxs-1, :]
+    tt = t[:, idxs]
+    tt = jax.nn.one_hot(t, config.vocab_size)
+    return logits, tt
 @jax.jit
 def getLossOLD(params, d, t):
     maskD = jnp.equal(d, PAD_TOKEN)
@@ -145,14 +155,18 @@ print('Making ADAM Optimizer')
 optimizer = optax.adam(learning_rate=1e-3)
 opt_state = optimizer.init(params)
 print('FINISHED Making ADAM Optimizer')
-
+lossGrad = jax.jit(jax.grad(getLoss))
 
 losses = []
 for i in tqdm(range(nBatches)):
     d,t,idxs, randKEY = getBatchSplit(randKEY)
+    logits,tt = forwardClips(params, d,t,idxs)
+    loss = getLoss(params, logits, tt)
+    grads = lossGrad(params, logits, tt)
+
     # d,t = makeTargets(b)
     # d,t, randKEY = splitGames(b,randKEY)
-    loss, grads = jax.value_and_grad(getLoss)(params, d, t, idxs)
+    # loss, grads = jax.value_and_grad(getLoss)(params, d, t, idxs)
     updates, opt_state = optimizer.update(grads, opt_state)
     params = optax.apply_updates(params, updates)
 
