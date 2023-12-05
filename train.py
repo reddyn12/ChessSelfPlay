@@ -166,14 +166,15 @@ def updateParams(params, d, t, idxs, opt_state):
     updates, opt_state = optimizer.update(grads, opt_state)
     params = optax.apply_updates(params, updates)
     return params, opt_state, loss
-def update(randKey:jax.dtypes.prng_key,params=params):
+def update(randKey:jax.dtypes.prng_key,params=params, opt_state=opt_state):
     # randKey, k = jax.random.split(randKey)
     d,t,idxs, randKey = getBatchSplit(randKey)
-    logits, tt = forwardClips(params, d, t, idxs)
-    loss = getLoss(params, logits, tt)
-    grads = lossGrad(params, logits, tt)
-    # params, opt_state, loss = updateParams(params, d, t, idxs, opt_state)
-    return loss, grads
+    # logits, tt = forwardClips(params, d, t, idxs)
+    # loss = getLoss(params, logits, tt)
+    # grads = lossGrad(params, logits, tt)
+    params, opt_state, loss = updateParams(params, d, t, idxs, opt_state)
+    
+    return params, opt_state, loss
 updatePmap = jax.pmap(update)
 # updatePmap = jax.pmap(update, axis_name='batch', donate_argnums=(0,1,2,3))
 
@@ -206,7 +207,8 @@ for i in tqdm(range(nBatches)):
     # # updates, opt_state = optimizer.update(grads, opt_state)
     # # params = optax.apply_updates(params, updates)
     
-    losses, grads  = updatePmap(pmapBatch)
+    # losses, grads  = updatePmap(pmapBatch)
+    paramsTemp, opt_stateTemp, losses = updatePmap(pmapBatch)
     # params, opt_state, loss = update(randKEY)
     # params, opt_state, loss = update(randKEY
     # params, opt_state, losses = update(params, d, t, idxs, opt_state)
@@ -214,12 +216,15 @@ for i in tqdm(range(nBatches)):
     # # params, opt_state, losses = updatePmap(params, d, t, idxs,opt_state)
     # loss = jnp.mean(losses)
     
-    print(grads.keys())
-    grad = pmean_nested_dict(grads)
+    # print(grads.keys())
+    # grad = pmean_nested_dict(grads)
+
+    params = pmean_nested_dict(paramsTemp)
+    opt_state = pmean_nested_dict(opt_stateTemp)
     loss = jnp.mean(losses)
 
-    updates, opt_state = optimizer.update(grad, opt_state)
-    params = optax.apply_updates(params, updates)
+    # updates, opt_state = optimizer.update(grad, opt_state)
+    # params = optax.apply_updates(params, updates)
 
     print(i, " | Loss", loss, losses, randKEY)
     # print(d[0, :100])
