@@ -18,15 +18,15 @@ PAD_TOKEN = vocab['<PAD>']
 nBatches = 10000
 BATCH_SIZE = 128
 
-BLOCK_SIZE = 400
-# BLOCK_SIZE = 512
+# BLOCK_SIZE = 400
+BLOCK_SIZE = 512
 CONTEXT_LENGTH = tokenizer.MAX_MOVES*3+1
 RAND_SEED = 123
 VOCAB_SIZE = len(vocabDecode)
 randKEY = jax.random.PRNGKey(seed=RAND_SEED)
 
-BATCH_SIZE = 64
-nBatches = 10
+# BATCH_SIZE = 64
+# nBatches = 10
 
 print("Loading Vocab")
 gamePath = 'data/ELO_2000_UCI.txt'
@@ -157,7 +157,7 @@ opt_state = optimizer.init(params)
 print('FINISHED Making ADAM Optimizer')
 lossGrad = jax.jit(jax.grad(getLoss))
 
-losses = []
+
 for i in tqdm(range(nBatches)):
     d,t,idxs, randKEY = getBatchSplit(randKEY)
     logits,tt = forwardClips(params, d,t,idxs)
@@ -179,12 +179,15 @@ for i in tqdm(range(nBatches)):
         saveWeights('model_weights.pkl', params)
         
 # # %%
+losses = []
 for i in range(3):
-    b = getBatch()
-    # d,t = makeTargets(b)
-    d,t = splitGames(b)
-    loss = getLoss(params, d, t)
+    d,t,idxs, randKEY = getBatchSplit(randKEY)
+    logits,tt = forwardClips(params, d,t,idxs)
+    # print('LOGITS',logits.shape, 'TT', tt.shape)
+    loss = getLoss(params, logits, tt)
     print(loss)
+    losses.append(loss)
+print('MEAN', np.mean(losses))
 
 
 print('SLEEPING')

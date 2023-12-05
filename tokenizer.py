@@ -166,7 +166,8 @@ def tokenizeLine(text, vocab, length=(MAX_MOVES*3)+1, truncate = True, pad = Fal
     # elements = text.split(' ')
     # return [vocab[element] for element in elements]
     for e in text.split(' '):
-            if cnt>length-1 and truncate:
+            if cnt>length-2 and truncate:
+                arr.append(vocab['<PAD>'])
                 return arr
             arr.append(vocab[e])
             cnt+=1
