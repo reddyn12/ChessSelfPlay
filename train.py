@@ -122,7 +122,7 @@ for currStep in tqdm(range(nBatches)):
     randKEY, rng = jax.random.split(randKEY)
     state, loss, accuracy = trainStep(rng, state)
     if currStep%100==0:
-        print('Step:',currStep, 'Loss:', loss, 'Accuracy:', accuracy)
+        print('Step:',currStep*BATCH_ACC,'subset',currStep, 'Loss:', loss, 'Accuracy:', accuracy)
     if currStep%100==20:
         saveWeights('model_weights.pkl', state.params)
         # print('Saved Weights')
