@@ -176,6 +176,10 @@ def update(randKey:jax.dtypes.prng_key,params=params):
     return loss, grads
 updatePmap = jax.pmap(update)
 # updatePmap = jax.pmap(update, axis_name='batch', donate_argnums=(0,1,2,3))
+
+def pmean_nested_dict(nested_dict):
+    return {k: pmean_nested_dict(v) if isinstance(v, dict) else jnp.mean(v) for k, v in nested_dict.items()}
+
 for i in tqdm(range(nBatches)):
     # randKeys = jax.random.split(randKEY, deviceCnt)
     # randKEY, k = jax.random.split(randKEY)
