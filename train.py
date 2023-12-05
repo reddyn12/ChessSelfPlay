@@ -17,7 +17,7 @@ FLOAT_DTYPE = jnp.float16
 vocab, vocabDecode = tokenizer.makeVocabUCI_SMALL()
 PAD_TOKEN = vocab['<PAD>']
 nBatches = 10000
-BATCH_SIZE = 128 * deviceCnt
+BATCH_SIZE = 128 #* deviceCnt
 
 # BLOCK_SIZE = 400
 BLOCK_SIZE = 512
@@ -169,7 +169,13 @@ def update(params, d, t, idxs, opt_state):
 
 
 for i in tqdm(range(nBatches)):
-    d,t,idxs, randKEY = getBatchSplit(randKEY)
+    randKeys = jax.random.split(randKEY, deviceCnt)
+    randKEY, k = jax.random.split(randKEY)
+    randKEY, k = jax.random.split(randKEY)
+
+    d,t,idxs, randKEY_Disc = jax.pmap(getBatchSplit)(randKeys)
+    # d,t,idxs, randKEY = getBatchSplit(randKEY)
+    
     # logits,tt = forwardClips(params, d,t,idxs)
     # # print('LOGITS',logits.shape, 'TT', tt.shape)
     # loss = getLoss(params, logits, tt)
