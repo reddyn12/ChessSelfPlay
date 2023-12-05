@@ -122,13 +122,13 @@ for currStep in range(nBatches):
     if currStep%100==0:
         print('Step:',currStep, 'Loss:', loss, 'Accuracy:', accuracy)
     if currStep%100==20:
-        saveWeights(state.params, 'model_weights.pkl')
+        saveWeights('model_weights.pkl', state.params)
         # print('Saved Weights')
 
 
 
 print('Finished Training')
-saveWeights( 'model_weights.pkl',state.params)
+saveWeights('model_weights.pkl', state.params)
 d,t,idxs, randKey = getBatchSplit(randKEY)
 g,l,a = model.apply_model(state, d,t,idxs)
 print('loss: ', l, 'accuracy: ', a)
