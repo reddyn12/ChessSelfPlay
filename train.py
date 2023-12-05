@@ -17,7 +17,7 @@ FLOAT_DTYPE = jnp.float16
 vocab, vocabDecode = tokenizer.makeVocabUCI_SMALL()
 PAD_TOKEN = vocab['<PAD>']
 nBatches = 10000
-BATCH_SIZE = 128*8 #* deviceCnt
+BATCH_SIZE = 128*6 #* deviceCnt
 
 # BLOCK_SIZE = 400
 BLOCK_SIZE = 512
