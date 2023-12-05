@@ -218,7 +218,7 @@ for i in tqdm(range(nBatches)):
     
     # print(grads.keys())
     # grad = pmean_nested_dict(grads)
-    print(opt_stateTemp.keys())
+
     print(opt_stateTemp)
     params = pmean_nested_dict(paramsTemp)
     opt_state = pmean_nested_dict(opt_stateTemp)
