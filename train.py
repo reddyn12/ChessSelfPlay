@@ -209,8 +209,9 @@ for i in tqdm(range(nBatches)):
     # # params, opt_state, losses = updatePmap(pmapBatch)
     # # params, opt_state, losses = updatePmap(params, d, t, idxs,opt_state)
     # loss = jnp.mean(losses)
-
-    grad = jnp.mean(grads)
+    
+    print(grad)
+    grad = jax.lax.pmean(grads, axis_name='batch')
     loss = jnp.mean(losses)
 
     updates, opt_state = optimizer.update(grad, opt_state)
