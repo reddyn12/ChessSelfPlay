@@ -166,12 +166,12 @@ def updateParams(params, d, t, idxs, opt_state):
     updates, opt_state = optimizer.update(grads, opt_state)
     params = optax.apply_updates(params, updates)
     return params, opt_state, loss
-def update(randKey:jax.dtypes.prng_key, params):
+def update(randKey:jax.dtypes.prng_key, params, opt_state):
     # randKey, k = jax.random.split(randKey)
     d,t,idxs, randKey = getBatchSplit(randKey)
     params, opt_state, loss = updateParams(params, d, t, idxs, opt_state)
     return params, opt_state, loss
-updatePmap = jax.pmap(update, in_axes=(0,None))
+updatePmap = jax.pmap(update, in_axes=(0,None, None))
 # updatePmap = jax.pmap(update, axis_name='batch', donate_argnums=(0,1,2,3))
 for i in tqdm(range(nBatches)):
     # randKeys = jax.random.split(randKEY, deviceCnt)
