@@ -215,7 +215,7 @@ for i in tqdm(range(nBatches)):
     # loss = jnp.mean(losses)
     
     print(grads.keys())
-    grad = jax.lax.pmean(grads, axis_name='batch')
+    grad = pmean_nested_dict(grads)
     loss = jnp.mean(losses)
 
     updates, opt_state = optimizer.update(grad, opt_state)
