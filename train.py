@@ -93,7 +93,7 @@ def getLoss(params, d, t, idxs):
     t = t[:, idxs]
     t_one_hot = jax.nn.one_hot(t, config.vocab_size)
     loss = optax.softmax_cross_entropy(logits, t_one_hot)
-    # loss = jnp.mean(loss)
+    loss = jnp.mean(loss)
     return loss
 @jax.jit
 def getLossOLD(params, d, t):
@@ -134,13 +134,13 @@ chessModel = Tranformer(config)
 d = jnp.empty((BATCH_SIZE, BLOCK_SIZE), dtype=INT_DTYPE)
 d_size_gb = d.size * d.itemsize / 1024**3
 print('JNP Batch GB size',d_size_gb)
-# dnp = np.ones((BATCH_SIZE, BLOCK_SIZE), dtype=np.int16)
+# dnp = snp.ones((BATCH_SIZE, BLOCK_SIZE), dtype=np.int16)
 # input('Cont?')
 print('Initializing PARAMS')
 params = chessModel.init(jax.random.PRNGKey(0), d)
-print('Casting to PARAMS float16')
-params = jax.tree_map(lambda x: x.astype(jnp.float16), params)
-print('FINISHED Casting PARAMS to float16')
+# print('Casting to PARAMS float16')
+# params = jax.tree_map(lambda x: x.astype(jnp.float16), params)
+# print('FINISHED Casting PARAMS to float16')
 print('Making ADAM Optimizer')
 optimizer = optax.adam(learning_rate=1e-3)
 opt_state = optimizer.init(params)
