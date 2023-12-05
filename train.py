@@ -167,8 +167,8 @@ def update(params, d, t, idxs, opt_state):
     params = optax.apply_updates(params, updates)
     return params, opt_state, loss
 
-updatePmap = jax.pmap(update)
-# updatePmap = jax.pmap(update, axis_name='batch', donate_argnums=(0,1,2,3))
+# updatePmap = jax.pmap(update)
+updatePmap = jax.pmap(update, axis_name='batch', donate_argnums=(0,1,2,3))
 for i in tqdm(range(nBatches)):
     # randKeys = jax.random.split(randKEY, deviceCnt)
     # randKEY, k = jax.random.split(randKEY)
