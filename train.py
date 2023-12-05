@@ -174,9 +174,9 @@ def update(randKey:jax.dtypes.prng_key):
     # logits, tt = forwardClips(params, d, t, idxs)
     # loss = getLoss(params, logits, tt)
     # grads = lossGrad(params, logits, tt)
-    params, opt_state, loss = updateParams(params, d, t, idxs, opt_state)
+    params1, opt_state1, loss = updateParams(params, d, t, idxs, opt_state)
     
-    return params, opt_state, loss
+    return params1, opt_state1, loss
 updatePmap = jax.pmap(update)
 # updatePmap = jax.pmap(update, axis_name='batch', donate_argnums=(0,1,2,3))
 
