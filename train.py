@@ -259,10 +259,11 @@ for i in tqdm(range(nBatches)):
     # print(type(paramsTemp))
     # opt_state = opt_stateTemp[0]
     loss = jnp.mean(losses)
-    grad =jax.tree_map(lambda x: jnp.mean(x, axis=0), grads)
+    # grad =jax.tree_map(lambda x: jnp.mean(x, axis=0), grads)
+    grad = pmean_nested_dict(grads)
     updates, opt_state = optimizer.update(grad, opt_state)
     params = optax.apply_updates(params, updates)
-    print(params['params']['blocks_0'])
+    print(params['params']['blocks_0']['mlp'])
     print(i, " | Loss", loss, losses, randKEY)
     # print(d[0, :100])
     # print(t[0, :100])
