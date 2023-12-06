@@ -237,7 +237,7 @@ for currStep in tqdm(range(nBatches)):
     # 
     # print()
     print(len(temp))
-    print(type(temp[0]))
+    print(type(temp[0][0]))
     sys.exit()
     # state, loss, accuracy = trainStep(rng)
 
