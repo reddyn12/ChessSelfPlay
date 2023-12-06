@@ -111,23 +111,28 @@ def splitGames(batch:jnp.array, randKey:jax.dtypes.prng_key):
     randKey, k = jax.random.split(randKey)
     d,t,idxs = jax.vmap(splitGame)(batch,randKeys)
     return d,t, idxs, randKey
-
+def forward(rng, state):
+    d,t,idxs, rng = getBatchSplit(rng)
+    grads, loss, accuracy = model.apply_model(state, d,t,idxs)
+    return grads, loss, accuracy
 # @functools.partial(jax.pmap, static_broadcasted_argnums=(1))
-def trainStepSub(rng, state):
-
+def trainStepACC(rng, state):
+    rng, k = jax.random.split(rng)
+    k = jax.random.split(k, BATCH_ACC)
+    g,l,a = jax.vmap(lambda rand, s: forward(rand, s))(k, [state]*BATCH_ACC)
+    
 
 
     # return loss, grads, accuracy
-    g =[]
-    l = []
-    a = []
+    # g =[]
+    # l = []
+    # a = []
 
-    for j in range(BATCH_ACC):
-        d,t,idxs, rng = getBatchSplit(rng)
-        grads, loss, accuracy = model.apply_model(state, d,t,idxs)
-        g.append(grads)
-        l.append(loss)
-        a.append(accuracy)
+    # for j in range(BATCH_ACC):
+    #     grads, loss, accuracy = forward(rng, state)
+    #     g.append(grads)
+    #     l.append(loss)
+    #     a.append(accuracy)
     #     # print(grads)
     #     # print(grads.keys())
     #     print(grads['wpe']['embedding'].shape)
@@ -143,11 +148,11 @@ def trainStepSub(rng, state):
 def trainStep(rng, state):
     # state = train_state.TrainState(*state_tuple)
     
-    state, loss, accuracy = trainStepSub(rng, state)
+    state, loss, accuracy = trainStepACC(rng, state)
     # state, loss, accuracy = trainStepSub(rng, state)
     # state_tuple = tuple(state.as_dict().values())
     return state, loss, accuracy
-trainStepPmap = jax.pmap(trainStepSub, static_broadcasted_argnums=(1))
+trainStepPmap = jax.pmap(trainStepACC, static_broadcasted_argnums=(1))
 
     
 print('Starting Training')
