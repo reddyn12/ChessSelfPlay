@@ -121,7 +121,7 @@ def trainStep(rng, state):
 for currStep in tqdm(range(nBatches)):
     randKEY, rng = jax.random.split(randKEY)
     rngs = jax.random.split(rng, deviceCnt)
-    states,losses,accuracys = jax.pmap(lambda rng: trainStep(rng, state))(rngs)
+    states,losses,accuracys = jax.pmap(lambda rng: trainStep(rng, state))(rngs, [state]*deviceCnt)
     state = model.average_train_state(states)
 
     # state, loss, accuracy = trainStep(rng, state)
