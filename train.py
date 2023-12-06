@@ -4,6 +4,7 @@ import time
 # from model import Tranformer, GPTConfig
 #  #, ChessGPT, cross_entropy_loss
 import os
+from turtle import st
 import jax
 import model
 import jax.numpy as jnp
@@ -132,7 +133,7 @@ print('Starting Training')
 for currStep in tqdm(range(nBatches)):
     randKEY, rng = jax.random.split(randKEY)
     rngs = jax.random.split(rng, (deviceCnt))
-    print('state', state)
+    # print('state', state)
     # rngs = rngs[:,1]
     # states,losses,accuracys = jax.pmap(lambda rng, state: trainStep(rng, state))(rngs, [state]*deviceCnt)
     # states = [state]*deviceCnt
@@ -148,7 +149,8 @@ for currStep in tqdm(range(nBatches)):
     # state_tuple = tuple(state.values())
     # state_tuple = jax_utils.replicate(state_tuple)
     print(rngs)
-    # sys.exit()
+    print(type(state))
+    sys.exit()
     states,losses,accuracys = trainStepPmap(rngs, state)
     # states = [train_state.TrainState(*state_tup) for state_tup in states_tups]
     # states, losses, accuracys = jax.pmap(lambda rng: trainStep(rng, state))(rngs)
