@@ -21,7 +21,7 @@ from flax.training import train_state
 deviceCnt = jax.device_count()
 print('Device Count', deviceCnt)
 INT_DTYPE = jnp.int16
-FLOAT_DTYPE = jnp.float16
+FLOAT_DTYPE = jnp.float32
 vocab, vocabDecode = tokenizer.makeVocabUCI_SMALL()
 PAD_TOKEN = vocab['<PAD>']
 nBatches = 10000
@@ -137,15 +137,15 @@ def trainStepACC(rng, state):
 
     # return loss, grads, accuracy
     g = [None] * BATCH_ACC
-    # l = jnp.zeros(BATCH_ACC)
-    # a = jnp.zeros(BATCH_ACC)
+    l = jnp.zeros(BATCH_ACC, dtype=jnp.float32)
+    a = jnp.zeros(BATCH_ACC, dtype=jnp.float32)
 
     for j in range(BATCH_ACC):
         rng, k = jax.random.split(rng)
         grads, loss, accuracy = forward(k, state)
         g[j] = grads
-        # l = l.at[j].set(loss)
-        # a = a.at[j].set(accuracy)
+        l = l.at[j].set(loss)
+        a = a.at[j].set(accuracy)
         # l = jax.ops.index_update(l, j, loss)
         # a = jax.ops.index_update(a, j, accuracy)
     #     # print(grads)
@@ -156,7 +156,9 @@ def trainStepACC(rng, state):
     #     state = model.update_model(state, grads)
     # l = jnp.stack(l)
     # a = jnp.stack(a)
-    return g#, l, a
+    l = jnp.mean(l)
+    a = jnp.mean(a)
+    return g, l, a
     loss = jnp.mean(l)
     accuracy = jnp.mean(a)
     # print('PRE TREEMAP grad', g[1]['wpe']['embedding'].shape)

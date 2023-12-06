@@ -9,7 +9,7 @@ import random
 from tokenizer import makeVocabUCI_SMALL, CONTEXT_LENGTH
 DETERMINISTIC = False
 INT_DTYPE = jnp.int16
-FLOAT_DTYPE = jnp.float16
+FLOAT_DTYPE = jnp.float32
 vocab, vocabDecode = makeVocabUCI_SMALL()
 VOCAB_SIZE = len(vocabDecode)
 @dataclass
