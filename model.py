@@ -206,7 +206,12 @@ def create_train_state(rng, config, hyperconfig):
     params = model.init(rng, d)['params']
     tx = optax.adam(learning_rate=1e-3)
     return train_state.TrainState.create(apply_fn=model.apply, params=params, tx=tx)
-
+def average_train_state(train_states):
+    """Averages the parameters of multiple TrainState objects."""
+    keys = train_states[0].params.keys()
+    averaged_params = {k: jax.lax.pmean(jnp.stack([state.params[k] for state in train_states]), axis=0) for k in keys}
+    averaged_state = train_states[0].replace(params=averaged_params)
+    return averaged_state
 # def cross_entropy_loss(logits, labels):
 #     log_probs = jax.nn.log_softmax(logits)
 #     return -jnp.mean(jnp.take_along_axis(log_probs, labels[:, None], axis=-1))

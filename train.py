@@ -22,7 +22,7 @@ vocab, vocabDecode = tokenizer.makeVocabUCI_SMALL()
 PAD_TOKEN = vocab['<PAD>']
 nBatches = 10000
 BATCH_SIZE = 128//4 #* deviceCnt
-BATCH_ACC = 16
+BATCH_ACC = 16*4
 # BLOCK_SIZE = 400
 BLOCK_SIZE = 512
 CONTEXT_LENGTH = tokenizer.MAX_MOVES*3+1
@@ -121,7 +121,7 @@ def trainStep(rng, state):
 for currStep in tqdm(range(nBatches)):
     randKEY, rng = jax.random.split(randKEY)
     state, loss, accuracy = trainStep(rng, state)
-    if currStep%100==0:
+    if currStep%20==0:
         print('Step:',currStep*BATCH_ACC,'subset',currStep, 'Loss:', loss, 'Accuracy:', accuracy)
     if currStep%100==20:
         saveWeights('model_weights.pkl', state.params)
