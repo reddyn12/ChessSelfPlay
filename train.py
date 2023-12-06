@@ -126,7 +126,9 @@ for currStep in tqdm(range(nBatches)):
     # states, losses, accuracys = jax.pmap(lambda rng: trainStep(rng, state))(rngs)
     # state = model.average_train_state(states)
 
-    state, loss, accuracy = trainStep(rng, state)
+    # state, loss, accuracy = trainStep(rng, state)
+    state, loss, accuracy = trainStep(rng)
+
     if currStep%20==0:
         print('GAMES TRAINED:',currStep*BATCH_ACC*BATCH_SIZE,'Step:',currStep*BATCH_ACC,'subset',currStep, 'Loss:', loss, 'Accuracy:', accuracy)
         # loss = jnp.mean(losses)
