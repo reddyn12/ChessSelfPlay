@@ -208,6 +208,8 @@ def create_train_state(rng, config, hyperconfig):
     return train_state.TrainState.create(apply_fn=model.apply, params=params, tx=tx)
 def average_train_state(train_states):
     """Averages the parameters of multiple TrainState objects."""
+    print('Averaging Train States')
+    print('Train States:', len(train_states))
     keys = train_states[0].params.keys()
     averaged_params = {k: jax.lax.pmean(jnp.stack([state.params[k] for state in train_states]), axis=0) for k in keys}
     averaged_state = train_states[0].replace(params=averaged_params)
