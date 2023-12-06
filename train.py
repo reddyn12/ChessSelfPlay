@@ -125,7 +125,8 @@ for currStep in tqdm(range(nBatches)):
     states = [state]*deviceCnt
     rng_state_tuples = tuple(list(zip(rngs, states)))
     print(len(rng_state_tuples))
-    print(rng_state_tuples[0])
+    # print(rng_state_tuples[0])
+    sys.exit()
     states,losses,accuracys = jax.pmap(trainStep)(rng_state_tuples)
 
     # states, losses, accuracys = jax.pmap(lambda rng: trainStep(rng, state))(rngs)
