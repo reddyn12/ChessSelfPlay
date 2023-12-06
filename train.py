@@ -244,7 +244,8 @@ for currStep in tqdm(range(nBatches)):
 
     # print(dir(state.opt_state[0]))
     # sys.exit()
-
+    # grads, loss, accuracy = trainStepACC(rng, state)
+    gradsP, lossP, accuracyP = jax.pmap(trainStepACC, in_axes=(0,None))(rngs, state)
     # states,losses,accuracys = trainStepPmap(rngs, state)
     # states = [train_state.TrainState(*state_tup) for state_tup in states_tups]
     # states, losses, accuracys = jax.pmap(lambda rng: trainStep(rng, state))(rngs)
@@ -262,7 +263,8 @@ for currStep in tqdm(range(nBatches)):
     # states = [state]*deviceCnt
     # print(rngs)
     # print(len(states))
-    grads, loss, accuracy = trainStepACC(rng, state)
+    grads = mean_list_dicts(gradsP)
+
     state = model.update_model(state, grads)
     # inps = list(zip(rngs, states))
     # temp = jax.pmap(trainStepACC, in_axes=(0, None))(rngs, state)
