@@ -136,7 +136,7 @@ for currStep in tqdm(range(nBatches)):
     # states,losses,accuracys = trainStepPmap(rngs, state)
     state = jax_utils.replicate(state)
     print(rngs)
-    sys.exit()
+    # sys.exit()
     states,losses,accuracys = trainStep(rngs, state)
     # states, losses, accuracys = jax.pmap(lambda rng: trainStep(rng, state))(rngs)
     state = model.average_train_state(states)
