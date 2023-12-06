@@ -150,6 +150,9 @@ for currStep in tqdm(range(nBatches)):
     # state_tuple = jax_utils.replicate(state_tuple)
     print(rngs)
     print(type(state))
+    print(type(state.params))
+    print(type(state.opt_state))
+    print(dir(state))
     sys.exit()
     states,losses,accuracys = trainStepPmap(rngs, state)
     # states = [train_state.TrainState(*state_tup) for state_tup in states_tups]
