@@ -140,7 +140,7 @@ def trainStepACC(rng, state):
     l = jnp.zeros(BATCH_ACC)
     a = jnp.zeros(BATCH_ACC)
 
-    for j in tqdm(range(BATCH_ACC), desc='BATCH_ACC'):
+    for j in range(BATCH_ACC):
         rng, k = jax.random.split(rng)
         grads, loss, accuracy = forward(k, state)
         g[j] = grads
