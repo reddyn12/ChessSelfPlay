@@ -166,7 +166,7 @@ trainStepPmap = jax.pmap(trainStepACC, in_axes=(0, None))
 print('Starting Training')
 for currStep in tqdm(range(nBatches)):
     randKEY, rng = jax.random.split(randKEY)
-    rngs = jax.random.split(rng, (deviceCnt))
+    rngs = jax.random.split(rng, deviceCnt)
     # print('state', state)
     # rngs = rngs[:,1]
     # states,losses,accuracys = jax.pmap(lambda rng, state: trainStep(rng, state))(rngs, [state]*deviceCnt)
@@ -199,8 +199,10 @@ for currStep in tqdm(range(nBatches)):
 
     # state, loss, accuracy = trainStep(rng, state)
 
-    temp = trainStepPmap(rngs, state)
+    # temp = trainStepPmap(rngs, state)
+    temp = trainStepACC(rng, state)
     print(temp)
+    print(len(temp))
     sys.exit()
     # state, loss, accuracy = trainStep(rng)
 
