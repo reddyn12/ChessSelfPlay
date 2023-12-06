@@ -263,6 +263,7 @@ for currStep in tqdm(range(nBatches)):
     # print(rngs)
     # print(len(states))
     grads, loss, accuracy = trainStepACC(rng, state)
+    state = model.update_model(state, grads)
     # inps = list(zip(rngs, states))
     # temp = jax.pmap(trainStepACC, in_axes=(0, None))(rngs, state)
     # temp = trainStepPmap(inps)
