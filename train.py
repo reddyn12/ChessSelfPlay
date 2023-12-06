@@ -122,7 +122,7 @@ def stack_dicts_helper(d1, d2):
 @jax.jit
 def stack_dicts(dicts):
     #FUNCTOOLS IS GOD
-    print('Starting Stack Dicts')
+    # print('Starting Stack Dicts')
     dicts = jax.tree_map(lambda x: jax.tree_map(lambda x: jnp.array([x]), x), dicts)
     return jax.tree_map(lambda *x: jnp.vstack(x), *dicts)
      
@@ -146,9 +146,9 @@ def stack_dicts(dicts):
 meanFn = functools.partial(jnp.mean, axis=0)
 @jax.jit
 def mean_list_dicts(dicts):
-    print('MEAN PRE',dicts[0]['wpe']['embedding'].shape)
+    # print('MEAN PRE',dicts[0]['wpe']['embedding'].shape)
     d = stack_dicts(dicts)
-    print('MEAN POST', d['wpe']['embedding'].shape)
+    # print('MEAN POST', d['wpe']['embedding'].shape)
     return jax.tree_map(meanFn, d)
 @jax.jit
 def forward(rng, state):
@@ -170,8 +170,9 @@ def trainStepACC(rng, state):
     g = [None] * BATCH_ACC
     l = jnp.zeros(BATCH_ACC, dtype=jnp.float32)
     a = jnp.zeros(BATCH_ACC, dtype=jnp.float32)
+    for j in range(BATCH_ACC):
 
-    for j in tqdm(range(BATCH_ACC), desc='BATCH_ACC'):
+    # for j in tqdm(range(BATCH_ACC), desc='BATCH_ACC'):
         rng, k = jax.random.split(rng)
         grads, loss, accuracy = forward(k, state)
         # print(grads['wpe']['embedding'].shape)
@@ -193,7 +194,7 @@ def trainStepACC(rng, state):
     loss = jnp.mean(l)
     accuracy = jnp.mean(a)
     # print('PRE TREEMAP grad', g[1]['wpe']['embedding'].shape)
-    print('GETTING GRAD MEAN')
+    # print('GETTING GRAD MEAN')
     grad = mean_list_dicts(g)
     # grad = jax.tree_map(lambda *x: jnp.mean(jnp.stack(x), axis=0), *g)
     # grad = {}
@@ -250,11 +251,11 @@ for currStep in tqdm(range(nBatches)):
     # state = model.average_train_state(states)
 
     # state, loss, accuracy = trainStep(rng, state)
-    print('Replicating States')
+    # print('Replicating States')
     # states = jax_utils.replicate(state)
     # inps = [[rngs[0],state],[rngs[1],state],[rngs[2],state],[rngs[3],state]]
-    print('FINISHED Replicated States')
-    print('Starting PMAP Step')
+    # print('FINISHED Replicated States')
+    # print('Starting PMAP Step')
     # temp = trainStepPmap(rngs, states)
 
     # len(states) doesnt work... * not work as expected
@@ -265,7 +266,7 @@ for currStep in tqdm(range(nBatches)):
     # inps = list(zip(rngs, states))
     # temp = jax.pmap(trainStepACC, in_axes=(0, None))(rngs, state)
     # temp = trainStepPmap(inps)
-    print('Finished PMAP Step')
+    # print('Finished PMAP Step')
     # 
     # print()
     # print(len(temp))
@@ -274,7 +275,7 @@ for currStep in tqdm(range(nBatches)):
     # print(grads[0].keys())
     # g = mean_list_dicts(grads)
     # print(g.keys()
-    print(grads['wpe']['embedding'].shape)
+    # print(grads['wpe']['embedding'].shape)
     # sys.exit()
     # state, loss, accuracy = trainStep(rng)
 
