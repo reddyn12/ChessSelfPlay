@@ -154,15 +154,16 @@ def trainStepACC(rng, state):
     #     state = model.update_model(state, grads)
     l = jnp.stack(l)
     a = jnp.stack(a)
+    return g, l, a
     loss = jnp.mean(l)
     accuracy = jnp.mean(a)
     # print('PRE TREEMAP grad', g[1]['wpe']['embedding'].shape)
-
+    grad = mean_of_nested_dicts(g)
     # grad = jax.tree_map(lambda *x: jnp.mean(jnp.stack(x), axis=0), *g)
     # grad = {}
     # for key in g[0].keys():
     #     grad[key] = jnp.mean(jnp.stack([g[i][key] for i in range(len(g))]), axis=0)
-    grad = mean_of_nested_dicts(g)
+    
     # print('grad', grad.keys())
     # print('POST TREE MAP grad', grad['wpe']['embedding'].shape)
     # sys.exit()
