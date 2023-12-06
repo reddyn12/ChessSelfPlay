@@ -25,8 +25,8 @@ FLOAT_DTYPE = jnp.float16
 vocab, vocabDecode = tokenizer.makeVocabUCI_SMALL()
 PAD_TOKEN = vocab['<PAD>']
 nBatches = 10000
-BATCH_SIZE = 128//4//2 #* deviceCnt
-BATCH_ACC = 16//2
+BATCH_SIZE = 128//4//1 #* deviceCnt
+BATCH_ACC = 16//1
 # BLOCK_SIZE = 400
 BLOCK_SIZE = 512
 CONTEXT_LENGTH = tokenizer.MAX_MOVES*3+1
@@ -145,8 +145,10 @@ def trainStepACC(rng, state):
     a = jnp.stack(a)
     loss = jnp.mean(l)
     accuracy = jnp.mean(a)
+    print('PRE TREEMAP grad', grad['wpe']['embedding'].shape)
     grad = jax.tree_map(lambda *x: jnp.mean(jnp.stack(x), axis=0), *g)
     print('grad', grad.keys())
+    print('POST TREE MAP grad', grad['wpe']['embedding'].shape)
     sys.exit()
     return grad, loss, accuracy
 def trainStep(rng, state):
