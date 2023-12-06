@@ -1,3 +1,4 @@
+import functools
 import time
 # from model import Tranformer, GPTConfig
 #  #, ChessGPT, cross_entropy_loss
@@ -108,13 +109,15 @@ def splitGames(batch:jnp.array, randKey:jax.dtypes.prng_key):
     d,t,idxs = jax.vmap(splitGame)(batch,randKeys)
     return d,t, idxs, randKey
 
+@functools.partial(jax.pmap, static_broadcasted_argnums=(1))
 def trainStep(rng, state):
     for j in range(BATCH_ACC):
         d,t,idxs, rng = getBatchSplit(rng)
         grads, loss, accuracy = model.apply_model(state, d,t,idxs)
         state = model.update_model(state, grads)
     return state, loss, accuracy
-trainStepPmap = jax.pmap(trainStep, static_broadcasted_argnums=(1,))
+
+trainStepPmap = jax.pmap(trainStep)
 
     
 print('Starting Training')
@@ -130,8 +133,9 @@ for currStep in tqdm(range(nBatches)):
 
     # sys.exit()
     # states,losses,accuracys = jax.pmap(trainStep)(rng_state_tuples)
-    states,losses,accuracys = trainStepPmap(rngs, state)
+    # states,losses,accuracys = trainStepPmap(rngs, state)
 
+    states,losses,accuracys = trainStep(rngs, state)
     # states, losses, accuracys = jax.pmap(lambda rng: trainStep(rng, state))(rngs)
     state = model.average_train_state(states)
 
