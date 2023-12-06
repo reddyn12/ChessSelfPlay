@@ -119,7 +119,7 @@ def stack_dicts(dicts):
     #FUNCTOOLS IS GOD
     return reduce(stack_dicts_helper, dicts)
 meanFn = functools.partial(jnp.mean, axis=0)
-def mean_dicts(dicts):
+def mean_list_dicts(dicts):
     d = stack_dicts(dicts)
     return jax.tree_map(meanFn, d)
 
@@ -159,13 +159,12 @@ def trainStepACC(rng, state):
     #     state = model.update_model(state, grads)
     # l = jnp.stack(l)
     # a = jnp.stack(a)
-    l = jnp.mean(l)
-    a = jnp.mean(a)
-    return g, l, a
+    
+    # return g, l, a
     loss = jnp.mean(l)
     accuracy = jnp.mean(a)
     # print('PRE TREEMAP grad', g[1]['wpe']['embedding'].shape)
-    grad = mean_of_nested_dicts(g)
+    grad = mean_list_dicts(g)
     # grad = jax.tree_map(lambda *x: jnp.mean(jnp.stack(x), axis=0), *g)
     # grad = {}
     # for key in g[0].keys():
@@ -240,9 +239,12 @@ for currStep in tqdm(range(nBatches)):
     # 
     # print()
     # print(len(temp))
-    print(grads[0].keys())
-    g = mean_dicts(grads)
-    print(g.keys())
+    
+    
+    # print(grads[0].keys())
+    # g = mean_list_dicts(grads)
+    # print(g.keys()
+    print(grads['wpe']['embedding'].shape)
     sys.exit()
     # state, loss, accuracy = trainStep(rng)
 
