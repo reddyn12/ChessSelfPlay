@@ -203,7 +203,7 @@ for currStep in tqdm(range(nBatches)):
     print('FINISHED Replicated States')
     print('Starting PMAP Step')
     # temp = trainStepPmap(rngs, states)
-    temp = trainStepPmap(rngs, [state]*deviceCnt)
+    temp = trainStepPmap(rngs, [state,state,state,state])
     print('Finished PMAP Step')
     # temp = trainStepACC(rng, state)
     # print()
