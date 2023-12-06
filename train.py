@@ -13,7 +13,7 @@ from tqdm import tqdm
 import pickle
 from utils import saveWeights, loadWeights
 import numpy as np
-
+from flax import jax_utils
 
 deviceCnt = jax.device_count()
 print('Device Count', deviceCnt)
@@ -134,7 +134,7 @@ for currStep in tqdm(range(nBatches)):
     # sys.exit()
     # states,losses,accuracys = jax.pmap(trainStep)(rng_state_tuples)
     # states,losses,accuracys = trainStepPmap(rngs, state)
-
+    state = jax_utils.replicate(state)
     states,losses,accuracys = trainStep(rngs, state)
     # states, losses, accuracys = jax.pmap(lambda rng: trainStep(rng, state))(rngs)
     state = model.average_train_state(states)
