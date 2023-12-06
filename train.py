@@ -115,13 +115,21 @@ def splitGames(batch:jnp.array, randKey:jax.dtypes.prng_key):
 
 def stack_dicts_helper(d1, d2):
     return jax.tree_map(lambda x, y: jnp.vstack((x, y)), d1, d2)
+# def stack_dicts(dicts):
+#     #FUNCTOOLS IS GOD
+#     print('Starting Stack Dicts')
+#     dicts = jax.tree_map(lambda x: jax.tree_map(lambda x: jnp.array([x]), x), dicts)
+#     # dicts[0] = jax.tree_map(lambda x: jnp.array([x]), dicts[0])
+#     print('Starting Reduce')
+#     return reduce(stack_dicts_helper, dicts)
 def stack_dicts(dicts):
-    #FUNCTOOLS IS GOD
+    def body_fun(carry, x):
+        return jax.tree_map(lambda a, b: jnp.vstack((a, b)), carry, x), None
     print('Starting Stack Dicts')
     dicts = jax.tree_map(lambda x: jax.tree_map(lambda x: jnp.array([x]), x), dicts)
-    # dicts[0] = jax.tree_map(lambda x: jnp.array([x]), dicts[0])
     print('Starting Reduce')
-    return reduce(stack_dicts_helper, dicts)
+    result, _ = jax.lax.scan(body_fun, dicts[0], dicts[1:])
+    return result
 meanFn = functools.partial(jnp.mean, axis=0)
 def mean_list_dicts(dicts):
     print('MEAN PRE',dicts[0]['wpe']['embedding'].shape)
