@@ -205,8 +205,9 @@ for currStep in tqdm(range(nBatches)):
     # temp = trainStepPmap(rngs, states)
     states = [state]*deviceCnt
     print(rngs)
-    print(states)
-    temp = trainStepPmap(rngs, states)
+    print(len(states))
+    inps = list(zip(rngs, states))
+    temp = trainStepPmap(inps)
     print('Finished PMAP Step')
     # temp = trainStepACC(rng, state)
     # print()
