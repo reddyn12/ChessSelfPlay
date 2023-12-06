@@ -115,6 +115,16 @@ def forward(rng, state):
     d,t,idxs, rng = getBatchSplit(rng)
     grads, loss, accuracy = model.apply_model(state, d,t,idxs)
     return grads, loss, accuracy
+def mean_of_nested_dicts(list_of_dicts):
+    result = {}
+    for key in list_of_dicts[0]:
+        if isinstance(list_of_dicts[0][key], dict):
+            # If the value is a dictionary, compute the mean of nested dictionaries
+            result[key] = mean_of_nested_dicts([d[key] for d in list_of_dicts])
+        else:
+            # If the value is not a dictionary, compute the mean directly
+            result[key] = jnp.mean(jnp.stack([d[key] for d in list_of_dicts]), axis=0)
+    return result
 # @functools.partial(jax.pmap, static_broadcasted_argnums=(1))
 def trainStepACC(rng, state):
     # rng, k = jax.random.split(rng)
@@ -148,7 +158,11 @@ def trainStepACC(rng, state):
     accuracy = jnp.mean(a)
     # print('PRE TREEMAP grad', g[1]['wpe']['embedding'].shape)
 
-    grad = jax.tree_map(lambda *x: jnp.mean(jnp.stack(x), axis=0), *g)
+    # grad = jax.tree_map(lambda *x: jnp.mean(jnp.stack(x), axis=0), *g)
+    # grad = {}
+    # for key in g[0].keys():
+    #     grad[key] = jnp.mean(jnp.stack([g[i][key] for i in range(len(g))]), axis=0)
+    grad = mean_of_nested_dicts(g)
     # print('grad', grad.keys())
     # print('POST TREE MAP grad', grad['wpe']['embedding'].shape)
     # sys.exit()
