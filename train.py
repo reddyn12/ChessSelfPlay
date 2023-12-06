@@ -144,8 +144,10 @@ def trainStepACC(rng, state):
         rng, k = jax.random.split(rng)
         grads, loss, accuracy = forward(k, state)
         g[j] = grads
-        l = jax.ops.index_update(l, j, loss)
-        a = jax.ops.index_update(a, j, accuracy)
+        l = l.at[j].set(loss)
+        a = a.at[j].set(accuracy)
+        # l = jax.ops.index_update(l, j, loss)
+        # a = jax.ops.index_update(a, j, accuracy)
     #     # print(grads)
     #     # print(grads.keys())
     #     print(grads['wpe']['embedding'].shape)
