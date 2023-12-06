@@ -152,7 +152,6 @@ for currStep in tqdm(range(nBatches)):
     print(type(state))
     print(type(state.params))
     print(type(state.opt_state))
-    print(state.opt_state)
     print('len of OPT STATE', len(state.opt_state))
     print(state.opt_state[1])
 
