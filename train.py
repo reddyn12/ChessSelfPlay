@@ -130,7 +130,7 @@ def trainStepACC(rng, state):
     l = []
     a = []
 
-    for j in range(BATCH_ACC):
+    for j in tqdm(range(BATCH_ACC), desc='BATCH_ACC'):
         rng, k = jax.random.split(rng)
         grads, loss, accuracy = forward(k, state)
         g.append(grads)
@@ -199,10 +199,11 @@ for currStep in tqdm(range(nBatches)):
 
     # state, loss, accuracy = trainStep(rng, state)
     print('Replicating States')
-    states = jax_utils.replicate(state)
+    # states = jax_utils.replicate(state)
     print('FINISHED Replicated States')
     print('Starting PMAP Step')
-    temp = trainStepPmap(rngs, states)
+    # temp = trainStepPmap(rngs, states)
+    temp = trainStepPmap(rngs, [state]*deviceCnt)
     print('Finished PMAP Step')
     # temp = trainStepACC(rng, state)
     # print()
