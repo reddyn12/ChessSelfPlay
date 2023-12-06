@@ -121,26 +121,28 @@ def trainStepACC(rng, state):
     k = jax.random.split(k, BATCH_ACC)
     # inp = list(zip(rng, [state]*BATCH_ACC))
     # print(inp[0])
-    g,l,a = jax.vmap(forward, in_axes=(0,None))(k, state)
+    # g,l,a = jax.vmap(forward, in_axes=(0,None))(k, state)
     
 # jax.pmap()
 
     # return loss, grads, accuracy
-    # g =[]
-    # l = []
-    # a = []
+    g =[]
+    l = []
+    a = []
 
-    # for j in range(BATCH_ACC):
-    #     grads, loss, accuracy = forward(rng, state)
-    #     g.append(grads)
-    #     l.append(loss)
-    #     a.append(accuracy)
+    for j in range(BATCH_ACC):
+        grads, loss, accuracy = forward(rng, state)
+        g.append(grads)
+        l.append(loss)
+        a.append(accuracy)
     #     # print(grads)
     #     # print(grads.keys())
     #     print(grads['wpe']['embedding'].shape)
     #     print()
     #     sys.exit()
     #     state = model.update_model(state, grads)
+    l = jnp.stack(l)
+    a = jnp.stack(a)
     loss = jnp.mean(l)
     accuracy = jnp.mean(a)
     grad = jax.tree_map(lambda *x: jnp.mean(jnp.stack(x), axis=0), *g)
