@@ -109,7 +109,7 @@ def splitGames(batch:jnp.array, randKey:jax.dtypes.prng_key):
     d,t,idxs = jax.vmap(splitGame)(batch,randKeys)
     return d,t, idxs, randKey
 
-@functools.partial(jax.pmap, static_broadcasted_argnums=(1))
+# @functools.partial(jax.pmap, static_broadcasted_argnums=(1))
 def trainStep(rng, state):
     for j in range(BATCH_ACC):
         d,t,idxs, rng = getBatchSplit(rng)
