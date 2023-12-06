@@ -117,7 +117,7 @@ def custAppend(x, y):
 def stack_dicts_helper(d1, d2):
     print(type(d1), type(d2))
     # return jax.tree_map(lambda x, y: jnp.append(x, y), d1, d2), None
-    return jax.tree_map(lambda x, y: jnp.vstack((x, y[0])), d1, d2) , d2[1:]
+    return jax.tree_map(lambda x, y: jnp.vstack((x, y)), d1, d2[0]) , d2[1:]
 def stack_dicts(dicts):
     #FUNCTOOLS IS GOD
     print('Starting Stack Dicts')
