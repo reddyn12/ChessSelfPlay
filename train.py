@@ -119,6 +119,7 @@ def stack_dicts_helper(d1, d2):
     print(type(d1), type(d2))
     # return jax.tree_map(lambda x, y: jnp.append(x, y), d1, d2), None
     return jax.tree_map(lambda x, y: jnp.vstack((x, y)), d1, d2[0]) , d2[1:]
+@jax.jit
 def stack_dicts(dicts):
     #FUNCTOOLS IS GOD
     print('Starting Stack Dicts')
@@ -149,7 +150,7 @@ def mean_list_dicts(dicts):
     d = stack_dicts(dicts)
     print('MEAN POST', d['wpe']['embedding'].shape)
     return jax.tree_map(meanFn, d)
-
+@jax.jit
 def forward(rng, state):
     d,t,idxs, rng = getBatchSplit(rng)
     grads, loss, accuracy = model.apply_model(state, d,t,idxs)
