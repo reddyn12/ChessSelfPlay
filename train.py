@@ -26,7 +26,7 @@ vocab, vocabDecode = tokenizer.makeVocabUCI_SMALL()
 PAD_TOKEN = vocab['<PAD>']
 nBatches = 10000
 BATCH_SIZE = 128//4//2 #* deviceCnt
-BATCH_ACC = 16*1
+BATCH_ACC = 16//2
 # BLOCK_SIZE = 400
 BLOCK_SIZE = 512
 CONTEXT_LENGTH = tokenizer.MAX_MOVES*3+1
@@ -92,9 +92,9 @@ state = model.create_train_state(randKEY, config, hyperconfig)
 print('Finished making model State')
 
 @jax.jit
-def getBatchSplit(randKey:jax.dtypes.prng_key, batchSize = BATCH_SIZE):
+def getBatchSplit(randKey:jax.dtypes.prng_key):
     randKey, k = jax.random.split(randKey)
-    idx = jax.random.randint(k, (batchSize,), 0, len(JtokenizedGames))
+    idx = jax.random.randint(k, (BATCH_SIZE,), 0, len(JtokenizedGames))
     batch = jnp.take(JtokenizedGames, idx, axis=0)
     d,t, idxs, randKey = splitGames(batch,randKey)
     return d,t, idxs, randKey
