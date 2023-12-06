@@ -174,7 +174,7 @@ def trainStepACC(rng, state):
     for j in tqdm(range(BATCH_ACC), desc='BATCH_ACC'):
         rng, k = jax.random.split(rng)
         grads, loss, accuracy = forward(k, state)
-        print(grads['wpe']['embedding'].shape)
+        # print(grads['wpe']['embedding'].shape)
         g[j] = grads
         l = l.at[j].set(loss)
         a = a.at[j].set(accuracy)
@@ -275,7 +275,7 @@ for currStep in tqdm(range(nBatches)):
     # g = mean_list_dicts(grads)
     # print(g.keys()
     print(grads['wpe']['embedding'].shape)
-    sys.exit()
+    # sys.exit()
     # state, loss, accuracy = trainStep(rng)
 
     if currStep%20==0:
