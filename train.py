@@ -92,9 +92,9 @@ state = model.create_train_state(randKEY, config, hyperconfig)
 print('Finished making model State')
 
 @jax.jit
-def getBatchSplit(randKey:jax.dtypes.prng_key):
+def getBatchSplit(randKey:jax.dtypes.prng_key, batchSize = BATCH_SIZE):
     randKey, k = jax.random.split(randKey)
-    idx = jax.random.randint(k, (BATCH_SIZE,), 0, len(JtokenizedGames))
+    idx = jax.random.randint(k, (batchSize,), 0, len(JtokenizedGames))
     batch = jnp.take(JtokenizedGames, idx, axis=0)
     d,t, idxs, randKey = splitGames(batch,randKey)
     return d,t, idxs, randKey
@@ -107,23 +107,39 @@ def splitGame(x:jnp.array, randKey:jax.dtypes.prng_key):
     return x*maskX, x*maskY, idx
 @jax.jit
 def splitGames(batch:jnp.array, randKey:jax.dtypes.prng_key):
-    randKeys = jax.random.split(randKey, BATCH_SIZE)
+    randKeys = jax.random.split(randKey, batch.shape[0])
     randKey, k = jax.random.split(randKey)
     d,t,idxs = jax.vmap(splitGame)(batch,randKeys)
     return d,t, idxs, randKey
 
 # @functools.partial(jax.pmap, static_broadcasted_argnums=(1))
 def trainStepSub(rng, state):
+
+
+
+    # return loss, grads, accuracy
+    g =[]
+    l = []
+    a = []
+
     for j in range(BATCH_ACC):
         d,t,idxs, rng = getBatchSplit(rng)
         grads, loss, accuracy = model.apply_model(state, d,t,idxs)
-        # print(grads)
-        # print(grads.keys())
-        print(grads['wpe']['embedding'].shape)
-        print()
-        sys.exit()
-        state = model.update_model(state, grads)
-    return state, loss, accuracy
+        g.append(grads)
+        l.append(loss)
+        a.append(accuracy)
+    #     # print(grads)
+    #     # print(grads.keys())
+    #     print(grads['wpe']['embedding'].shape)
+    #     print()
+    #     sys.exit()
+    #     state = model.update_model(state, grads)
+    loss = jnp.mean(l)
+    accuracy = jnp.mean(a)
+    grad = jax.tree_map(lambda *x: jnp.mean(jnp.stack(x), axis=0), *g)
+    print('grad', grad.keys())
+    sys.exit()
+    return grad, loss, accuracy
 def trainStep(rng, state):
     # state = train_state.TrainState(*state_tuple)
     
