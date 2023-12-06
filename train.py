@@ -120,7 +120,9 @@ def stack_dicts(dicts):
     return reduce(stack_dicts_helper, dicts)
 meanFn = functools.partial(jnp.mean, axis=0)
 def mean_list_dicts(dicts):
+    print('MEAN PRE',dicts[0]['wpe']['embedding'].shape)
     d = stack_dicts(dicts)
+    print('MEAN POST', d['wpe']['embedding'].shape)
     return jax.tree_map(meanFn, d)
 
 def forward(rng, state):
