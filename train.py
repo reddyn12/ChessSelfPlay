@@ -200,7 +200,7 @@ for currStep in tqdm(range(nBatches)):
     # state, loss, accuracy = trainStep(rng, state)
     print('Replicating States')
     # states = jax_utils.replicate(state)
-    inps = [[rngs[0],state],[rngs[1],state],[rngs[2],state],[rngs[3],state]]
+    inps = [rngs[0],state],[rngs[1],state],[rngs[2],state],[rngs[3],state]
     print('FINISHED Replicated States')
     print('Starting PMAP Step')
     # temp = trainStepPmap(rngs, states)
