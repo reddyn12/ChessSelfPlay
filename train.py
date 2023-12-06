@@ -153,6 +153,7 @@ for currStep in tqdm(range(nBatches)):
     print(type(state.params))
     print(type(state.opt_state))
     print(state.opt_state)
+    print('len of OPT STATE', len(state.opt_state))
     print(dir(state))
     sys.exit()
     states,losses,accuracys = trainStepPmap(rngs, state)
