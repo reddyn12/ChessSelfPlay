@@ -125,7 +125,7 @@ def trainStep(rng, state_tuple):
     # state, loss, accuracy = trainStepSub(rng, state)
     # state_tuple = tuple(state.as_dict().values())
     return state, loss, accuracy
-trainStepPmap = jax.pmap(trainStepSub)
+trainStepPmap = jax.pmap(trainStepSub, static_broadcasted_argnums=(1))
 
     
 print('Starting Training')
@@ -144,12 +144,12 @@ for currStep in tqdm(range(nBatches)):
     # sys.exit()
     # states,losses,accuracys = jax.pmap(trainStep)(rng_state_tuples)
     # states,losses,accuracys = trainStepPmap(rngs, state)
-    states = jax_utils.replicate(state)
+    # states = jax_utils.replicate(state)
     # state_tuple = tuple(state.values())
     # state_tuple = jax_utils.replicate(state_tuple)
     print(rngs)
     # sys.exit()
-    states,losses,accuracys = trainStepPmap(rngs, states)
+    states,losses,accuracys = trainStepPmap(rngs, state)
     # states = [train_state.TrainState(*state_tup) for state_tup in states_tups]
     # states, losses, accuracys = jax.pmap(lambda rng: trainStep(rng, state))(rngs)
     state = model.average_train_state(states)
