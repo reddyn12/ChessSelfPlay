@@ -212,7 +212,7 @@ for currStep in tqdm(range(nBatches)):
 
     # inps = list(zip(rngs, states))
     
-    temp = trainStepPmap(inps)
+    temp,yy,ss = trainStepPmap(inps)
     print('Finished PMAP Step')
     # temp = trainStepACC(rng, state)
     # print()
