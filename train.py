@@ -154,7 +154,7 @@ def trainStep(rng, state):
     # state, loss, accuracy = trainStepSub(rng, state)
     # state_tuple = tuple(state.as_dict().values())
     return state, loss, accuracy
-trainStepPmap = jax.pmap(trainStepACC, static_broadcasted_argnums=(1))
+# trainStepPmap = jax.pmap(trainStepACC, static_broadcasted_argnums=(1))
 
     
 print('Starting Training')
