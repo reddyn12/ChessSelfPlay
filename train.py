@@ -143,6 +143,7 @@ def stack_dicts(dicts):
 #     result, _ = jax.lax.scan(body_fun, dicts[0], dicts[1:])
 #     return result
 meanFn = functools.partial(jnp.mean, axis=0)
+@jax.jit
 def mean_list_dicts(dicts):
     print('MEAN PRE',dicts[0]['wpe']['embedding'].shape)
     d = stack_dicts(dicts)
