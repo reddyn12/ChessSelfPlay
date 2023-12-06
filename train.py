@@ -121,7 +121,7 @@ def trainStepACC(rng, state):
     k = jax.random.split(k, BATCH_ACC)
     # inp = list(zip(rng, [state]*BATCH_ACC))
     # print(inp[0])
-    g,l,a = jax.vmap(forward)(k, [state]*BATCH_ACC)
+    g,l,a = jax.vmap(forward, in_axes=(0,None))(k, state)
     
 # jax.pmap()
 
