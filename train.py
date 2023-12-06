@@ -146,6 +146,7 @@ def trainStepACC(rng, state):
     for j in range(BATCH_ACC):
         rng, k = jax.random.split(rng)
         grads, loss, accuracy = forward(k, state)
+        print(grads['wpe']['embedding'].shape)
         g[j] = grads
         l = l.at[j].set(loss)
         a = a.at[j].set(accuracy)
@@ -164,6 +165,7 @@ def trainStepACC(rng, state):
     loss = jnp.mean(l)
     accuracy = jnp.mean(a)
     # print('PRE TREEMAP grad', g[1]['wpe']['embedding'].shape)
+    print('GETTING GRAD MEAN')
     grad = mean_list_dicts(g)
     # grad = jax.tree_map(lambda *x: jnp.mean(jnp.stack(x), axis=0), *g)
     # grad = {}
