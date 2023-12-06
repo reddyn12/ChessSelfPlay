@@ -198,9 +198,12 @@ for currStep in tqdm(range(nBatches)):
     # state = model.average_train_state(states)
 
     # state, loss, accuracy = trainStep(rng, state)
+    print('Replicating States')
     states = jax_utils.replicate(state)
+    print('FINISHED Replicated States')
+    print('Starting PMAP Step')
     temp = trainStepPmap(rngs, states)
-
+    print('Finished PMAP Step')
     # temp = trainStepACC(rng, state)
     # print()
     print(len(temp))
