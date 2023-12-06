@@ -229,15 +229,15 @@ for currStep in tqdm(range(nBatches)):
     # states = [state]*deviceCnt
     # print(rngs)
     # print(len(states))
-    temp = trainStepACC(rng, state)
+    grads, loss, accuracy = trainStepACC(rng, state)
     # inps = list(zip(rngs, states))
     # temp = jax.pmap(trainStepACC, in_axes=(0, None))(rngs, state)
     # temp = trainStepPmap(inps)
     print('Finished PMAP Step')
     # 
     # print()
-    print(len(temp))
-    print(type(temp[0][0]))
+    # print(len(temp))
+    print(grads[0].keys())
     sys.exit()
     # state, loss, accuracy = trainStep(rng)
 
