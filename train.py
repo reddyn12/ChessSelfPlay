@@ -136,25 +136,25 @@ def trainStepACC(rng, state):
 # jax.pmap()
 
     # return loss, grads, accuracy
-    g =[]
-    l = []
-    a = []
+    g = [None] * BATCH_ACC
+    l = jnp.zeros(BATCH_ACC)
+    a = jnp.zeros(BATCH_ACC)
 
     for j in tqdm(range(BATCH_ACC), desc='BATCH_ACC'):
         rng, k = jax.random.split(rng)
         grads, loss, accuracy = forward(k, state)
-    #     g.append(grads)
-    #     l.append(loss)
-    #     a.append(accuracy)
-    # #     # print(grads)
-    # #     # print(grads.keys())
-    # #     print(grads['wpe']['embedding'].shape)
-    # #     print()
-    # #     sys.exit()
-    # #     state = model.update_model(state, grads)
-    # l = jnp.stack(l)
-    # a = jnp.stack(a)
-    return g, l, a
+        g[j] = grads
+        l = jax.ops.index_update(l, j, loss)
+        a = jax.ops.index_update(a, j, accuracy)
+    #     # print(grads)
+    #     # print(grads.keys())
+    #     print(grads['wpe']['embedding'].shape)
+    #     print()
+    #     sys.exit()
+    #     state = model.update_model(state, grads)
+    l = jnp.stack(l)
+    a = jnp.stack(a)
+    # return g, l, a
     loss = jnp.mean(l)
     accuracy = jnp.mean(a)
     # print('PRE TREEMAP grad', g[1]['wpe']['embedding'].shape)
