@@ -1,4 +1,5 @@
 import functools
+import stat
 import time
 # from model import Tranformer, GPTConfig
 #  #, ChessGPT, cross_entropy_loss
@@ -14,6 +15,7 @@ import pickle
 from utils import saveWeights, loadWeights
 import numpy as np
 from flax import jax_utils
+from flax.training import train_state
 
 deviceCnt = jax.device_count()
 print('Device Count', deviceCnt)
@@ -110,14 +112,18 @@ def splitGames(batch:jnp.array, randKey:jax.dtypes.prng_key):
     return d,t, idxs, randKey
 
 # @functools.partial(jax.pmap, static_broadcasted_argnums=(1))
-def trainStep(rng, state):
+def trainStepSub(rng, state):
     for j in range(BATCH_ACC):
         d,t,idxs, rng = getBatchSplit(rng)
         grads, loss, accuracy = model.apply_model(state, d,t,idxs)
         state = model.update_model(state, grads)
     return state, loss, accuracy
-
-trainStepPmap = jax.pmap(trainStep)
+def trainStep(rng, state_tuple):
+    state = train_state.TrainState(*state_tuple)
+    state, loss, accuracy = trainStepSub(rng, state)
+    state_tuple = tuple(state.as_dict().values())
+    return state_tuple, loss, accuracy
+trainStepPmap = jax.pmap(trainStepSub)
 
     
 print('Starting Training')
@@ -135,10 +141,13 @@ for currStep in tqdm(range(nBatches)):
     # sys.exit()
     # states,losses,accuracys = jax.pmap(trainStep)(rng_state_tuples)
     # states,losses,accuracys = trainStepPmap(rngs, state)
-    state = jax_utils.replicate(state)
+    # state = jax_utils.replicate(state)
+    state_tuple = tuple(state.as_dict().values())
+    state_tuple = jax_utils.replicate(state_tuple)
     print(rngs)
     # sys.exit()
-    states,losses,accuracys = trainStepPmap(rngs, state)
+    states_tups,losses,accuracys = trainStepPmap(rngs, state_tuple)
+    states = [train_state.TrainState(*state_tup) for state_tup in states_tups]
     # states, losses, accuracys = jax.pmap(lambda rng: trainStep(rng, state))(rngs)
     state = model.average_train_state(states)
 
@@ -148,6 +157,7 @@ for currStep in tqdm(range(nBatches)):
 
     if currStep%20==0:
         # print('GAMES TRAINED:',currStep*BATCH_ACC*BATCH_SIZE,'Step:',currStep*BATCH_ACC,'subset',currStep, 'Loss:', loss, 'Accuracy:', accuracy)
+        print('INFO !!! INFO')
         loss = jnp.mean(losses)
         accuracy = jnp.mean(accuracys)
         print('GAMES TRAINED:',currStep*BATCH_ACC*BATCH_SIZE*deviceCnt,'CURRENT_STEP:',currStep, 'Loss:', loss, 'Accuracy:', accuracy)
