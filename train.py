@@ -117,8 +117,8 @@ def forward(rng, state):
     return grads, loss, accuracy
 # @functools.partial(jax.pmap, static_broadcasted_argnums=(1))
 def trainStepACC(rng, state):
-    rng, k = jax.random.split(rng)
-    k = jax.random.split(k, BATCH_ACC)
+    # rng, k = jax.random.split(rng)
+    # k = jax.random.split(k, BATCH_ACC)
     # inp = list(zip(rng, [state]*BATCH_ACC))
     # print(inp[0])
     # g,l,a = jax.vmap(forward, in_axes=(0,None))(k, state)
@@ -131,7 +131,8 @@ def trainStepACC(rng, state):
     a = []
 
     for j in range(BATCH_ACC):
-        grads, loss, accuracy = forward(rng, state)
+        rng, k = jax.random.split(rng)
+        grads, loss, accuracy = forward(k, state)
         g.append(grads)
         l.append(loss)
         a.append(accuracy)
@@ -145,12 +146,12 @@ def trainStepACC(rng, state):
     a = jnp.stack(a)
     loss = jnp.mean(l)
     accuracy = jnp.mean(a)
-    print('PRE TREEMAP grad', g[1]['wpe']['embedding'].shape)
-    
+    # print('PRE TREEMAP grad', g[1]['wpe']['embedding'].shape)
+
     grad = jax.tree_map(lambda *x: jnp.mean(jnp.stack(x), axis=0), *g)
-    print('grad', grad.keys())
-    print('POST TREE MAP grad', grad['wpe']['embedding'].shape)
-    sys.exit()
+    # print('grad', grad.keys())
+    # print('POST TREE MAP grad', grad['wpe']['embedding'].shape)
+    # sys.exit()
     return grad, loss, accuracy
 def trainStep(rng, state):
     # state = train_state.TrainState(*state_tuple)
@@ -159,7 +160,7 @@ def trainStep(rng, state):
     # state, loss, accuracy = trainStepSub(rng, state)
     # state_tuple = tuple(state.as_dict().values())
     return state, loss, accuracy
-# trainStepPmap = jax.pmap(trainStepACC, static_broadcasted_argnums=(1))
+trainStepPmap = jax.pmap(trainStepACC, in_axes=(0, None))
 
     
 print('Starting Training')
@@ -196,7 +197,10 @@ for currStep in tqdm(range(nBatches)):
     # states, losses, accuracys = jax.pmap(lambda rng: trainStep(rng, state))(rngs)
     # state = model.average_train_state(states)
 
-    state, loss, accuracy = trainStep(rng, state)
+    # state, loss, accuracy = trainStep(rng, state)
+
+    temp = trainStepPmap(rngs, state)
+    print(temp)
 
     # state, loss, accuracy = trainStep(rng)
 
