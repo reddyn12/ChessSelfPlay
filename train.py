@@ -124,7 +124,7 @@ def stack_dicts(dicts):
     #FUNCTOOLS IS GOD
     # print('Starting Stack Dicts')
     dicts = jax.tree_map(lambda x: jax.tree_map(lambda x: jnp.array([x]), x), dicts)
-    return jax.tree_map(lambda *x: jnp.vstack(x), *dicts)
+    return jax.tree_map(lambda *x: jnp.vstack((x)), *dicts)
      
     dicts[0] = jax.tree_map(lambda x: jnp.array([x]), dicts[0])
     # for i in range(len(dicts)):
