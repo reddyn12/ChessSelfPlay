@@ -1,4 +1,5 @@
 import functools
+from functools import reduce
 import stat
 import time
 # from model import Tranformer, GPTConfig
@@ -111,20 +112,22 @@ def splitGames(batch:jnp.array, randKey:jax.dtypes.prng_key):
     randKey, k = jax.random.split(randKey)
     d,t,idxs = jax.vmap(splitGame)(batch,randKeys)
     return d,t, idxs, randKey
+
+def stack_dicts_helper(d1, d2):
+    return jax.tree_map(lambda x, y: jnp.vstack((x, y)), d1, d2)
+def stack_dicts(dicts):
+    #FUNCTOOLS IS GOD
+    return reduce(stack_dicts_helper, dicts)
+meanFn = functools.partial(jnp.mean, axis=0)
+def mean_dicts(dicts):
+    d = stack_dicts(dicts)
+    return jax.tree_map(meanFn, d)
+
 def forward(rng, state):
     d,t,idxs, rng = getBatchSplit(rng)
     grads, loss, accuracy = model.apply_model(state, d,t,idxs)
     return grads, loss, accuracy
-def mean_of_nested_dicts(list_of_dicts):
-    result = {}
-    for key in list_of_dicts[0]:
-        if isinstance(list_of_dicts[0][key], dict):
-            # If the value is a dictionary, compute the mean of nested dictionaries
-            result[key] = mean_of_nested_dicts([d[key] for d in list_of_dicts])
-        else:
-            # If the value is not a dictionary, compute the mean directly
-            result[key] = jnp.mean(jnp.stack([d[key] for d in list_of_dicts]), axis=0)
-    return result
+
 # @functools.partial(jax.pmap, static_broadcasted_argnums=(1))
 def trainStepACC(rng, state):
     # rng, k = jax.random.split(rng)
@@ -238,6 +241,8 @@ for currStep in tqdm(range(nBatches)):
     # print()
     # print(len(temp))
     print(grads[0].keys())
+    g = mean_dicts(grads)
+    print(g.keys())
     sys.exit()
     # state, loss, accuracy = trainStep(rng)
 
