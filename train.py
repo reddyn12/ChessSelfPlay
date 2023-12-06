@@ -247,7 +247,7 @@ for currStep in tqdm(range(nBatches)):
     # grads, loss, accuracy = trainStepACC(rng, state)
     # state = jax.pmap(lambda x: x)(state)
     state = jax_utils.replicate(state)
-    gradsP, lossP, accuracyP = jax.pmap(trainStepACC, in_axes=(0,None))(rngs, state)
+    gradsP, lossP, accuracyP = jax.pmap(trainStepACC, in_axes=(0,0))(rngs, state)
     # states,losses,accuracys = trainStepPmap(rngs, state)
     # states = [train_state.TrainState(*state_tup) for state_tup in states_tups]
     # states, losses, accuracys = jax.pmap(lambda rng: trainStep(rng, state))(rngs)
