@@ -214,7 +214,7 @@ def trainStep(rng, state):
     return state, loss, accuracy
 # trainStepPmap = jax.pmap(trainStepACC)
 
-    
+# jax_utils.s
 print('Starting Training')
 for currStep in tqdm(range(nBatches)):
     randKEY, rng = jax.random.split(randKEY)
@@ -245,7 +245,8 @@ for currStep in tqdm(range(nBatches)):
     # print(dir(state.opt_state[0]))
     # sys.exit()
     # grads, loss, accuracy = trainStepACC(rng, state)
-    state = jax.pmap(lambda x: x)(state)
+    # state = jax.pmap(lambda x: x)(state)
+    state = jax_utils.replicate(state)
     gradsP, lossP, accuracyP = jax.pmap(trainStepACC, in_axes=(0,None))(rngs, state)
     # states,losses,accuracys = trainStepPmap(rngs, state)
     # states = [train_state.TrainState(*state_tup) for state_tup in states_tups]
