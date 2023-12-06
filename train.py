@@ -108,7 +108,7 @@ def splitGames(batch:jnp.array, randKey:jax.dtypes.prng_key):
     d,t,idxs = jax.vmap(splitGame)(batch,randKeys)
     return d,t, idxs, randKey
 
-def trainStep(rng, state):
+def trainStep(rng, state=state):
     for j in range(BATCH_ACC):
         d,t,idxs, rng = getBatchSplit(rng)
         grads, loss, accuracy = model.apply_model(state, d,t,idxs)
@@ -122,7 +122,7 @@ for currStep in tqdm(range(nBatches)):
     randKEY, rng = jax.random.split(randKEY)
     rngs = jax.random.split(rng, deviceCnt)
     # states,losses,accuracys = jax.pmap(lambda rng, state: trainStep(rng, state))(rngs, [state]*deviceCnt)
-    states, losses, accuracys = jax.pmap(lambda rng, state: trainStep(rng, state))(rngs, jnp.array([state]*deviceCnt))
+    states, losses, accuracys = jax.pmap(lambda rng: trainStep(rng))(rngs)
     state = model.average_train_state(states)
 
     # state, loss, accuracy = trainStep(rng, state)
