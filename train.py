@@ -112,8 +112,10 @@ def splitGames(batch:jnp.array, randKey:jax.dtypes.prng_key):
     randKey, k = jax.random.split(randKey)
     d,t,idxs = jax.vmap(splitGame)(batch,randKeys)
     return d,t, idxs, randKey
-
+def custAppend(x, y):
+    return jnp.append(x, y, axis=0)
 def stack_dicts_helper(d1, d2):
+    return jax.tree_map(lambda x, y: jnp.append(x, y), d1, d2), None
     return jax.tree_map(lambda x, y: jnp.vstack((x, y)), d1, d2), None
 def stack_dicts(dicts):
     #FUNCTOOLS IS GOD
