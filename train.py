@@ -145,7 +145,8 @@ def trainStepACC(rng, state):
     a = jnp.stack(a)
     loss = jnp.mean(l)
     accuracy = jnp.mean(a)
-    print('PRE TREEMAP grad', grad['wpe']['embedding'].shape)
+    print('PRE TREEMAP grad', g[1]['wpe']['embedding'].shape)
+    
     grad = jax.tree_map(lambda *x: jnp.mean(jnp.stack(x), axis=0), *g)
     print('grad', grad.keys())
     print('POST TREE MAP grad', grad['wpe']['embedding'].shape)
