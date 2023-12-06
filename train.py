@@ -114,13 +114,16 @@ def splitGames(batch:jnp.array, randKey:jax.dtypes.prng_key):
     return d,t, idxs, randKey
 
 def stack_dicts_helper(d1, d2):
-    return jax.tree_map(lambda x, y: jnp.vstack((x, y)), d1, d2)
+    return jax.tree_map(lambda x, y: jnp.vstack((x, y)), d1, d2), None
 def stack_dicts(dicts):
     #FUNCTOOLS IS GOD
     print('Starting Stack Dicts')
     dicts = jax.tree_map(lambda x: jax.tree_map(lambda x: jnp.array([x]), x), dicts)
     # dicts[0] = jax.tree_map(lambda x: jnp.array([x]), dicts[0])
+    seq_dicts = jax.tree_leaves(dicts)
     print('Starting Reduce')
+    stacked_dicts, _ = jax.lax.scan(stack_dicts_helper, seq_dicts[0], seq_dicts[1:])
+    return stacked_dicts
     return reduce(stack_dicts_helper, dicts)
 # def stack_dicts(dicts):
 #     def body_fun(carry, x):
