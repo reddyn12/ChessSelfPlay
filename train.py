@@ -117,8 +117,10 @@ def stack_dicts_helper(d1, d2):
     return jax.tree_map(lambda x, y: jnp.vstack((x, y)), d1, d2)
 def stack_dicts(dicts):
     #FUNCTOOLS IS GOD
+    print('Starting Stack Dicts')
     dicts = jax.tree_map(lambda x: jax.tree_map(lambda x: jnp.array([x]), x), dicts)
     # dicts[0] = jax.tree_map(lambda x: jnp.array([x]), dicts[0])
+    print('Starting Reduce')
     return reduce(stack_dicts_helper, dicts)
 meanFn = functools.partial(jnp.mean, axis=0)
 def mean_list_dicts(dicts):
