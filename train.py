@@ -26,7 +26,7 @@ FLOAT_DTYPE = jnp.float32
 vocab, vocabDecode = tokenizer.makeVocabUCI_SMALL()
 PAD_TOKEN = vocab['<PAD>']
 nBatches = 10000
-BATCH_SIZE = 128//4//1 #* deviceCnt
+BATCH_SIZE = 128//4//2 #* deviceCnt
 BATCH_ACC = 16//1
 # BLOCK_SIZE = 400
 BLOCK_SIZE = 512
@@ -115,18 +115,18 @@ def splitGames(batch:jnp.array, randKey:jax.dtypes.prng_key):
 def custAppend(x, y):
     return jnp.append(x, y, axis=0)
 def stack_dicts_helper(d1, d2):
-    return jax.tree_map(lambda x, y: jnp.append(x, y), d1, d2), None
-    return jax.tree_map(lambda x, y: jnp.vstack((x, y)), d1, d2), None
+    # return jax.tree_map(lambda x, y: jnp.append(x, y), d1, d2), None
+    return jax.tree_map(lambda x, y: jnp.vstack((x, y)), d1, d2) , None
 def stack_dicts(dicts):
     #FUNCTOOLS IS GOD
     print('Starting Stack Dicts')
-    dicts = jax.tree_map(lambda x: jax.tree_map(lambda x: jnp.array([x]), x), dicts)
+    dicts = jax.tree_map(lambda x: jax.tree_map(lambda x: jnp.array([x]), x), dicts) 
     # dicts[0] = jax.tree_map(lambda x: jnp.array([x]), dicts[0])
     # seq_dicts = jax.tree_leaves(dicts)
     print('Starting Reduce')
     stacked_dicts, _ = jax.lax.scan(stack_dicts_helper, dicts[0], dicts[1:])
     return stacked_dicts
-    return reduce(stack_dicts_helper, dicts)
+    # return jax.lax.reduce(stack_dicts_helper, dicts)
 # def stack_dicts(dicts):
 #     def body_fun(carry, x):
 #         return jax.tree_map(lambda a, b: jnp.vstack((a, b)), carry, x), None
