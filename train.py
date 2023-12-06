@@ -119,11 +119,12 @@ def trainStepSub(rng, state):
         state = model.update_model(state, grads)
     return state, loss, accuracy
 def trainStep(rng, state_tuple):
-    state = train_state.TrainState(*state_tuple)
-    # state.
-    state, loss, accuracy = trainStepSub(rng, state)
-    state_tuple = tuple(state.as_dict().values())
-    return state_tuple, loss, accuracy
+    # state = train_state.TrainState(*state_tuple)
+    
+    state, loss, accuracy = trainStepSub(rng, state_tuple)
+    # state, loss, accuracy = trainStepSub(rng, state)
+    # state_tuple = tuple(state.as_dict().values())
+    return state, loss, accuracy
 trainStepPmap = jax.pmap(trainStepSub)
 
     
@@ -131,6 +132,7 @@ print('Starting Training')
 for currStep in tqdm(range(nBatches)):
     randKEY, rng = jax.random.split(randKEY)
     rngs = jax.random.split(rng, (deviceCnt))
+    print('state', state)
     # rngs = rngs[:,1]
     # states,losses,accuracys = jax.pmap(lambda rng, state: trainStep(rng, state))(rngs, [state]*deviceCnt)
     # states = [state]*deviceCnt
@@ -143,12 +145,12 @@ for currStep in tqdm(range(nBatches)):
     # states,losses,accuracys = jax.pmap(trainStep)(rng_state_tuples)
     # states,losses,accuracys = trainStepPmap(rngs, state)
     # state = jax_utils.replicate(state)
-    state_tuple = tuple(state.values())
-    state_tuple = jax_utils.replicate(state_tuple)
+    # state_tuple = tuple(state.values())
+    # state_tuple = jax_utils.replicate(state_tuple)
     print(rngs)
     # sys.exit()
-    states_tups,losses,accuracys = trainStepPmap(rngs, state_tuple)
-    states = [train_state.TrainState(*state_tup) for state_tup in states_tups]
+    states,losses,accuracys = trainStepPmap(rngs, states)
+    # states = [train_state.TrainState(*state_tup) for state_tup in states_tups]
     # states, losses, accuracys = jax.pmap(lambda rng: trainStep(rng, state))(rngs)
     state = model.average_train_state(states)
 
