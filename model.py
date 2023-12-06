@@ -193,7 +193,7 @@ def apply_model(state, d,t,idxs):
     return grads, loss, accuracy
     
 @jax.jit
-def update_model(state, grads):
+def update_model(state:train_state.TrainState, grads):
   return state.apply_gradients(grads=grads)
 
 def create_train_state(rng, config, hyperconfig):
