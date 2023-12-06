@@ -25,7 +25,7 @@ FLOAT_DTYPE = jnp.float16
 vocab, vocabDecode = tokenizer.makeVocabUCI_SMALL()
 PAD_TOKEN = vocab['<PAD>']
 nBatches = 10000
-BATCH_SIZE = 128//4 #* deviceCnt
+BATCH_SIZE = 128//4//2 #* deviceCnt
 BATCH_ACC = 16*1
 # BLOCK_SIZE = 400
 BLOCK_SIZE = 512
@@ -117,6 +117,10 @@ def trainStepSub(rng, state):
     for j in range(BATCH_ACC):
         d,t,idxs, rng = getBatchSplit(rng)
         grads, loss, accuracy = model.apply_model(state, d,t,idxs)
+        # print(grads)
+        # print(grads.keys())
+        # print(grads['wpe']['embedding'].shape)
+        # sys.exit()
         state = model.update_model(state, grads)
     return state, loss, accuracy
 def trainStep(rng, state):
