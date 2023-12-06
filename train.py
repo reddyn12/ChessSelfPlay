@@ -22,7 +22,7 @@ vocab, vocabDecode = tokenizer.makeVocabUCI_SMALL()
 PAD_TOKEN = vocab['<PAD>']
 nBatches = 10000
 BATCH_SIZE = 128//4 #* deviceCnt
-BATCH_ACC = 16*4
+BATCH_ACC = 16*1
 # BLOCK_SIZE = 400
 BLOCK_SIZE = 512
 CONTEXT_LENGTH = tokenizer.MAX_MOVES*3+1
@@ -120,9 +120,17 @@ def trainStep(rng, state):
 
 for currStep in tqdm(range(nBatches)):
     randKEY, rng = jax.random.split(randKEY)
-    state, loss, accuracy = trainStep(rng, state)
+    rngs = jax.random.split(rng, deviceCnt)
+    states,losses,accuracys = jax.pmap(lambda rng: trainStep(rng, state))(rngs)
+    state = model.average_train_state(states)
+
+    # state, loss, accuracy = trainStep(rng, state)
     if currStep%20==0:
-        print('Step:',currStep*BATCH_ACC,'subset',currStep, 'Loss:', loss, 'Accuracy:', accuracy)
+        # print('GAMES TRAINED:',currStep*BATCH_ACC*BATCH_SIZE,'Step:',currStep*BATCH_ACC,'subset',currStep, 'Loss:', loss, 'Accuracy:', accuracy)
+        loss = jnp.mean(losses)
+        accuracy = jnp.mean(accuracys)
+        print('GAMES TRAINED:',currStep*BATCH_ACC*BATCH_SIZE*deviceCnt,'CURRENT_STEP:',currStep, 'Loss:', loss, 'Accuracy:', accuracy)
+
     if currStep%100==20:
         saveWeights('model_weights.pkl', state.params)
         # print('Saved Weights')
