@@ -156,7 +156,7 @@ def trainStepACC(rng, state):
     #     state = model.update_model(state, grads)
     l = jnp.stack(l)
     a = jnp.stack(a)
-    # return g, l, a
+    return g, l, a
     loss = jnp.mean(l)
     accuracy = jnp.mean(a)
     # print('PRE TREEMAP grad', g[1]['wpe']['embedding'].shape)
