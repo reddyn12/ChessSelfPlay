@@ -171,7 +171,7 @@ def trainStepACC(rng, state):
     l = jnp.zeros(BATCH_ACC, dtype=jnp.float32)
     a = jnp.zeros(BATCH_ACC, dtype=jnp.float32)
 
-    for j in range(BATCH_ACC):
+    for j in tqdm(range(BATCH_ACC), desc='BATCH_ACC'):
         rng, k = jax.random.split(rng)
         grads, loss, accuracy = forward(k, state)
         print(grads['wpe']['embedding'].shape)
