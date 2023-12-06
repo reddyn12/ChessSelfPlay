@@ -119,8 +119,9 @@ def trainStepSub(rng, state):
         grads, loss, accuracy = model.apply_model(state, d,t,idxs)
         # print(grads)
         # print(grads.keys())
-        # print(grads['wpe']['embedding'].shape)
-        # sys.exit()
+        print(grads['wpe']['embedding'].shape)
+        print()
+        sys.exit()
         state = model.update_model(state, grads)
     return state, loss, accuracy
 def trainStep(rng, state):
