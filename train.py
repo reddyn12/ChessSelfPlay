@@ -201,7 +201,7 @@ for currStep in tqdm(range(nBatches)):
 
     temp = trainStepPmap(rngs, state)
     print(temp)
-
+    sys.exit()
     # state, loss, accuracy = trainStep(rng)
 
     if currStep%20==0:
