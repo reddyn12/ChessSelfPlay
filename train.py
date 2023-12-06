@@ -124,7 +124,7 @@ print('Starting Training')
 for currStep in tqdm(range(nBatches)):
     randKEY, rng = jax.random.split(randKEY)
     rngs = jax.random.split(rng, (deviceCnt))
-    rngs = rngs[:,1]
+    # rngs = rngs[:,1]
     # states,losses,accuracys = jax.pmap(lambda rng, state: trainStep(rng, state))(rngs, [state]*deviceCnt)
     # states = [state]*deviceCnt
     # rng_state_tuples = tuple(list(zip(rngs, states)))
@@ -138,7 +138,7 @@ for currStep in tqdm(range(nBatches)):
     state = jax_utils.replicate(state)
     print(rngs)
     # sys.exit()
-    states,losses,accuracys = trainStep(rngs, state)
+    states,losses,accuracys = trainStepPmap(rngs, state)
     # states, losses, accuracys = jax.pmap(lambda rng: trainStep(rng, state))(rngs)
     state = model.average_train_state(states)
 
