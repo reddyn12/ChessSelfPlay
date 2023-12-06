@@ -120,6 +120,7 @@ def trainStepSub(rng, state):
     return state, loss, accuracy
 def trainStep(rng, state_tuple):
     state = train_state.TrainState(*state_tuple)
+    # state.
     state, loss, accuracy = trainStepSub(rng, state)
     state_tuple = tuple(state.as_dict().values())
     return state_tuple, loss, accuracy
@@ -142,7 +143,7 @@ for currStep in tqdm(range(nBatches)):
     # states,losses,accuracys = jax.pmap(trainStep)(rng_state_tuples)
     # states,losses,accuracys = trainStepPmap(rngs, state)
     # state = jax_utils.replicate(state)
-    state_tuple = tuple(state.as_dict().values())
+    state_tuple = tuple(state.values())
     state_tuple = jax_utils.replicate(state_tuple)
     print(rngs)
     # sys.exit()
