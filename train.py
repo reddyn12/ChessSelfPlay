@@ -245,6 +245,7 @@ for currStep in tqdm(range(nBatches)):
     # print(dir(state.opt_state[0]))
     # sys.exit()
     # grads, loss, accuracy = trainStepACC(rng, state)
+    state = jax.pmap(lambda x: x)(state)
     gradsP, lossP, accuracyP = jax.pmap(trainStepACC, in_axes=(0,None))(rngs, state)
     # states,losses,accuracys = trainStepPmap(rngs, state)
     # states = [train_state.TrainState(*state_tup) for state_tup in states_tups]
@@ -266,7 +267,7 @@ for currStep in tqdm(range(nBatches)):
     grads = mean_list_dicts(gradsP)
     loss = jnp.mean(lossP)
     accuracy = jnp.mean(accuracyP)
-    
+
     state = model.update_model(state, grads)
     # inps = list(zip(rngs, states))
     # temp = jax.pmap(trainStepACC, in_axes=(0, None))(rngs, state)
