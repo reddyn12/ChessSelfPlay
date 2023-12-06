@@ -160,7 +160,7 @@ def trainStep(rng, state):
     # state, loss, accuracy = trainStepSub(rng, state)
     # state_tuple = tuple(state.as_dict().values())
     return state, loss, accuracy
-trainStepPmap = jax.pmap(trainStepACC, in_axes=(0, 0))
+trainStepPmap = jax.pmap(trainStepACC)
 
     
 print('Starting Training')
@@ -200,7 +200,7 @@ for currStep in tqdm(range(nBatches)):
     # state, loss, accuracy = trainStep(rng, state)
     print('Replicating States')
     # states = jax_utils.replicate(state)
-    inps = [rngs[0],state],[rngs[1],state],[rngs[2],state],[rngs[3],state]
+    inps = [[rngs[0],state],[rngs[1],state],[rngs[2],state],[rngs[3],state]]
     print('FINISHED Replicated States')
     print('Starting PMAP Step')
     # temp = trainStepPmap(rngs, states)
