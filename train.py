@@ -62,40 +62,48 @@ hyperconfig.FLOAT_DTYPE = FLOAT_DTYPE
 
 # BATCH_SIZE = 64
 # nBatches = 10
+savedTokenGames = None
+# savedTokenGames = 'tokenizedGames.npy'
+if savedTokenGames is None:
+    print("Loading Games")
+    gamePath = 'data/ELO_2000_UCI.txt'
+    print("Opening Games File")
+    file = open(gamePath, 'r')
+    print("Reading Games File")
+    # PROBLEMO -------------------------- HUGE --------------------- PROBLEMO 
+    # games = file.read(200000000)
+    games = file.read()
+    print("Closing Games File")
+    file.close()
+    print('Spliting Games')
+    games = games.splitlines()
+    print("FNIISHED Spliting Games File")
+    print('Length of GAMES:',len(games))
+    # sys.exit()
+    # games = games[100000:130000]
 
-print("Loading Vocab")
-gamePath = 'data/ELO_2000_UCI.txt'
-print("Opening Games File")
-file = open(gamePath, 'r')
-print("Reading Games File")
-# PROBLEMO -------------------------- HUGE --------------------- PROBLEMO 
-# games = file.read(200000000)
-games = file.read()
-print("Closing Games File")
-file.close()
-print('Spliting Games')
-games = games.splitlines()
-print("FNIISHED Spliting Games File")
-print('Length of GAMES:',len(games))
-# sys.exit()
-# games = games[100000:130000]
-
-games = games[:13000]
+    # games = games[:13000]
 
 
-tokenizedGames = []
-print("Tokenizing Games")
-for g in tqdm(games):
-    # g = g[:min((len(g), 500))]
-    arr = jnp.array(tokenizer.tokenizeLine(g, vocab, BLOCK_SIZE, pad=True), dtype=jnp.int16)
-    tokenizedGames.append(arr)
+    tokenizedGames = []
+    print("Tokenizing Games")
+    for g in tqdm(games):
+        # g = g[:min((len(g), 500))]
+        arr = jnp.array(tokenizer.tokenizeLine(g, vocab, BLOCK_SIZE, pad=True), dtype=jnp.int16)
+        tokenizedGames.append(arr)
 
-print("Converting to jnp array")
-JtokenizedGames = jnp.vstack(tokenizedGames)
-print("FINISHED converting to jnp array")
+    print("Converting to jnp array")
+    JtokenizedGames = jnp.vstack(tokenizedGames)
+    print("FINISHED converting to jnp array")
 
-print('Saving Tokenized Games')
-jnp.save('tokenizedGames.npy', JtokenizedGames)
+    print('Saving Tokenized Games')
+    jnp.save('tokenizedGames.npy', JtokenizedGames)
+    print('Finished Saving Tokenized Games')
+else:
+    print('Loading Tokenized Games FROM SAVE')
+    JtokenizedGames = jnp.load(savedTokenGames)
+    print('Finished Loading Tokenized Games FROM SAVE')
+    # sys.exit()
 print('Making model State')
 state = model.create_train_state(randKEY, config, hyperconfig)
 print('Finished making model State')
