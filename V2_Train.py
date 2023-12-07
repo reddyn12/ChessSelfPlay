@@ -90,7 +90,7 @@ if savedTokenGames is None:
     print("Tokenizing Games")
     for g in tqdm(games):
         # g = g[:min((len(g), 500))]
-        arr = jnp.array(tokenizer.tokenizeLine(g, vocab, BLOCK_SIZE, pad=True), dtype=jnp.int16)
+        arr = jnp.array(tokenizer.tokenizeLine(g, vocab, BLOCK_SIZE, pad=True))
         tokenizedGames.append(arr)
 
     print("Converting to jnp array")
