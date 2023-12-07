@@ -316,6 +316,7 @@ for currStep in tqdm(range(nBatches)):
         # print('GAMES TRAINED:',currStep*BATCH_ACC*BATCH_SIZE*deviceCnt,'CURRENT_STEP:',currStep, 'Loss:', loss, 'Accuracy:', accuracy)
 
     if currStep%100==20:
+        print('Saving Weights')
         saveWeights('model_weights.pkl', state.params)
         # print('Saved Weights')
 
