@@ -44,7 +44,8 @@ config.n_layer = 12
 config.n_head = 12//2
 config.n_embd = 768
 config.dropout = 0.0
-config.block_size = CONTEXT_LENGTH
+# config.block_size = CONTEXT_LENGTH
+config.block_size = BLOCK_SIZE
 config.bias = True
 
 hyperconfig = model.HyperConfig()
