@@ -1,3 +1,4 @@
+import stat
 import jax
 import jax.numpy as jnp
 import flax
@@ -7,6 +8,7 @@ from flax.training import train_state
 from dataclasses import dataclass
 import random
 from tokenizer import makeVocabUCI_SMALL, CONTEXT_LENGTH
+from utils import loadWeights
 DETERMINISTIC = False
 INT_DTYPE = jnp.int16
 FLOAT_DTYPE = jnp.float32
@@ -206,6 +208,12 @@ def create_train_state(rng, config, hyperconfig):
     params = model.init(rng, d)['params']
     tx = optax.adam(learning_rate=1e-3)
     return train_state.TrainState.create(apply_fn=model.apply, params=params, tx=tx)
+def loadTrainState(path):
+    # state = train_state.TrainState.load(path)
+    params = loadWeights(path)
+    tx = optax.adam(learning_rate=1e-3)
+    state = train_state.TrainState.create(apply_fn=Tranformer.apply, params=params, tx=tx)
+    return state
 def average_train_state(train_states):
     """Averages the parameters of multiple TrainState objects."""
     print('Averaging Train States')

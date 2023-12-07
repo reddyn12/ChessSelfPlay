@@ -64,6 +64,8 @@ hyperconfig.FLOAT_DTYPE = FLOAT_DTYPE
 # nBatches = 10
 # savedTokenGames = None
 savedTokenGames = 'tokenizedGames.npy'
+# modelSaved = None
+modelSaved = 'model_weights.pkl'
 if savedTokenGames is None:
     print("Loading Games")
     gamePath = 'data/ELO_2000_UCI.txt'
@@ -105,9 +107,15 @@ else:
     JtokenizedGames = JtokenizedGames[:1000000]
     print('Finished Loading Tokenized Games FROM SAVE')
     # sys.exit()
-print('Making model State')
-state = model.create_train_state(randKEY, config, hyperconfig)
-print('Finished making model State')
+if modelSaved is None:
+    print('Making model State')
+    state = model.create_train_state(randKEY, config, hyperconfig)
+    print('Finished making model State')
+else:
+    print('Loading model State')
+    state = model.loadTrainState(modelSaved)
+    print('Finished Loading model State')
+    # sys.exit()
 
 @jax.jit
 def getBatchSplit(randKey:jax.dtypes.prng_key):
