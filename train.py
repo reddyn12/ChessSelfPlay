@@ -27,8 +27,8 @@ vocab, vocabDecode = tokenizer.makeVocabUCI_SMALL()
 PAD_TOKEN = vocab['<PAD>']
 nBatches = 10000
 # DROP TRailing 4 if on A100
-BATCH_SIZE = 128//4//4 #* deviceCnt
-BATCH_ACC = 16//2
+BATCH_SIZE = 128//4//1 #* deviceCnt
+BATCH_ACC = 16//1
 # BLOCK_SIZE = 400
 BLOCK_SIZE = 512
 CONTEXT_LENGTH = tokenizer.MAX_MOVES*3+1
@@ -244,10 +244,10 @@ for currStep in tqdm(range(nBatches)):
 
     # print(dir(state.opt_state[0]))
     # sys.exit()
-    # grads, loss, accuracy = trainStepACC(rng, state)
+    grads, loss, accuracy = trainStepACC(rng, state)
     # state = jax.pmap(lambda x: x)(state)
     # stae = jax_utils.replicate(state)
-    gradsP, lossP, accuracyP = jax.pmap(trainStepACC, in_axes=(0,None))(rngs, state)
+    # gradsP, lossP, accuracyP = jax.pmap(trainStepACC, in_axes=(0,None))(rngs, state)
     # states,losses,accuracys = trainStepPmap(rngs, state)
     # states = [train_state.TrainState(*state_tup) for state_tup in states_tups]
     # states, losses, accuracys = jax.pmap(lambda rng: trainStep(rng, state))(rngs)
@@ -266,14 +266,14 @@ for currStep in tqdm(range(nBatches)):
     # print(rngs)
     # print(len(states))
     # grads = mean_list_dicts(gradsP)
-    print('Fininshed PMAP Step')
-    print(gradsP)
-    print(len(gradsP))
+    # print('Fininshed PMAP Step')
+    # print(gradsP)
+    # print(len(gradsP))
 
-    time.sleep(100)
-    sys.exit()
-    loss = jnp.mean(lossP)
-    accuracy = jnp.mean(accuracyP)
+    # time.sleep(100)
+    # sys.exit()
+    # loss = jnp.mean(lossP)
+    # accuracy = jnp.mean(accuracyP)
 
     state = model.update_model(state, grads)
     # inps = list(zip(rngs, states))
