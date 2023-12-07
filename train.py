@@ -124,7 +124,7 @@ def stack_dicts(dicts):
     #FUNCTOOLS IS GOD
     # print('Starting Stack Dicts')
     dicts = jax.tree_map(lambda x: jax.tree_map(lambda x: jnp.array([x]), x), dicts)
-    return jax.tree_map(lambda *x: jnp.vstack((x)), *dicts)
+    return jax.tree_map(lambda *x: jnp.vstack(x), *dicts)
      
     dicts[0] = jax.tree_map(lambda x: jnp.array([x]), dicts[0])
     # for i in range(len(dicts)):
@@ -265,7 +265,10 @@ for currStep in tqdm(range(nBatches)):
     # states = [state]*deviceCnt
     # print(rngs)
     # print(len(states))
-    grads = mean_list_dicts(gradsP)
+    # grads = mean_list_dicts(gradsP)
+    print('Fininshed PMAP Step')
+    print(len(gradsP))
+    sys.exit()
     loss = jnp.mean(lossP)
     accuracy = jnp.mean(accuracyP)
 
