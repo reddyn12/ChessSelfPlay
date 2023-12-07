@@ -25,7 +25,7 @@ INT_DTYPE = jnp.int16
 FLOAT_DTYPE = jnp.float32
 vocab, vocabDecode = tokenizer.makeVocabUCI_SMALL()
 PAD_TOKEN = vocab['<PAD>']
-nBatches = 10000
+nBatches = 100000
 # DROP TRailing 4 if on A100
 BATCH_SIZE = 128//4//1 #* deviceCnt
 # BATCH_ACC = 16//4
