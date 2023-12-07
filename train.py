@@ -27,11 +27,11 @@ vocab, vocabDecode = tokenizer.makeVocabUCI_SMALL()
 PAD_TOKEN = vocab['<PAD>']
 nBatches = 10000
 # DROP TRailing 4 if on A100
-BATCH_SIZE = 128//4//1 #* deviceCnt
+BATCH_SIZE = 128//2//1 #* deviceCnt
 # BATCH_ACC = 16//4
 BATCH_ACC = 16//1
 # BLOCK_SIZE = 400
-BLOCK_SIZE = 512
+BLOCK_SIZE = 512//2
 CONTEXT_LENGTH = tokenizer.MAX_MOVES*3+1
 RAND_SEED = 123
 VOCAB_SIZE = len(vocabDecode)
@@ -317,13 +317,13 @@ for currStep in tqdm(range(nBatches)):
 
     if currStep%100==20:
         print('Saving Weights')
-        saveWeights('model_weights.pkl', state.params)
+        saveWeights('model_weights_V2.pkl', state.params)
         # print('Saved Weights')
 
 
 
 print('Finished Training')
-saveWeights('model_weights.pkl', state.params)
+saveWeights('model_weights_V2.pkl', state.params)
 d,t,idxs, randKey = getBatchSplit(randKEY)
 g,l,a = model.apply_model(state, d,t,idxs)
 print('loss: ', l, 'accuracy: ', a)
