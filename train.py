@@ -113,7 +113,7 @@ if modelSaved is None:
     print('Finished making model State')
 else:
     print('Loading model State')
-    state = model.loadTrainState(modelSaved)
+    state = model.loadTrainState(modelSaved, config)
     print('Finished Loading model State')
     # sys.exit()
 
