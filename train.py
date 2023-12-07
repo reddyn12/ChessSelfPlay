@@ -102,6 +102,7 @@ if savedTokenGames is None:
 else:
     print('Loading Tokenized Games FROM SAVE')
     JtokenizedGames = jnp.load(savedTokenGames)
+    JtokenizedGames = JtokenizedGames[:1000000]
     print('Finished Loading Tokenized Games FROM SAVE')
     # sys.exit()
 print('Making model State')
