@@ -27,7 +27,7 @@ vocab, vocabDecode = tokenizer.makeVocabUCI_SMALL()
 PAD_TOKEN = vocab['<PAD>']
 nBatches = 10000
 # DROP TRailing 4 if on A100
-BATCH_SIZE = 128//2//1 #* deviceCnt
+BATCH_SIZE = 128//4//1 #* deviceCnt
 # BATCH_ACC = 16//4
 BATCH_ACC = 16//1
 # BLOCK_SIZE = 400
@@ -44,8 +44,8 @@ config.n_layer = 12
 config.n_head = 12//2
 config.n_embd = 768
 config.dropout = 0.0
-# config.block_size = CONTEXT_LENGTH
-config.block_size = BLOCK_SIZE
+config.block_size = CONTEXT_LENGTH
+# config.block_size = BLOCK_SIZE
 config.bias = True
 
 hyperconfig = model.HyperConfig()
