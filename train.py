@@ -80,7 +80,7 @@ print('Length of GAMES:',len(games))
 # sys.exit()
 # games = games[100000:130000]
 
-# games = games[:13000]
+games = games[:13000]
 
 
 tokenizedGames = []
@@ -93,6 +93,9 @@ for g in tqdm(games):
 print("Converting to jnp array")
 JtokenizedGames = jnp.vstack(tokenizedGames)
 print("FINISHED converting to jnp array")
+
+print('Saving Tokenized Games')
+jnp.save('tokenizedGames.npy', JtokenizedGames)
 print('Making model State')
 state = model.create_train_state(randKEY, config, hyperconfig)
 print('Finished making model State')
