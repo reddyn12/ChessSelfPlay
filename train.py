@@ -62,8 +62,8 @@ hyperconfig.FLOAT_DTYPE = FLOAT_DTYPE
 
 # BATCH_SIZE = 64
 # nBatches = 10
-savedTokenGames = None
-# savedTokenGames = 'tokenizedGames.npy'
+# savedTokenGames = None
+savedTokenGames = 'tokenizedGames.npy'
 if savedTokenGames is None:
     print("Loading Games")
     gamePath = 'data/ELO_2000_UCI.txt'
