@@ -104,6 +104,7 @@ if savedTokenGames is None:
 else:
     print('Loading Tokenized Games FROM SAVE')
     JtokenizedGames = jnp.load(savedTokenGames)
+    # may need to add to the if loop also
     JtokenizedGames = JtokenizedGames[:1000000]
     print('Finished Loading Tokenized Games FROM SAVE')
     # sys.exit()
