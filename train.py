@@ -20,7 +20,8 @@ from flax import jax_utils
 from flax.training import train_state
 
 deviceCnt = jax.device_count()
-print('Device Count', deviceCnt)
+deviceArr = jax.devices()
+print('Device Count', deviceCnt, deviceArr)
 INT_DTYPE = jnp.int16
 FLOAT_DTYPE = jnp.float32
 vocab, vocabDecode = tokenizer.makeVocabUCI_SMALL()
