@@ -267,7 +267,8 @@ def trainStep(rng, state):
     grads, loss, accuracy = forward(rng, state)
     # grads = mean_dict(grads)
     state = model.update_modelPMAP(state, grads)
-    state.params = mean_dict(state.params)
+    tempParams = mean_dict(state.params)
+    state = model.condenseParams(state, tempParams)
     
     # loss = jnp.mean(loss)
     # accuracy = jnp.mean(accuracy)
