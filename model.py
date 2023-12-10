@@ -15,7 +15,7 @@ INT_DTYPE = jnp.int16
 FLOAT_DTYPE = jnp.float32
 vocab, vocabDecode = makeVocabUCI_SMALL()
 VOCAB_SIZE = len(vocabDecode)
-@dataclass
+@dataclass(unsafe_hash=True)
 class GPTConfig:
     block_size: int = 901
     vocab_size: int = 2500
@@ -24,7 +24,7 @@ class GPTConfig:
     n_embd: int = 768
     dropout: float = 0.0
     bias: bool = True # True: bias in Linears and LayerNorms, like GPT-2. False: a bit better and faster
-@dataclass
+@dataclass(unsafe_hash=True)
 class HyperConfig:
     BATCH_SIZE: int = 128
     BATCH_ACC: int = 16
