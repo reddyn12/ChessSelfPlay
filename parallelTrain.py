@@ -71,8 +71,8 @@ modelSavedFile = 'model_weights_PARALLEL.pkl'
 
 # savedTokenGames = None
 savedTokenGames = 'tokenizedGames.npy'
-modelSaved = None
-# modelSaved = 'model_weights_PARALLEL.pkl'
+# modelSaved = None
+modelSaved = 'model_weights_PARALLEL.pkl'
 if savedTokenGames is None:
     print("Loading Games")
     gamePath = 'data/ELO_2000_UCI.txt'
@@ -129,6 +129,7 @@ if modelSaved is None:
 else:
     print('Loading model State')
     state = model.loadTrainStatePMAP(rngs, modelSaved, config)
+    state = jax_utils.replicate(state)
     print('Finished Loading model State')
     print(type(state.params))
     print(state.params['wpe']['embedding'].shape)
