@@ -119,7 +119,7 @@ else:
 randKEY, rngs = jax.random.split(randKEY)
 rngs = jax.random.split(rngs, deviceCnt)
 if modelSaved is None:
-    print('Making model State')
+    print('MAKING model State')
     state = model.create_train_statePMAP(rngs, config, hyperconfig)
     print('Finished making model State')
     print(type(state))
@@ -127,14 +127,14 @@ if modelSaved is None:
     modelSaved = modelSavedFile
     sys.exit()
 else:
-    print('Loading model State')
+    print('LOADING model State')
     # state = model.loadTrainStatePMAP(rngs, modelSaved, config)
     state = model.loadTrainState(modelSaved, config)
     # state = jax_utils.replicate(state)
     print('Finished Loading model State')
     # print(type(state.params))
-    print(state.params['wpe']['embedding'].shape)
-    sys.exit()
+    # print(state.params['wpe']['embedding'].shape)
+    # sys.exit()
 
 @jax.jit
 def getBatchSplit(randKey:jax.dtypes.prng_key):
