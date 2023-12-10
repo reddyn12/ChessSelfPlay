@@ -282,8 +282,8 @@ print('Starting Training')
 for currStep in tqdm(range(nBatches)):
     # state = jax_utils.replicate(state)
     # DEBUG
-    for i in tqdm(range(BATCH_ACC), desc='BATCH_ACC'):
-    # for i in tqdm(range(BATCH_ACC)):
+    # for i in tqdm(range(BATCH_ACC), desc='BATCH_ACC'):
+    for i in range(BATCH_ACC):
 
         randKEY, rng = jax.random.split(randKEY)
         rngs = jax.random.split(rng, deviceCnt)
@@ -314,7 +314,9 @@ for currStep in tqdm(range(nBatches)):
         print('ACCURACYS:', accuracys)
     if currStep%100==20:
         print('Saving Weights')
+        state = jax_utils.unreplicate(state)
         tempParams = mean_dict(state.params)
+        
         state = model.condenseParams(state, tempParams)
         saveWeights(modelSaved, state.params)
         state = jax_utils.replicate(state)
@@ -323,6 +325,8 @@ for currStep in tqdm(range(nBatches)):
 
 
 print('Finished Training')
+
+
 tempParams = mean_dict(state.params)
 state = model.condenseParams(state, tempParams)
 saveWeights(modelSaved, state.params)
