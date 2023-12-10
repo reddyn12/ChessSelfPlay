@@ -231,6 +231,7 @@ def create_train_statePMAP(rng, config, hyperconfig):
 def loadTrainStatePMAP(rng, path, config):
     model = Tranformer(config)
     # state = train_state.TrainState.load(path)
+    k,k1 = jax.random.split(rng)
     params = loadWeights(path)
     tx = optax.adam(learning_rate=1e-3)
     state = train_state.TrainState.create(apply_fn=model.apply, params=params, tx=tx)
