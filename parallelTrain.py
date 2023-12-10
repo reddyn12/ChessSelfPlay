@@ -269,6 +269,7 @@ for currStep in tqdm(range(nBatches)):
     # print(grads['wpe']['embedding'])
     # print(type(grads))
     # print(grads['wpe']['embedding'].shape)
+    print(type(state))
     print('yuh')
     sys.exit()
     # jnp.arange(4)
