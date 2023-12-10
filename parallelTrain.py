@@ -126,6 +126,7 @@ if modelSaved is None:
     print('MAKING model State')
     state = model.create_train_statePMAP(rngs, config, hyperconfig)
     s = model.create_train_state(rngs[0], config, hyperconfig)
+    s = jax_utils.replicate(s)
     print('Finished making model State')
     print(type(state))
     print('MODELSAVED NONE',state.params['wpe']['embedding'].shape)
