@@ -313,8 +313,9 @@ for currStep in tqdm(range(nBatches)):
         print('GAMES TRAINED:',currStep*BATCH_ACC*BATCH_SIZE*deviceCnt,'CURRENT_STEP:',currStep, 'Loss:', loss, 'Accuracy:', accuracy)
         print('LOSESS:', losses)
         print('ACCURACYS:', accuracys)
-    # if currStep%100==20:
-    if currStep%100==2:
+        print('TRAINING STATE STEP:',state.step)
+    if currStep%100==20:
+    # if currStep%100==2:
 
         print('Saving Weights')
         # print(type(state.tx))
@@ -336,8 +337,10 @@ print('Finished Training')
 
 
 tempParams = mean_dict(state.params)
+        
+saveWeights(modelSaved,tempParams)
+tempParams = jax_utils.replicate(tempParams)
 state = model.replaceParams(state, tempParams)
-saveWeights(modelSaved, state.params)
 # randKEY, rng = jax.random.split(randKEY)
 d,t,idxs, randKEY = getBatchSplit(randKEY)
 g,l,a = model.apply_model(state, d,t,idxs)
