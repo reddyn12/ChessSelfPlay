@@ -252,8 +252,8 @@ def trainStep(rng, state):
     grads, loss, accuracy = forward(rng, state)
     # grads = mean_dict(grads)
     state = model.update_modelPMAP(state, grads)
-    loss = jnp.mean(loss)
-    accuracy = jnp.mean(accuracy)
+    # loss = jnp.mean(loss)
+    # accuracy = jnp.mean(accuracy)
     # state, loss, accuracy = trainStepSub(rng, state)
     # state_tuple = tuple(state.as_dict().values())
     # return state, loss, accuracy
@@ -266,97 +266,25 @@ for currStep in tqdm(range(nBatches)):
     # state = jax_utils.replicate(state)
     randKEY, rng = jax.random.split(randKEY)
     rngs = jax.random.split(rng, deviceCnt)
-    state, loss, accuracy = trainStep(rngs, state)
+    state, losses, accuracys = trainStep(rngs, state)
     
     # print(grads['wpe']['embedding'])
     # print(type(grads))
     # print(grads['wpe']['embedding'].shape)
-    print(type(state))
-    print('yuh')
-    print(loss)
-    print(accuracy)
-
-    sys.exit()
-    # jnp.arange(4)
-    # print('state', state)
-    # rngs = rngs[:,1]
-    # states,losses,accuracys = jax.pmap(lambda rng, state: trainStep(rng, state))(rngs, [state]*deviceCnt)
-    # states = [state]*deviceCnt
-    # rng_state_tuples = tuple(list(zip(rngs, states)))
-    # print(len(rng_state_tuples))
-    # print(rng_state_tuples[0][1])
-    # print(rng_state_tuples[0][0])
-
-    # sys.exit()
-    # states,losses,accuracys = jax.pmap(trainStep)(rng_state_tuples)
-    # states,losses,accuracys = trainStepPmap(rngs, state)
-    # states = jax_utils.replicate(state)
-    # state_tuple = tuple(state.values())
-    # state_tuple = jax_utils.replicate(state_tuple)
-    # print(rngs)
     # print(type(state))
-    # print(type(state.params))
-    # print(type(state.opt_state))
-    # print('len of OPT STATE', len(state.opt_state))
-    # print(state.opt_state[1])
-
-    # print(dir(state.opt_state[0]))
+    # print('yuh')
+    # print(losses)
+    # print(accuracys)
     # sys.exit()
-    # grads, loss, accuracy = trainStepACC(rng, state)
-    # state = jax.pmap(lambda x: x)(state)
-    # stae = jax_utils.replicate(state)
-    # gradsP, lossP, accuracyP = jax.pmap(trainStepACC, in_axes=(0,None))(rngs, state)
-    # states,losses,accuracys = trainStepPmap(rngs, state)
-    # states = [train_state.TrainState(*state_tup) for state_tup in states_tups]
-    # states, losses, accuracys = jax.pmap(lambda rng: trainStep(rng, state))(rngs)
-    # state = model.average_train_state(states)
-
-    # state, loss, accuracy = trainStep(rng, state)
-    # print('Replicating States')
-    # states = jax_utils.replicate(state)
-    # inps = [[rngs[0],state],[rngs[1],state],[rngs[2],state],[rngs[3],state]]
-    # print('FINISHED Replicated States')
-    # print('Starting PMAP Step')
-    # temp = trainStepPmap(rngs, states)
-
-    # len(states) doesnt work... * not work as expected
-    # states = [state]*deviceCnt
-    # print(rngs)
-    # print(len(states))
-    # grads = mean_list_dicts(gradsP)
-    # print('Fininshed PMAP Step')
-    # print(gradsP)
-    # print(len(gradsP))
-
-    # time.sleep(100)
-    # sys.exit()
-    # loss = jnp.mean(lossP)
-    # accuracy = jnp.mean(accuracyP)
-
-    # state = model.update_model(state, grads)
-    # inps = list(zip(rngs, states))
-    # temp = jax.pmap(trainStepACC, in_axes=(0, None))(rngs, state)
-    # temp = trainStepPmap(inps)
-    # print('Finished PMAP Step')
-    # 
-    # print()
-    # print(len(temp))
-    
-    
-    # print(grads[0].keys())
-    # g = mean_list_dicts(grads)
-    # print(g.keys()
-    # print(grads['wpe']['embedding'].shape)
-    # sys.exit()
-    # state, loss, accuracy = trainStep(rng)
 
     if currStep%20==0:
         # print('INFO !!! INFO')
         # print('GAMES TRAINED:',currStep*BATCH_ACC*BATCH_SIZE,'Step:',currStep*BATCH_ACC,'subset',currStep, 'Loss:', loss, 'Accuracy:', accuracy)
-        loss = jnp.mean(loss)
-        accuracy = jnp.mean(accuracy)
-        print('GAMES TRAINED:',currStep*BATCH_ACC*BATCH_SIZE*deviceCnt,'CURRENT_STEP:',currStep, 'Loss:', loss, 'Accuracy:', accuracy)
-
+        loss = jnp.mean(losses)
+        accuracy = jnp.mean(accuracys)
+        print('GAMES TRAINED:',currStep*BATCH_SIZE*deviceCnt,'CURRENT_STEP:',currStep, 'Loss:', loss, 'Accuracy:', accuracy)
+        print('LOSESS:', losses)
+        print('ACCURACYS:', accuracys)
     if currStep%100==20:
         print('Saving Weights')
         saveWeights(modelSaved, state.params)
@@ -366,6 +294,7 @@ for currStep in tqdm(range(nBatches)):
 
 print('Finished Training')
 saveWeights(modelSaved, state.params)
-d,t,idxs, randKey = getBatchSplit(randKEY)
+# randKEY, rng = jax.random.split(randKEY)
+d,t,idxs, randKEY = getBatchSplit(randKEY)
 g,l,a = model.apply_model(state, d,t,idxs)
 print('loss: ', l, 'accuracy: ', a)
