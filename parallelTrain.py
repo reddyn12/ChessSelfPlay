@@ -75,8 +75,8 @@ modelSavedFile = 'model_weights_PARALLEL.pkl'
 
 # savedTokenGames = None
 savedTokenGames = 'tokenizedGames.npy'
-# modelSaved = None
-modelSaved = 'model_weights_PARALLEL.pkl'
+modelSaved = None
+# modelSaved = 'model_weights_PARALLEL.pkl'
 if savedTokenGames is None:
     print("Loading Games")
     gamePath = 'data/ELO_2000_UCI.txt'
@@ -282,7 +282,7 @@ print('Starting Training')
 for currStep in tqdm(range(nBatches)):
     # state = jax_utils.replicate(state)
     # DEBUG
-    for i in tqdm(range(BATCH_ACC)):
+    for i in tqdm(range(BATCH_ACC), desc='BATCH_ACC'):
     # for i in tqdm(range(BATCH_ACC)):
 
         randKEY, rng = jax.random.split(randKEY)
@@ -290,8 +290,8 @@ for currStep in tqdm(range(nBatches)):
         state, losses, accuracys = trainStep(rngs, state)
 
 
-    tempParams = mean_dict(state.params)
-    state = model.condenseParams(state, tempParams)
+    # tempParams = mean_dict(state.params)
+    # state = model.condenseParams(state, tempParams)
     # print('TRAING STEP:',state.params['wpe']['embedding'].shape)
     # sys.exit()
 
