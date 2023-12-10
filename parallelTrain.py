@@ -251,23 +251,25 @@ def trainStep(rng, state):
     # grads, loss, accuracy = trainStepACC(rng, state)
     grads, loss, accuracy = forward(rng, state)
     grads = mean_dict(grads)
-    # state = model.update_model(state, grads)
+    state = model.update_model(state, grads)
     # state, loss, accuracy = trainStepSub(rng, state)
     # state_tuple = tuple(state.as_dict().values())
     # return state, loss, accuracy
-    return grads, loss, accuracy
+    return state, loss, accuracy
 # trainStepPmap = jax.pmap(trainStepACC)
 
 # jax_utils.s
 print('Starting Training')
 for currStep in tqdm(range(nBatches)):
+    state = jax_utils.replicate(state)
     randKEY, rng = jax.random.split(randKEY)
     rngs = jax.random.split(rng, deviceCnt)
-    grads, loss, accuracy = trainStep(rngs, state)
+    state, loss, accuracy = trainStep(rngs, state)
     
     # print(grads['wpe']['embedding'])
-    print(type(grads))
-    print(grads['wpe']['embedding'].shape)
+    # print(type(grads))
+    # print(grads['wpe']['embedding'].shape)
+    print('yuh')
     sys.exit()
     # jnp.arange(4)
     # print('state', state)
