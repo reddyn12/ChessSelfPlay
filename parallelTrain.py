@@ -250,7 +250,7 @@ def trainStep(rng, state):
     
     # grads, loss, accuracy = trainStepACC(rng, state)
     grads, loss, accuracy = forward(rng, state)
-    grads = mean_dict(grads)
+    # grads = mean_dict(grads)
     state = model.update_model(state, grads)
     # state, loss, accuracy = trainStepSub(rng, state)
     # state_tuple = tuple(state.as_dict().values())
