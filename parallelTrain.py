@@ -322,8 +322,10 @@ for currStep in tqdm(range(nBatches)):
         # state = jax_utils.unreplicate(state)
         tempParams = mean_dict(state.params)
         
-        state = model.condenseParams(state, tempParams)
-        saveWeights(modelSaved, state.params)
+        saveWeights(modelSaved,tempParams)
+        tempParams = jax_utils.replicate(tempParams)
+        state = model.replaceParams(state, tempParams)
+        
         # state = jax_utils.replicate(state)
         print('Saved Weights')
 
@@ -334,7 +336,7 @@ print('Finished Training')
 
 
 tempParams = mean_dict(state.params)
-state = model.condenseParams(state, tempParams)
+state = model.replaceParams(state, tempParams)
 saveWeights(modelSaved, state.params)
 # randKEY, rng = jax.random.split(randKEY)
 d,t,idxs, randKEY = getBatchSplit(randKEY)
