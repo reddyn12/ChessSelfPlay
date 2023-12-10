@@ -122,12 +122,15 @@ if modelSaved is None:
     print('Making model State')
     state = model.create_train_statePMAP(rngs, config, hyperconfig)
     print('Finished making model State')
+    print(type(state))
     modelSaved = modelSavedFile
+    sys.exit()
 else:
     print('Loading model State')
     state = model.loadTrainStatePMAP(rngs, modelSaved, config)
     print('Finished Loading model State')
-    # sys.exit()
+    print(type(state))
+    sys.exit()
 
 @jax.jit
 def getBatchSplit(randKey:jax.dtypes.prng_key):
