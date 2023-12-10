@@ -38,7 +38,7 @@ BATCH_ACC = 32//2#*4
 # BLOCK_SIZE = 400
 BLOCK_SIZE = 512
 CONTEXT_LENGTH = tokenizer.MAX_MOVES*3+1
-RAND_SEED = 12313
+RAND_SEED = 1236
 VOCAB_SIZE = len(vocabDecode)
 randKEY = jax.random.PRNGKey(seed=RAND_SEED)
 BATCH_SIZE_CUM = None
@@ -209,13 +209,8 @@ for currStep in tqdm(range(nBatches)):
         # print('Saved Weights')
 
 
-
-
 print('Finished Training')
-
-
 tempParams = mean_dict(state.params)
-        
 saveWeights(modelSaved,tempParams)
 tempParams = jax_utils.replicate(tempParams)
 state = model.replaceParams(state, tempParams)
