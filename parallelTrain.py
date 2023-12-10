@@ -75,8 +75,8 @@ modelSavedFile = 'model_weights_PARALLEL.pkl'
 
 # savedTokenGames = None
 savedTokenGames = 'tokenizedGames.npy'
-modelSaved = None
-# modelSaved = 'model_weights_PARALLEL.pkl'
+# modelSaved = None
+modelSaved = 'model_weights_PARALLEL.pkl'
 if savedTokenGames is None:
     print("Loading Games")
     gamePath = 'data/ELO_2000_UCI.txt'
@@ -281,7 +281,10 @@ def trainStep(rng, state):
 print('Starting Training')
 for currStep in tqdm(range(nBatches)):
     # state = jax_utils.replicate(state)
+    # DEBUG
     for i in tqdm(range(BATCH_ACC)):
+    # for i in tqdm(range(BATCH_ACC)):
+
         randKEY, rng = jax.random.split(randKEY)
         rngs = jax.random.split(rng, deviceCnt)
         state, losses, accuracys = trainStep(rngs, state)
@@ -289,8 +292,8 @@ for currStep in tqdm(range(nBatches)):
 
     tempParams = mean_dict(state.params)
     state = model.condenseParams(state, tempParams)
-    print('TRAING STEP:',state.params['wpe']['embedding'].shape)
-    sys.exit()
+    # print('TRAING STEP:',state.params['wpe']['embedding'].shape)
+    # sys.exit()
 
     # print(grads['wpe']['embedding'])
     # print(type(grads))
@@ -306,17 +309,22 @@ for currStep in tqdm(range(nBatches)):
         # print('GAMES TRAINED:',currStep*BATCH_ACC*BATCH_SIZE,'Step:',currStep*BATCH_ACC,'subset',currStep, 'Loss:', loss, 'Accuracy:', accuracy)
         loss = jnp.mean(losses)
         accuracy = jnp.mean(accuracys)
-        print('GAMES TRAINED:',currStep*BATCH_SIZE*deviceCnt,'CURRENT_STEP:',currStep, 'Loss:', loss, 'Accuracy:', accuracy)
+        print('GAMES TRAINED:',currStep*BATCH_ACC*BATCH_SIZE*deviceCnt,'CURRENT_STEP:',currStep, 'Loss:', loss, 'Accuracy:', accuracy)
         print('LOSESS:', losses)
         print('ACCURACYS:', accuracys)
     if currStep%100==20:
         print('Saving Weights')
+        tempParams = mean_dict(state.params)
+        state = model.condenseParams(state, tempParams)
         saveWeights(modelSaved, state.params)
+        state = jax_utils.replicate(state)
         # print('Saved Weights')
 
 
 
 print('Finished Training')
+tempParams = mean_dict(state.params)
+state = model.condenseParams(state, tempParams)
 saveWeights(modelSaved, state.params)
 # randKEY, rng = jax.random.split(randKEY)
 d,t,idxs, randKEY = getBatchSplit(randKEY)
