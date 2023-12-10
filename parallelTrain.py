@@ -186,7 +186,7 @@ def mean_list_dicts(dicts):
     # print('MEAN POST', d['wpe']['embedding'].shape)
     return jax.tree_map(meanFn, d)
 # @jax.jit
-@jax.pmap()
+@jax.pmap
 def forward(rng, state):
     d,t,idxs, rng = getBatchSplit(rng)
     grads, loss, accuracy = model.apply_model(state, d,t,idxs)
