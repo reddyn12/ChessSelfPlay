@@ -137,6 +137,7 @@ else:
     print('LOADING model State')
     # state = model.loadTrainStatePMAP(rngs, modelSaved, config)
     state = model.loadTrainState(modelSaved, config)
+    # state = state*deviceCnt
     state = jax_utils.replicate(state)
     # state = jax_utils.replicate(state)
     print('Finished Loading model State')
@@ -312,15 +313,20 @@ for currStep in tqdm(range(nBatches)):
         print('GAMES TRAINED:',currStep*BATCH_ACC*BATCH_SIZE*deviceCnt,'CURRENT_STEP:',currStep, 'Loss:', loss, 'Accuracy:', accuracy)
         print('LOSESS:', losses)
         print('ACCURACYS:', accuracys)
-    if currStep%100==20:
+    # if currStep%100==20:
+    if currStep%100==5:
+
         print('Saving Weights')
-        state = jax_utils.unreplicate(state)
+        print(type(state.tx))
+        sys.exit()
+        # state = jax_utils.unreplicate(state)
         tempParams = mean_dict(state.params)
         
         state = model.condenseParams(state, tempParams)
         saveWeights(modelSaved, state.params)
         state = jax_utils.replicate(state)
-        # print('Saved Weights')
+        print('Saved Weights')
+
 
 
 
