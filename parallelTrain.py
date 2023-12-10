@@ -260,7 +260,10 @@ for currStep in tqdm(range(nBatches)):
     randKEY, rng = jax.random.split(randKEY)
     rngs = jax.random.split(rng, deviceCnt)
     grads, loss, accuracy = trainStep(rngs, state)
+    
+    print(grads['wpe']['embedding'])
     print(type(grads))
+    print(grads['wpe']['embedding'].shape)
     sys.exit()
     # jnp.arange(4)
     # print('state', state)
