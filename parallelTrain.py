@@ -123,13 +123,15 @@ if modelSaved is None:
     state = model.create_train_statePMAP(rngs, config, hyperconfig)
     print('Finished making model State')
     print(type(state))
+    print(state.params['wpe']['embedding'].shape)
     modelSaved = modelSavedFile
     sys.exit()
 else:
     print('Loading model State')
     state = model.loadTrainStatePMAP(rngs, modelSaved, config)
     print('Finished Loading model State')
-    print(type(state))
+    print(type(state.params))
+    print(state.params['wpe']['embedding'].shape)
     sys.exit()
 
 @jax.jit
