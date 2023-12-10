@@ -21,6 +21,10 @@ from utils import saveWeights, loadWeights
 import numpy as np
 from flax import jax_utils
 from flax.training import train_state
+meanFn = functools.partial(jnp.mean, axis=0)
+@jax.jit
+def mean_dict(dict):
+    return jax.tree_map(meanFn, dict)
 
 deviceCnt = jax.device_count()
 print('Device Count', deviceCnt)
@@ -125,7 +129,7 @@ if modelSaved is None:
     print(type(state))
     print('MODELSAVED NONE',state.params['wpe']['embedding'].shape)
     modelSaved = modelSavedFile
-    # sys.exit()
+    sys.exit()
 else:
     print('LOADING model State')
     # state = model.loadTrainStatePMAP(rngs, modelSaved, config)
