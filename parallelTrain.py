@@ -125,9 +125,11 @@ rngs = jax.random.split(rngs, deviceCnt)
 if modelSaved is None:
     print('MAKING model State')
     state = model.create_train_statePMAP(rngs, config, hyperconfig)
+    s = model.create_train_state(rngs[0], config, hyperconfig)
     print('Finished making model State')
     print(type(state))
     print('MODELSAVED NONE',state.params['wpe']['embedding'].shape)
+    print('V2-MODELSAVED NONE',s.params['wpe']['embedding'].shape)
     modelSaved = modelSavedFile
     sys.exit()
 else:
