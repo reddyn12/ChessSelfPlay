@@ -1,3 +1,4 @@
+import functools
 import stat
 import jax
 import jax.numpy as jnp
@@ -215,6 +216,45 @@ def loadTrainState(path, config):
     tx = optax.adam(learning_rate=1e-3)
     state = train_state.TrainState.create(apply_fn=model.apply, params=params, tx=tx)
     return state
+@functools.partial(jax.pmap, static_broadcasted_argnums=(1,2))
+def create_train_statePMAP(rng, config, hyperconfig):
+    """Creates initial `TrainState`."""
+    model = Tranformer(config)
+#   cnn = CNN()
+    d = jnp.ones((hyperconfig.BATCH_SIZE, hyperconfig.BLOCK_SIZE), dtype=hyperconfig.INT_DTYPE)
+    # d_size_gb = d.size * d.itemsize / 1024**3
+    # print('JNP Batch GB size',d_size_gb)
+    params = model.init(rng, d)['params']
+    tx = optax.adam(learning_rate=1e-3)
+    return train_state.TrainState.create(apply_fn=model.apply, params=params, tx=tx)
+@functools.partial(jax.pmap, static_broadcasted_argnums=(1,2))
+def loadTrainStatePMAP(rng, path, config):
+    model = Tranformer(config)
+    # state = train_state.TrainState.load(path)
+    params = loadWeights(path)
+    tx = optax.adam(learning_rate=1e-3)
+    state = train_state.TrainState.create(apply_fn=model.apply, params=params, tx=tx)
+    return state
+@functools.partial(jax.pmap, axis_name='ensemble')
+def apply_modelPMAP(state, d,t,idxs):
+    """Computes gradients, loss and accuracy for a single batch."""
+    def loss_fn(params):
+        logits = state.apply_fn({'params':params}, d)
+        logits = logits[:, idxs-1, :]
+        tt = t[:, idxs]
+        tt = jax.nn.one_hot(tt, VOCAB_SIZE)
+        loss = optax.softmax_cross_entropy(logits, tt)
+        loss = jnp.mean(loss)
+        return loss, logits
+    grad_fn = jax.value_and_grad(loss_fn, has_aux=True)
+    (loss, logits), grads = grad_fn(state.params)
+    probs = jax.lax.pmean(jax.nn.softmax(logits), axis_name='ensemble')
+    accuracy = jnp.mean(jnp.argmax(probs, -1) == t[:, idxs])
+    # accuracy = jnp.mean(jnp.argmax(logits, axis=-1) == t[:, idxs])
+    return grads, loss, accuracy
+@jax.pmap
+def update_modelPMAP(state:train_state.TrainState, grads):
+    return state.apply_gradients(grads=grads)
 def average_train_state(train_states):
     """Averages the parameters of multiple TrainState objects."""
     print('Averaging Train States')
