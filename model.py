@@ -216,6 +216,8 @@ def loadTrainState(path, config):
     tx = optax.adam(learning_rate=1e-3)
     state = train_state.TrainState.create(apply_fn=model.apply, params=params, tx=tx)
     return state
+def condenseParams(state, params):
+    return state.replace(params=params)
 @functools.partial(jax.pmap, static_broadcasted_argnums=(1,2))
 def create_train_statePMAP(rng, config, hyperconfig):
     """Creates initial `TrainState`."""
