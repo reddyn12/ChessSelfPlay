@@ -64,10 +64,14 @@ hyperconfig.FLOAT_DTYPE = FLOAT_DTYPE
 
 # BATCH_SIZE = 64
 # nBatches = 10
+
+savedTokenGamesFile = 'tokenizedGames.npy'
+modelSavedFile = 'model_weights_PARALLEL.pkl'
+
 # savedTokenGames = None
 savedTokenGames = 'tokenizedGames.npy'
-# modelSaved = None
-modelSaved = 'model_weights_PARALLEL.pkl'
+modelSaved = None
+# modelSaved = 'model_weights_PARALLEL.pkl'
 if savedTokenGames is None:
     print("Loading Games")
     gamePath = 'data/ELO_2000_UCI.txt'
@@ -117,6 +121,7 @@ if modelSaved is None:
     print('Making model State')
     state = model.create_train_statePMAP(rngs, config, hyperconfig)
     print('Finished making model State')
+    modelSaved = modelSavedFile
 else:
     print('Loading model State')
     state = model.loadTrainStatePMAP(rngs, modelSaved, config)
