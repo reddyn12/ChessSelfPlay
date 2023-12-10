@@ -247,6 +247,7 @@ def trainStep(rng, state):
     
     # grads, loss, accuracy = trainStepACC(rng, state)
     grads, loss, accuracy = forward(rng, state)
+    grads = mean_list_dicts(grads)
     # state = model.update_model(state, grads)
     # state, loss, accuracy = trainStepSub(rng, state)
     # state_tuple = tuple(state.as_dict().values())
@@ -261,7 +262,7 @@ for currStep in tqdm(range(nBatches)):
     rngs = jax.random.split(rng, deviceCnt)
     grads, loss, accuracy = trainStep(rngs, state)
     
-    print(grads['wpe']['embedding'])
+    # print(grads['wpe']['embedding'])
     print(type(grads))
     print(grads['wpe']['embedding'].shape)
     sys.exit()
