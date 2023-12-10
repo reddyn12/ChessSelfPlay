@@ -252,6 +252,8 @@ def trainStep(rng, state):
     grads, loss, accuracy = forward(rng, state)
     # grads = mean_dict(grads)
     state = model.update_modelPMAP(state, grads)
+    loss = jnp.mean(loss)
+    accuracy = jnp.mean(accuracy)
     # state, loss, accuracy = trainStepSub(rng, state)
     # state_tuple = tuple(state.as_dict().values())
     # return state, loss, accuracy
@@ -273,7 +275,7 @@ for currStep in tqdm(range(nBatches)):
     print('yuh')
     print(loss)
     print(accuracy)
-    
+
     sys.exit()
     # jnp.arange(4)
     # print('state', state)
