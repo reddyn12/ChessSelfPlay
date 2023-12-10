@@ -115,11 +115,11 @@ randKEY, rngs = jax.random.split(randKEY)
 rngs = jax.random.split(rngs, deviceCnt)
 if modelSaved is None:
     print('Making model State')
-    state = model.create_train_state(rngs, config, hyperconfig)
+    state = model.create_train_statePMAP(rngs, config, hyperconfig)
     print('Finished making model State')
 else:
     print('Loading model State')
-    state = model.loadTrainState(rngs, modelSaved, config)
+    state = model.loadTrainStatePMAP(rngs, modelSaved, config)
     print('Finished Loading model State')
     # sys.exit()
 
