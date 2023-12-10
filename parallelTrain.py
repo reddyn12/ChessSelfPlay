@@ -314,17 +314,17 @@ for currStep in tqdm(range(nBatches)):
         print('LOSESS:', losses)
         print('ACCURACYS:', accuracys)
     # if currStep%100==20:
-    if currStep%100==5:
+    if currStep%100==2:
 
         print('Saving Weights')
-        print(type(state.tx))
-        sys.exit()
+        # print(type(state.tx))
+        # sys.exit()
         # state = jax_utils.unreplicate(state)
         tempParams = mean_dict(state.params)
         
         state = model.condenseParams(state, tempParams)
         saveWeights(modelSaved, state.params)
-        state = jax_utils.replicate(state)
+        # state = jax_utils.replicate(state)
         print('Saved Weights')
 
 
