@@ -271,6 +271,9 @@ for currStep in tqdm(range(nBatches)):
     # print(grads['wpe']['embedding'].shape)
     print(type(state))
     print('yuh')
+    print(loss)
+    print(accuracy)
+    
     sys.exit()
     # jnp.arange(4)
     # print('state', state)
