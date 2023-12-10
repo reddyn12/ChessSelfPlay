@@ -128,10 +128,11 @@ if modelSaved is None:
     sys.exit()
 else:
     print('Loading model State')
-    state = model.loadTrainStatePMAP(rngs, modelSaved, config)
-    state = jax_utils.replicate(state)
+    # state = model.loadTrainStatePMAP(rngs, modelSaved, config)
+    state = model.loadTrainState(modelSaved, config)
+    # state = jax_utils.replicate(state)
     print('Finished Loading model State')
-    print(type(state.params))
+    # print(type(state.params))
     print(state.params['wpe']['embedding'].shape)
     sys.exit()
 
