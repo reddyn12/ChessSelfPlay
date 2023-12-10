@@ -185,7 +185,8 @@ def mean_list_dicts(dicts):
     d = stack_dicts(dicts)
     # print('MEAN POST', d['wpe']['embedding'].shape)
     return jax.tree_map(meanFn, d)
-@jax.jit
+# @jax.jit
+@jax.pmap()
 def forward(rng, state):
     d,t,idxs, rng = getBatchSplit(rng)
     grads, loss, accuracy = model.apply_model(state, d,t,idxs)
@@ -257,6 +258,8 @@ for currStep in tqdm(range(nBatches)):
     randKEY, rng = jax.random.split(randKEY)
     rngs = jax.random.split(rng, deviceCnt)
     state, loss, accuracy = trainStep(rngs, state)
+    print(type(state))
+    sys.exit()
     # jnp.arange(4)
     # print('state', state)
     # rngs = rngs[:,1]
