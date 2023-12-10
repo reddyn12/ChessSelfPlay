@@ -261,7 +261,7 @@ def trainStep(rng, state):
 # jax_utils.s
 print('Starting Training')
 for currStep in tqdm(range(nBatches)):
-    state = jax_utils.replicate(state)
+    # state = jax_utils.replicate(state)
     randKEY, rng = jax.random.split(randKEY)
     rngs = jax.random.split(rng, deviceCnt)
     state, loss, accuracy = trainStep(rngs, state)
