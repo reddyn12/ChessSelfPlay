@@ -71,8 +71,8 @@ modelSavedFile = 'model_weights_PARALLEL.pkl'
 
 # savedTokenGames = None
 savedTokenGames = 'tokenizedGames.npy'
-# modelSaved = None
-modelSaved = 'model_weights_PARALLEL.pkl'
+modelSaved = None
+# modelSaved = 'model_weights_PARALLEL.pkl'
 if savedTokenGames is None:
     print("Loading Games")
     gamePath = 'data/ELO_2000_UCI.txt'
@@ -123,9 +123,9 @@ if modelSaved is None:
     state = model.create_train_statePMAP(rngs, config, hyperconfig)
     print('Finished making model State')
     print(type(state))
-    print(state.params['wpe']['embedding'].shape)
+    print('MODELSAVED NONE',state.params['wpe']['embedding'].shape)
     modelSaved = modelSavedFile
-    sys.exit()
+    # sys.exit()
 else:
     print('LOADING model State')
     # state = model.loadTrainStatePMAP(rngs, modelSaved, config)
@@ -274,7 +274,8 @@ for currStep in tqdm(range(nBatches)):
     randKEY, rng = jax.random.split(randKEY)
     rngs = jax.random.split(rng, deviceCnt)
     state, losses, accuracys = trainStep(rngs, state)
-    
+    print('TRAING STEP:',state.params['wpe']['embedding'].shape)
+
     # print(grads['wpe']['embedding'])
     # print(type(grads))
     # print(grads['wpe']['embedding'].shape)
