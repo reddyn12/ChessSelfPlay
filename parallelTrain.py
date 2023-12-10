@@ -243,7 +243,8 @@ def trainStepACC(rng, state):
 def trainStep(rng, state):
     # state = train_state.TrainState(*state_tuple)
     
-    grads, loss, accuracy = trainStepACC(rng, state)
+    # grads, loss, accuracy = trainStepACC(rng, state)
+    grads, loss, accuracy = forward(rng, state)
     state = model.update_model(state, grads)
     # state, loss, accuracy = trainStepSub(rng, state)
     # state_tuple = tuple(state.as_dict().values())
