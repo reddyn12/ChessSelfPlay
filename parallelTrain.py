@@ -191,7 +191,7 @@ def forward(rng, state):
     grads, loss, accuracy = model.apply_model(state, d,t,idxs)
     return grads, loss, accuracy
 
-# @functools.partial(jax.pmap, static_broadcasted_argnums=(1))
+@functools.partial(jax.pmap, static_broadcasted_argnums=(1))
 def trainStepACC(rng, state):
     # rng, k = jax.random.split(rng)
     # k = jax.random.split(k, BATCH_ACC)
