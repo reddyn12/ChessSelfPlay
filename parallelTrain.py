@@ -34,9 +34,9 @@ vocab, vocabDecode = tokenizer.makeVocabUCI_SMALL()
 PAD_TOKEN = vocab['<PAD>']
 nBatches = 100000
 # DROP TRailing 4 if on A100
-BATCH_SIZE = 128 #* deviceCnt
+BATCH_SIZE = 128//4//1 #* deviceCnt
 # BATCH_ACC = 16//4
-BATCH_ACC = 16//1
+BATCH_ACC = 16*2
 # BLOCK_SIZE = 400
 BLOCK_SIZE = 512
 CONTEXT_LENGTH = tokenizer.MAX_MOVES*3+1
