@@ -2,8 +2,6 @@
 
 import functools
 from functools import reduce
-import re
-import stat
 import time
 # from model import Tranformer, GPTConfig
 #  #, ChessGPT, cross_entropy_loss
@@ -92,11 +90,6 @@ if savedTokenGames is None:
     games = games.splitlines()
     print("FNIISHED Spliting Games File")
     print('Length of GAMES:',len(games))
-    # sys.exit()
-    # games = games[100000:130000]
-
-    # games = games[:13000]
-
 
     tokenizedGames = []
     print("Tokenizing Games")
@@ -175,33 +168,26 @@ def forward(rng, state):
 
 def trainStep(rng, state):
     # state = train_state.TrainState(*state_tuple)
-    
     # grads, loss, accuracy = trainStepACC(rng, state)
     grads, loss, accuracy = forward(rng, state)
     # grads = mean_dict(grads)
     state = model.update_modelPMAP(state, grads)
-   
     return state, loss, accuracy
 # trainStepPmap = jax.pmap(trainStepACC)
 
 # jax_utils.s
 print('Starting Training')
 for currStep in tqdm(range(nBatches)):
-    # state = jax_utils.replicate(state)
     # DEBUG
     # for i in tqdm(range(BATCH_ACC), desc='BATCH_ACC'):
     for i in range(BATCH_ACC):
-
         randKEY, rng = jax.random.split(randKEY)
         rngs = jax.random.split(rng, deviceCnt)
         state, losses, accuracys = trainStep(rngs, state)
-
-
     # tempParams = mean_dict(state.params)
     # state = model.condenseParams(state, tempParams)
     # print('TRAING STEP:',state.params['wpe']['embedding'].shape)
     # sys.exit()
-
     if currStep%20==0:
         # print('INFO !!! INFO')
         # print('GAMES TRAINED:',currStep*BATCH_ACC*BATCH_SIZE,'Step:',currStep*BATCH_ACC,'subset',currStep, 'Loss:', loss, 'Accuracy:', accuracy)
@@ -213,13 +199,8 @@ for currStep in tqdm(range(nBatches)):
         # print('TRAINING STATE STEP:',state.step)
     if currStep%100==20:
     # if currStep%100==2:
-
         print('Saving Weights')
-        # print(type(state.tx))
-        # sys.exit()
-        # state = jax_utils.unreplicate(state)
         tempParams = mean_dict(state.params)
-        
         saveWeights(modelSaved,tempParams)
         tempParams = jax_utils.replicate(tempParams)
         state = model.replaceParams(state, tempParams)
