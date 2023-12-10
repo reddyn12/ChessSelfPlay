@@ -2,6 +2,7 @@
 
 import functools
 from functools import reduce
+import re
 import stat
 import time
 # from model import Tranformer, GPTConfig
@@ -246,10 +247,11 @@ def trainStep(rng, state):
     
     # grads, loss, accuracy = trainStepACC(rng, state)
     grads, loss, accuracy = forward(rng, state)
-    state = model.update_model(state, grads)
+    # state = model.update_model(state, grads)
     # state, loss, accuracy = trainStepSub(rng, state)
     # state_tuple = tuple(state.as_dict().values())
-    return state, loss, accuracy
+    # return state, loss, accuracy
+    return grads, loss, accuracy
 # trainStepPmap = jax.pmap(trainStepACC)
 
 # jax_utils.s
@@ -257,8 +259,8 @@ print('Starting Training')
 for currStep in tqdm(range(nBatches)):
     randKEY, rng = jax.random.split(randKEY)
     rngs = jax.random.split(rng, deviceCnt)
-    state, loss, accuracy = trainStep(rngs, state)
-    print(type(state))
+    grads, loss, accuracy = trainStep(rngs, state)
+    print(type(grads))
     sys.exit()
     # jnp.arange(4)
     # print('state', state)
