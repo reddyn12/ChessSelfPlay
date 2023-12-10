@@ -36,7 +36,7 @@ nBatches = 100000
 # DROP TRailing 4 if on A100
 BATCH_SIZE = 128//4//1 #* deviceCnt
 # BATCH_ACC = 16//4
-BATCH_ACC = 32#*4
+BATCH_ACC = 32//2#*4
 # BLOCK_SIZE = 400
 BLOCK_SIZE = 512
 CONTEXT_LENGTH = tokenizer.MAX_MOVES*3+1
@@ -165,46 +165,7 @@ def splitGames(batch:jnp.array, randKey:jax.dtypes.prng_key):
     randKey, k = jax.random.split(randKey)
     d,t,idxs = jax.vmap(splitGame)(batch,randKeys)
     return d,t, idxs, randKey
-# def custAppend(x, y):
-#     return jnp.append(x, y, axis=0)
-# def stack_dicts_helper(d1, d2):
-#     print(type(d1), type(d2))
-#     # return jax.tree_map(lambda x, y: jnp.append(x, y), d1, d2), None
-#     return jax.tree_map(lambda x, y: jnp.vstack((x, y)), d1, d2[0]) , d2[1:]
-@jax.jit
-def stack_dicts(dicts):
-    #FUNCTOOLS IS GOD
-    # print('Starting Stack Dicts')
-    dicts = jax.tree_map(lambda x: jax.tree_map(lambda x: jnp.array([x]), x), dicts)
-    return jax.tree_map(lambda *x: jnp.vstack(x), *dicts)
-     
-    dicts[0] = jax.tree_map(lambda x: jnp.array([x]), dicts[0])
-    # for i in range(len(dicts)):
-    #     dicts[i] = jax.tree_map(lambda x: jnp.array([x]), dicts[i])
 
-    # seq_dicts = jax.tree_leaves(dicts)
-    print('Starting Reduce')
-    stacked_dicts, _ = jax.lax.scan(stack_dicts_helper, dicts[0], dicts[1:])
-    return stacked_dicts
-    # return jax.lax.reduce(stack_dicts_helper, dicts)
-# def stack_dicts(dicts):
-#     def body_fun(carry, x):
-#         return jax.tree_map(lambda a, b: jnp.vstack((a, b)), carry, x), None
-#     print('Starting Stack Dicts')
-#     dicts = jax.tree_map(lambda x: jax.tree_map(lambda x: jnp.array([x]), x), dicts)
-#     print('Starting Reduce')
-#     result, _ = jax.lax.scan(body_fun, dicts[0], dicts[1:])
-#     return result
-meanFn = functools.partial(jnp.mean, axis=0)
-@jax.jit
-def mean_list_dicts(dicts):
-    # print('MEAN PRE',dicts[0]['wpe']['embedding'].shape)
-    d = stack_dicts(dicts)
-    # print('MEAN POST', d['wpe']['embedding'].shape)
-    return jax.tree_map(meanFn, d)
-@jax.jit
-def mean_dict(dict):
-    return jax.tree_map(meanFn, dict)
 # @jax.jit
 @jax.pmap
 def forward(rng, state):
@@ -212,55 +173,6 @@ def forward(rng, state):
     grads, loss, accuracy = model.apply_model(state, d,t,idxs)
     return grads, loss, accuracy
 
-@functools.partial(jax.pmap, static_broadcasted_argnums=(1))
-def trainStepACC(rng, state):
-    # rng, k = jax.random.split(rng)
-    # k = jax.random.split(k, BATCH_ACC)
-    # inp = list(zip(rng, [state]*BATCH_ACC))
-    # print(inp[0])
-    # g,l,a = jax.vmap(forward, in_axes=(0,None))(k, state)
-    
-# jax.pmap()
-
-    # return loss, grads, accuracy
-    g = [None] * BATCH_ACC
-    l = jnp.zeros(BATCH_ACC, dtype=jnp.float32)
-    a = jnp.zeros(BATCH_ACC, dtype=jnp.float32)
-    for j in range(BATCH_ACC):
-
-    # for j in tqdm(range(BATCH_ACC), desc='BATCH_ACC'):
-        rng, k = jax.random.split(rng)
-        grads, loss, accuracy = forward(k, state)
-        # print(grads['wpe']['embedding'].shape)
-        g[j] = grads
-        l = l.at[j].set(loss)
-        a = a.at[j].set(accuracy)
-        # l = jax.ops.index_update(l, j, loss)
-        # a = jax.ops.index_update(a, j, accuracy)
-    #     # print(grads)
-    #     # print(grads.keys())
-    #     print(grads['wpe']['embedding'].shape)
-    #     print()
-    #     sys.exit()
-    #     state = model.update_model(state, grads)
-    # l = jnp.stack(l)
-    # a = jnp.stack(a)
-    
-    # return g, l, a
-    loss = jnp.mean(l)
-    accuracy = jnp.mean(a)
-    # print('PRE TREEMAP grad', g[1]['wpe']['embedding'].shape)
-    # print('GETTING GRAD MEAN')
-    grad = mean_list_dicts(g)
-    # grad = jax.tree_map(lambda *x: jnp.mean(jnp.stack(x), axis=0), *g)
-    # grad = {}
-    # for key in g[0].keys():
-    #     grad[key] = jnp.mean(jnp.stack([g[i][key] for i in range(len(g))]), axis=0)
-    
-    # print('grad', grad.keys())
-    # print('POST TREE MAP grad', grad['wpe']['embedding'].shape)
-    # sys.exit()
-    return grad, loss, accuracy
 def trainStep(rng, state):
     # state = train_state.TrainState(*state_tuple)
     
@@ -268,13 +180,7 @@ def trainStep(rng, state):
     grads, loss, accuracy = forward(rng, state)
     # grads = mean_dict(grads)
     state = model.update_modelPMAP(state, grads)
-    
-    
-    # loss = jnp.mean(loss)
-    # accuracy = jnp.mean(accuracy)
-    # state, loss, accuracy = trainStepSub(rng, state)
-    # state_tuple = tuple(state.as_dict().values())
-    # return state, loss, accuracy
+   
     return state, loss, accuracy
 # trainStepPmap = jax.pmap(trainStepACC)
 
@@ -296,24 +202,15 @@ for currStep in tqdm(range(nBatches)):
     # print('TRAING STEP:',state.params['wpe']['embedding'].shape)
     # sys.exit()
 
-    # print(grads['wpe']['embedding'])
-    # print(type(grads))
-    # print(grads['wpe']['embedding'].shape)
-    # print(type(state))
-    # print('yuh')
-    # print(losses)
-    # print(accuracys)
-    # sys.exit()
-
     if currStep%20==0:
         # print('INFO !!! INFO')
         # print('GAMES TRAINED:',currStep*BATCH_ACC*BATCH_SIZE,'Step:',currStep*BATCH_ACC,'subset',currStep, 'Loss:', loss, 'Accuracy:', accuracy)
         loss = jnp.mean(losses)
         accuracy = jnp.mean(accuracys)
         print('GAMES TRAINED:',currStep*BATCH_ACC*BATCH_SIZE*deviceCnt,'CURRENT_STEP:',currStep, 'Loss:', loss, 'Accuracy:', accuracy)
-        print('LOSESS:', losses)
-        print('ACCURACYS:', accuracys)
-        print('TRAINING STATE STEP:',state.step)
+        # print('LOSESS:', losses)
+        # print('ACCURACYS:', accuracys)
+        # print('TRAINING STATE STEP:',state.step)
     if currStep%100==20:
     # if currStep%100==2:
 
@@ -328,7 +225,7 @@ for currStep in tqdm(range(nBatches)):
         state = model.replaceParams(state, tempParams)
         
         # state = jax_utils.replicate(state)
-        print('Saved Weights')
+        # print('Saved Weights')
 
 
 
