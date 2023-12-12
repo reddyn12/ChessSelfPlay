@@ -184,7 +184,7 @@ class Tranformer(nn.Module):
 def apply_model(state, d,t,idxs):
     """Computes gradients, loss and accuracy for a single batch."""
     print(idxs.shape)
-    print(idxs)
+    print(idxs.numpy())
     def loss_fn(params):
         logits = state.apply_fn({'params':params}, d)
         # logits = logits[:, idxs-1, :]
