@@ -180,7 +180,7 @@ class Tranformer(nn.Module):
         return x, loss
     
 
-# @jax.jit
+@jax.jit
 def apply_model(state, d,t,idxs):
     """Computes gradients, loss and accuracy for a single batch."""
     # print(idxs.shape)
@@ -189,29 +189,31 @@ def apply_model(state, d,t,idxs):
         logits = state.apply_fn({'params':params}, d)
         # logits = logits[:, idxs-1, :]
         # tt = t[:, idxs]
-        print('Logits Shape', logits.shape)
-        print('T Shape', t.shape)
-        print(d[0])
-        print(t[0])
-        print(idxs)
-        print(t[0][idxs[0]])
+        # print('Logits Shape', logits.shape)
+        # print('T Shape', t.shape)
+        # print(d[0])
+        # print(t[0])
+        # print(idxs)
+        # print(t[0][idxs[0]])
         ids = jnp.arange(idxs.shape[0])
         tt = t[ids, idxs[ids]]
+        # ll = logits[ids, idxs[ids]-1,:]
         ll = logits[ids, idxs[ids],:]
-        print(tt.shape)
-        print(tt)
-        print(ll.shape)
+        # print(tt.shape)
+        # print(tt)
+        # print(ll.shape)
         tt = jax.nn.one_hot(tt, VOCAB_SIZE)
-        print(tt.shape)
+        # print(tt.shape)
         loss = optax.softmax_cross_entropy(ll, tt)
         
         loss = jnp.mean(loss)
-        print(loss)
-        print(tt[0][:10])
-        sys.exit()
-        tt = jax.nn.one_hot(tt, VOCAB_SIZE)
-        loss = optax.softmax_cross_entropy(logits, tt)
-        loss = jnp.mean(loss)
+        # print(loss)
+        # print(tt[0][:10])
+        # sys.exit()
+        
+        # tt = jax.nn.one_hot(tt, VOCAB_SIZE)
+        # loss = optax.softmax_cross_entropy(logits, tt)
+        # loss = jnp.mean(loss)
 
         return loss, logits
     grad_fn = jax.value_and_grad(loss_fn, has_aux=True)
