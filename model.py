@@ -203,6 +203,7 @@ def apply_model(state, d,t,idxs):
         print(ll.shape)
         tt = jax.nn.one_hot(tt, VOCAB_SIZE)
         print(tt.shape)
+        print(tt[0])
         sys.exit()
         tt = jax.nn.one_hot(tt, VOCAB_SIZE)
         loss = optax.softmax_cross_entropy(logits, tt)
