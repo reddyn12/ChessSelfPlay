@@ -220,7 +220,8 @@ def apply_model(state, d,t,idxs):
     (loss, logits), grads = grad_fn(state.params)
     ids = jnp.arange(idxs.shape[0])
     tt = t[ids, idxs[ids]]
-    accuracy = jnp.mean(jnp.argmax(logits, axis=-1) == tt)
+    ll = logits[ids, idxs[ids],:]
+    accuracy = jnp.mean(jnp.argmax(ll, axis=-1) == tt)
     return grads, loss, accuracy
     
 @jax.jit
