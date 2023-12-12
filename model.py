@@ -188,13 +188,16 @@ def apply_model(state, d,t,idxs):
     def loss_fn(params):
         logits = state.apply_fn({'params':params}, d)
         # logits = logits[:, idxs-1, :]
-        tt = t[:, idxs]
+        # tt = t[:, idxs]
         print('Logits Shape', logits.shape)
         print('T Shape', t.shape)
         print(d[0])
         print(t[0])
         print(idxs)
         print(t[0][idxs[0]])
+        ids = jnp.arange(idxs.shape[0])
+        tt = t[ids, idxs[ids]]
+        print(tt.shape)
         sys.exit()
         tt = jax.nn.one_hot(tt, VOCAB_SIZE)
         loss = optax.softmax_cross_entropy(logits, tt)
