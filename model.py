@@ -197,8 +197,11 @@ def apply_model(state, d,t,idxs):
         print(t[0][idxs[0]])
         ids = jnp.arange(idxs.shape[0])
         tt = t[ids, idxs[ids]]
+        ll = logits[ids, idxs[ids]-1,:]
         print(tt.shape)
         print(tt)
+        print(ll.shape)
+        
         sys.exit()
         tt = jax.nn.one_hot(tt, VOCAB_SIZE)
         loss = optax.softmax_cross_entropy(logits, tt)
