@@ -77,7 +77,7 @@ for i in range(0, 4):
         # print(jnp.argmax(row), row[jnp.argmax(row)])
     
     s = s + ' ' + ans
-    # print(s)
+    print(s)
 # arr = jnp.array([tokenizer.tokenizeLine(s, vocab)], dtype=jnp.int32)
 # logits = chessModel.apply(params, arr)
 # logits = logits[:, -1, :]
