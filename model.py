@@ -180,7 +180,7 @@ class Tranformer(nn.Module):
         return x, loss
     
 
-@jax.jit
+# @jax.jit
 def apply_model(state, d,t,idxs):
     """Computes gradients, loss and accuracy for a single batch."""
     # print(idxs.shape)
