@@ -191,6 +191,8 @@ def apply_model(state, d,t,idxs):
         tt = t[:, idxs]
         print('Logits Shape', logits.shape)
         print('T Shape', t.shape)
+        print(t[0])
+        print(idxs)
         print(t[0][idxs[0]])
         sys.exit()
         tt = jax.nn.one_hot(tt, VOCAB_SIZE)
