@@ -211,7 +211,7 @@ def apply_model(state, d,t,idxs):
         tTemp = t
         mask = jnp.where(tTemp==0, 0, 1)
         tTemp = jax.nn.one_hot(tTemp, VOCAB_SIZE)
-        lTemp = logits*mask#[:, :, None]
+        lTemp = logits*mask[:, :, None]
         loss = optax.softmax_cross_entropy(lTemp, tTemp)
         print(loss.shape)
         sys.exit()
