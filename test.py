@@ -118,7 +118,7 @@ if modelSaved is None:
     print('MAKING model State')
     # stateTest = model.create_train_statePMAP(rngs, config, hyperconfig)
     state = model.create_train_state(rngs[0], config, hyperconfig)
-    state = jax_utils.replicate(state)
+    # state = jax_utils.replicate(state)
     print('Finished making model State')
     # print(type(stateTest))
     # print('MODELSAVED NONE',stateTest.params['wpe']['embedding'].shape)
@@ -130,7 +130,7 @@ else:
     # state = model.loadTrainStatePMAP(rngs, modelSaved, config)
     state = model.loadTrainState(modelSaved, config)
     # state = state*deviceCnt
-    state = jax_utils.replicate(state)
+    # state = jax_utils.replicate(state)
     # state = jax_utils.replicate(state)
     print('Finished Loading model State')
     # print(type(state.params))
