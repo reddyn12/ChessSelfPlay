@@ -214,14 +214,14 @@ def apply_model(state, d,t,idxs):
         # lTemp = logits*mask[:, :, None]
         loss = optax.softmax_cross_entropy(lTemp, tTemp)
         loss = loss*mask
-        ids = jnp.arange(idxs.shape[0])
+        # ids = jnp.arange(idxs.shape[0])
         l = jnp.sum(loss, axis=-1)
         m = jnp.sum(mask, axis=-1)
         loss = l/m
-        # loss = jnp.mean(loss)
-        print(loss.shape)
+        loss = jnp.mean(loss)
+        # print(loss.shape)
         # print(loss[0]
-        sys.exit()
+        # sys.exit()
 
         
         # print(tt.shape)
