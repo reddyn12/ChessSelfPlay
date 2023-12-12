@@ -1,5 +1,6 @@
 import functools
 import stat
+import sys
 import jax
 import jax.numpy as jnp
 import flax
@@ -186,9 +187,13 @@ def apply_model(state, d,t,idxs):
         logits = state.apply_fn({'params':params}, d)
         logits = logits[:, idxs-1, :]
         tt = t[:, idxs]
+        print('Logits Shape', logits.shape)
+        print('TT Shape', tt.shape)
+        sys.exit()
         tt = jax.nn.one_hot(tt, VOCAB_SIZE)
         loss = optax.softmax_cross_entropy(logits, tt)
         loss = jnp.mean(loss)
+
         return loss, logits
     grad_fn = jax.value_and_grad(loss_fn, has_aux=True)
     (loss, logits), grads = grad_fn(state.params)
