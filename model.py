@@ -218,7 +218,9 @@ def apply_model(state, d,t,idxs):
         return loss, logits
     grad_fn = jax.value_and_grad(loss_fn, has_aux=True)
     (loss, logits), grads = grad_fn(state.params)
-    accuracy = jnp.mean(jnp.argmax(logits, axis=-1) == t[:, idxs])
+    ids = jnp.arange(idxs.shape[0])
+    tt = t[ids, idxs[ids]]
+    accuracy = jnp.mean(jnp.argmax(logits, axis=-1) == tt)
     return grads, loss, accuracy
     
 @jax.jit
