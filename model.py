@@ -197,7 +197,7 @@ def apply_model(state, d,t,idxs):
         print(t[0][idxs[0]])
         ids = jnp.arange(idxs.shape[0])
         tt = t[ids, idxs[ids]]
-        ll = logits[ids, idxs[ids]-1,:]
+        ll = logits[ids, idxs[ids],:]
         print(tt.shape)
         print(tt)
         print(ll.shape)
