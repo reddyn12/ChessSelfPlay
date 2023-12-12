@@ -13,7 +13,8 @@ CONTEXT_LENGTH = tokenizer.MAX_MOVES*3+1
 def getPred(model, params, s, vocabDecode):
     arr = jnp.array([tokenizer.tokenizeLine(s, vocab)], dtype=jnp.int32)
     logits = model.apply(params, arr)
-    logits = logits[0, -1, :]
+    print(logits.shape)
+    logits = logits[0, 0, :]
     # print(logits.shape)
     # print(logits)
     # yemp = jax.nn.softmax(logits)
@@ -21,8 +22,8 @@ def getPred(model, params, s, vocabDecode):
     # print(yemp)
     # print(jnp.argmin(yemp))
     # print(jnp.argmin(logits))
-    return vocabDecode[jnp.argmin(logits)]
-    # return vocabDecode[jnp.argmax(logits)]
+    # return vocabDecode[jnp.argmin(logits)]
+    return vocabDecode[jnp.argmax(logits)]
 
     sys.exit()
     logits = logits[:, -1, :]
@@ -63,8 +64,9 @@ logits = chessModel.apply(params, test)
 logits = logits[:, -1, :]
 print(logits.shape)
 
-s = '1. c2c4'
-for i in range(0, 15):
+s = '1.'
+# s=''
+for i in range(0, 5):
     ans = getPred(chessModel, params, s, vocabDecode)
     s = s + ' ' + ans
     print(s)
