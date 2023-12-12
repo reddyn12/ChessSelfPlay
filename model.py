@@ -191,6 +191,7 @@ def apply_model(state, d,t,idxs):
         tt = t[:, idxs]
         print('Logits Shape', logits.shape)
         print('T Shape', t.shape)
+        print(d[0])
         print(t[0])
         print(idxs)
         print(t[0][idxs[0]])
