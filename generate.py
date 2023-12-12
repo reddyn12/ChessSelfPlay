@@ -1,5 +1,5 @@
 
-from model import Tranformer, GPTConfig, ChessGPT, cross_entropy_loss
+from model import Tranformer, GPTConfig
 import os
 import jax.numpy as jnp
 import tokenizer
@@ -13,6 +13,18 @@ CONTEXT_LENGTH = tokenizer.MAX_MOVES*3+1
 def getPred(model, params, s, vocabDecode):
     arr = jnp.array([tokenizer.tokenizeLine(s, vocab)], dtype=jnp.int32)
     logits = model.apply(params, arr)
+    logits = logits[0, -1, :]
+    # print(logits.shape)
+    # print(logits)
+    # yemp = jax.nn.softmax(logits)
+    # print(yemp.shape)
+    # print(yemp)
+    # print(jnp.argmin(yemp))
+    # print(jnp.argmin(logits))
+    return vocabDecode[jnp.argmin(logits)]
+    # return vocabDecode[jnp.argmax(logits)]
+
+    sys.exit()
     logits = logits[:, -1, :]
     ans = jnp.argmax(logits, axis=-1)
     ansMove = vocabDecode[ans[0]]
@@ -27,14 +39,17 @@ def getPred(model, params, s, vocabDecode):
 
 # sys.exit()
 # weightsFile = 'model/params.pkl'
-weightsFile = 'model1_CPU.pkl'
+weightsFile = 'model_weights_PARALLEL.pkl'
 params = loadWeights(weightsFile)
+params = {'params': params}
+print(params.keys())
+# sys.exit()
 vocab, vocabDecode = tokenizer.makeVocabUCI_SMALL()
 
 config = GPTConfig()
 config.vocab_size = len(vocabDecode)
 config.n_layer = 12
-config.n_head = 12
+config.n_head = 12//2
 config.n_embd = 768
 config.dropout = 0.0
 config.block_size = CONTEXT_LENGTH
@@ -48,10 +63,11 @@ logits = chessModel.apply(params, test)
 logits = logits[:, -1, :]
 print(logits.shape)
 
-s = '1.'
+s = '1. c2c4'
 for i in range(0, 15):
     ans = getPred(chessModel, params, s, vocabDecode)
     s = s + ' ' + ans
+    print(s)
 # arr = jnp.array([tokenizer.tokenizeLine(s, vocab)], dtype=jnp.int32)
 # logits = chessModel.apply(params, arr)
 # logits = logits[:, -1, :]

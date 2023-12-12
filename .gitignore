@@ -19,3 +19,6 @@ data/*
 model1_CPU.npz
 model1_CPU.pkl
 model_weights.pkl
+model_weights_V2.pkl
+model_weights_PARALLEL.pkl
+__pycache__/model.cpython-310.pyc
