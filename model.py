@@ -183,8 +183,8 @@ class Tranformer(nn.Module):
 @jax.jit
 def apply_model(state, d,t,idxs):
     """Computes gradients, loss and accuracy for a single batch."""
-    print(idxs.shape)
-    print(jax.device_get(idxs))
+    # print(idxs.shape)
+    # print(jax.device_get(idxs))
     def loss_fn(params):
         logits = state.apply_fn({'params':params}, d)
         # logits = logits[:, idxs-1, :]

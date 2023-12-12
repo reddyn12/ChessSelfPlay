@@ -157,13 +157,13 @@ def splitGames(batch:jnp.array, randKey:jax.dtypes.prng_key):
     randKeys = jax.random.split(randKey, batch.shape[0])
     randKey, k = jax.random.split(randKey)
     d,t,idxs = jax.vmap(splitGame)(batch,randKeys)
+    print('SPLITGAMES IDX CHECK:',idxs)
     return d,t, idxs, randKey
 
 # @jax.jit
 @jax.pmap
 def forward(rng, state):
     d,t,idxs, rng = getBatchSplit(rng)
-    print('FORWARD IDX CHECK:',idxs)
     grads, loss, accuracy = model.apply_model(state, d,t,idxs)
     return grads, loss, accuracy
 
