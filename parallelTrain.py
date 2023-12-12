@@ -38,7 +38,7 @@ BATCH_ACC = 32//2#*4
 # BLOCK_SIZE = 400
 BLOCK_SIZE = 512
 CONTEXT_LENGTH = tokenizer.MAX_MOVES*3+1
-RAND_SEED = 1235
+RAND_SEED = 123
 VOCAB_SIZE = len(vocabDecode)
 randKEY = jax.random.PRNGKey(seed=RAND_SEED)
 BATCH_SIZE_CUM = None
