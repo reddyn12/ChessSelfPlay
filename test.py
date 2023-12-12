@@ -162,5 +162,5 @@ def splitGames(batch:jnp.array, randKey:jax.dtypes.prng_key):
 # randKEY, rngs = jax.random.split(randKEY)
 d,t, idxs, randKEY = getBatchSplit(randKEY)
 print('IDX CHECK:',idxs)
-print(d[0])
-print(t[0])
+print(d[3])
+print(t[3])
