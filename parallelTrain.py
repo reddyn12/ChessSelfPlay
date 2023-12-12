@@ -163,6 +163,7 @@ def splitGames(batch:jnp.array, randKey:jax.dtypes.prng_key):
 @jax.pmap
 def forward(rng, state):
     d,t,idxs, rng = getBatchSplit(rng)
+    print('FORWARD IDX CHECK:',idxs)
     grads, loss, accuracy = model.apply_model(state, d,t,idxs)
     return grads, loss, accuracy
 
