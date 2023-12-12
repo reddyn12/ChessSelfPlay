@@ -166,3 +166,5 @@ print(d[3])
 print(t[3])
 print(d[3][idxs[3]-1])
 print(t[3][idxs[3]])
+
+g,l,a = model.apply_model(state, d, t, idxs)
