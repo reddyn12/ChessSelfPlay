@@ -185,7 +185,7 @@ def apply_model(state, d,t,idxs):
     """Computes gradients, loss and accuracy for a single batch."""
     def loss_fn(params):
         logits = state.apply_fn({'params':params}, d)
-        logits = logits[:, idxs-1, :]
+        # logits = logits[:, idxs-1, :]
         tt = t[:, idxs]
         print('Logits Shape', logits.shape)
         print('TT Shape', tt.shape)
