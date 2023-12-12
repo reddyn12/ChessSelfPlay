@@ -221,6 +221,7 @@ def apply_model(state, d,t,idxs):
         loss = jnp.mean(loss)
         # print(loss.shape)
         # print(loss[0]
+        # print(mask.shape)
         # sys.exit()
 
         
